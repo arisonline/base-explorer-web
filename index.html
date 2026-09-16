@@ -725,7 +725,8 @@
         ) {
 
             window.location.href =
-                "/address/" + input;
+                "address.html?address=" +
+                encodeURIComponent(input);
 
             return;
 
@@ -741,7 +742,8 @@
         ) {
 
             window.location.href =
-                "/tx/" + input;
+                "tx.html?hash=" +
+                encodeURIComponent(input);
 
             return;
 
@@ -757,7 +759,8 @@
         ) {
 
             window.location.href =
-                "/block/" + input;
+                "block.html?block=" +
+                encodeURIComponent(input);
 
             return;
 
