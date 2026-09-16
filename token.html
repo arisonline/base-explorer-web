@@ -339,6 +339,106 @@
             font-size: 13px;
         }
 
+
+        /* =========================================
+           TOKEN HOLDERS
+        ========================================= */
+        
+        .holders-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .holders-row {
+        
+            display: grid;
+        
+            grid-template-columns:
+                60px
+                1fr
+                220px;
+        
+            gap: 15px;
+        
+            align-items: center;
+        
+            padding: 15px 20px;
+        
+            border-bottom:
+                1px solid #f0f1f3;
+        
+            font-size: 13px;
+        
+        }
+        
+        .holders-row:last-child {
+            border-bottom: 0;
+        }
+        
+        .holders-header {
+        
+            background: #fafafa;
+        
+            color: #6b7280;
+        
+            font-weight: 600;
+        
+        }
+        
+        .holder-address {
+        
+            color: #0052ff;
+        
+            font-family: monospace;
+        
+            cursor: pointer;
+        
+        }
+        
+        .holder-balance {
+        
+            text-align: right;
+        
+            font-weight: 600;
+        
+        }
+        
+        .holder-rank {
+        
+            color: #6b7280;
+        
+        }
+        
+        .holder-count {
+        
+            font-size: 12px;
+        
+            color: #6b7280;
+        
+            font-weight: 400;
+        
+        }
+        
+        @media (max-width: 768px) {
+        
+            .holders-row {
+        
+                grid-template-columns:
+                    40px
+                    1fr
+                    130px;
+        
+                gap: 8px;
+        
+                padding: 14px 12px;
+        
+                font-size: 12px;
+        
+            }
+        
+        }
+        
+
         footer {
             background: white;
 
@@ -933,6 +1033,39 @@ function displayToken(token) {
 
 
 
+        <!-- TOKEN HOLDERS -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Token Holders
+                </span>
+
+                <span
+                    class="holder-count"
+                    id="holderCount">
+                    Loading...
+                </span>
+
+            </div>
+
+            <div
+                id="holders">
+
+                <div class="loading">
+
+                    Loading token holders...
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
         <div class="card">
 
             <div class="card-header">
@@ -960,9 +1093,222 @@ function displayToken(token) {
     `;
 
 
+    loadHolders(decimals);
     loadTransfers(decimals);
 
 }
+
+
+
+
+    /* =========================================
+       TOKEN HOLDERS
+    ========================================= */
+    
+    async function loadHolders(decimals) {
+    
+        const container =
+            document.getElementById(
+                "holders"
+            );
+    
+        const countElement =
+            document.getElementById(
+                "holderCount"
+            );
+    
+        try {
+    
+            const response =
+                await fetch(
+    
+                    BLOCKSCOUT_API +
+                    "/tokens/" +
+                    tokenAddress +
+                    "/holders"
+    
+                );
+    
+            if (!response.ok) {
+    
+                throw new Error(
+                    "Holders unavailable"
+                );
+    
+            }
+    
+            const data =
+                await response.json();
+    
+            console.log(
+                "Token holders:",
+                data
+            );
+    
+            const holders =
+                data.items || [];
+    
+            if (
+                holders.length === 0
+            ) {
+    
+                countElement.textContent =
+                    "0 shown";
+    
+                container.innerHTML = `
+    
+                    <div class="empty">
+    
+                        No token holders found.
+    
+                    </div>
+    
+                `;
+    
+                return;
+    
+            }
+    
+            countElement.textContent =
+                holders.length +
+                " shown";
+    
+            let html = `
+    
+                <div class="holders-table">
+    
+                    <div
+                        class="holders-row holders-header">
+    
+                        <div>
+                            #
+                        </div>
+    
+                        <div>
+                            Address
+                        </div>
+    
+                        <div>
+                            Balance
+                        </div>
+    
+                    </div>
+    
+            `;
+    
+    
+            holders.forEach(
+                (holder, index) => {
+    
+                    const address =
+                        holder.address?.hash ||
+                        holder.address ||
+                        "";
+    
+                    const value =
+                        holder.value ||
+                        "0";
+    
+                    const balance =
+                        formatTokenAmount(
+                            value,
+                            decimals
+                        );
+    
+    
+                    html += `
+    
+                        <div class="holders-row">
+    
+                            <div
+                                class="holder-rank">
+    
+                                ${index + 1}
+    
+                            </div>
+    
+    
+                            <div
+                                class="holder-address"
+                                onclick="openHolderAddress('${address}')">
+    
+                                ${shortAddress(address)}
+    
+                            </div>
+    
+    
+                            <div
+                                class="holder-balance">
+    
+                                ${balance}
+    
+                            </div>
+    
+                        </div>
+    
+                    `;
+    
+                }
+            );
+    
+    
+            html += `
+    
+                </div>
+    
+            `;
+    
+    
+            container.innerHTML =
+                html;
+    
+    
+        } catch (error) {
+    
+            console.error(
+                "Token holders error:",
+                error
+            );
+    
+            countElement.textContent =
+                "Unavailable";
+    
+            container.innerHTML = `
+    
+                <div class="empty">
+    
+                    Unable to load token holders.
+    
+                </div>
+    
+            `;
+    
+        }
+    
+    }
+
+
+
+
+
+    /* =========================================
+       OPEN HOLDER ADDRESS
+    ========================================= */
+    
+    function openHolderAddress(address) {
+    
+        if (!address) {
+    
+            return;
+    
+        }
+    
+        window.location.href =
+            "address.html?address=" +
+            encodeURIComponent(address);
+    
+    }
+    
 
 
 /* =========================================
