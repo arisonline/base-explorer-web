@@ -446,78 +446,42 @@
 
 
             <!-- BLOCKS -->
-
             <div class="card">
-
+            
                 <div class="card-header">
-
+            
                     <h2>Latest Blocks</h2>
-
+            
                     <a href="#" class="view-all">
-                        View All
+                        Live
                     </a>
-
+            
                 </div>
-
-
-                <div class="list">
-
+            
+                <div class="list" id="latestBlocksList">
+            
                     <div class="list-item">
-
+            
                         <div class="item-main">
-
+            
                             <div class="item-title">
-                                Block #Loading
+                                Loading...
                             </div>
-
+            
                             <div class="item-sub">
-                                Just now
+                                Fetching latest blocks
                             </div>
-
+            
                         </div>
-
+            
                         <div class="item-value">
                             Base
                         </div>
-
+            
                     </div>
-
-
-                    <div class="list-item">
-
-                        <div class="item-main">
-
-                            <div class="item-title">
-                                Block
-                            </div>
-
-                            <div class="item-sub">
-                                Waiting for data
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="list-item">
-
-                        <div class="item-main">
-
-                            <div class="item-title">
-                                Block
-                            </div>
-
-                            <div class="item-sub">
-                                Waiting for data
-                            </div>
-
-                        </div>
-
-                    </div>
-
+            
                 </div>
-
+            
             </div>
 
 
@@ -995,6 +959,212 @@
     }
 
 
+
+
+
+
+
+    /* =========================================
+       LOAD LATEST 5 BLOCKS
+    ========================================= */
+    
+    async function loadLatestBlocks() {
+    
+        try {
+    
+            const result =
+                await baseRPC(
+                    "eth_blockNumber"
+                );
+    
+            const latestBlock =
+                parseInt(
+                    result.result,
+                    16
+                );
+    
+            const blocks = [];
+    
+            /*
+             * Get latest 5 blocks
+             */
+            for (
+                let i = 0;
+                i < 5;
+                i++
+            ) {
+    
+                const blockNumber =
+                    latestBlock - i;
+    
+                const blockResult =
+                    await baseRPC(
+                        "eth_getBlockByNumber",
+                        [
+                            "0x" +
+                            blockNumber.toString(16),
+                            false
+                        ]
+                    );
+    
+                if (
+                    blockResult.result
+                ) {
+    
+                    blocks.push(
+                        blockResult.result
+                    );
+    
+                }
+    
+            }
+    
+            renderLatestBlocks(blocks);
+    
+        }
+    
+        catch (error) {
+    
+            console.error(
+                "Latest blocks error:",
+                error
+            );
+    
+            document.getElementById(
+                "latestBlocksList"
+            ).innerHTML = `
+                <div class="list-item">
+    
+                    <div class="item-main">
+    
+                        <div class="item-title">
+                            Unable to load blocks
+                        </div>
+    
+                        <div class="item-sub">
+                            Please try again
+                        </div>
+    
+                    </div>
+    
+                </div>
+            `;
+    
+        }
+    
+    }
+
+
+
+
+
+    /* =========================================
+       DISPLAY LATEST BLOCKS
+    ========================================= */
+    
+    function renderLatestBlocks(blocks) {
+    
+        const container =
+            document.getElementById(
+                "latestBlocksList"
+            );
+    
+        if (!blocks.length) {
+    
+            container.innerHTML = `
+                <div class="list-item">
+    
+                    <div class="item-main">
+    
+                        <div class="item-title">
+                            No blocks found
+                        </div>
+    
+                    </div>
+    
+                </div>
+            `;
+    
+            return;
+    
+        }
+    
+        container.innerHTML =
+            blocks.map(block => {
+    
+                const blockNumber =
+                    parseInt(
+                        block.number,
+                        16
+                    );
+    
+                const timestamp =
+                    parseInt(
+                        block.timestamp,
+                        16
+                    );
+    
+                const date =
+                    new Date(
+                        timestamp * 1000
+                    );
+    
+                const time =
+                    date.toLocaleTimeString();
+    
+                const transactionCount =
+                    block.transactions
+                        ? block.transactions.length
+                        : 0;
+    
+                return `
+                    <div
+                        class="list-item"
+                        onclick="openBlock(${blockNumber})"
+                        style="cursor:pointer;"
+                    >
+    
+                        <div class="item-main">
+    
+                            <div class="item-title">
+                                Block #${blockNumber.toLocaleString()}
+                            </div>
+    
+                            <div class="item-sub">
+                                ${transactionCount} transaction${transactionCount !== 1 ? "s" : ""}
+                                • ${time}
+                            </div>
+    
+                        </div>
+    
+                        <div class="item-value">
+                            Base
+                        </div>
+    
+                    </div>
+                `;
+    
+            }).join("");
+    
+    }
+
+
+
+
+
+    /* =========================================
+       OPEN BLOCK PAGE
+    ========================================= */
+    
+    function openBlock(blockNumber) {
+    
+        window.location.href =
+            "block.html?block=" +
+            encodeURIComponent(blockNumber);
+    
+    }
+
+
     /*
      * Load blockchain data
      */
@@ -1008,6 +1178,18 @@
 
     setInterval(
         loadLatestBlock,
+        10000
+    );
+
+
+    /* =========================================
+       LOAD LIVE LATEST BLOCKS
+    ========================================= */
+    
+    loadLatestBlocks();
+
+    setInterval(
+        loadLatestBlocks,
         10000
     );
 
