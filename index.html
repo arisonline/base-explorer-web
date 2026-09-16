@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Base Explorer</title>
+
+    <meta name="description"
+          content="Explore Base blockchain addresses, transactions, tokens and blocks.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f8fb;
+            color: #1f2937;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            height: 64px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-container {
+            width: min(1200px, 94%);
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+
+            background: #0052ff;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #0052ff;
+        }
+
+        .connect-btn {
+            border: 0;
+            background: #0052ff;
+            color: white;
+
+            padding: 10px 16px;
+            border-radius: 8px;
+
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* HERO */
+
+        .hero {
+            background: linear-gradient(
+                135deg,
+                #eef4ff,
+                #ffffff
+            );
+
+            padding: 80px 20px 70px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 14px;
+            color: #111827;
+        }
+
+        .hero p {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            width: min(760px, 100%);
+            margin: auto;
+
+            background: white;
+            border: 1px solid #dbe1ea;
+
+            border-radius: 12px;
+
+            display: flex;
+            padding: 6px;
+
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-box input {
+            flex: 1;
+
+            border: 0;
+            outline: 0;
+
+            padding: 15px;
+
+            font-size: 15px;
+        }
+
+        .search-btn {
+            border: 0;
+            background: #0052ff;
+            color: white;
+
+            padding: 0 24px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .network {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .network span {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        /* STATS */
+
+        .container {
+            width: min(1200px, 94%);
+            margin: auto;
+        }
+
+        .stats {
+            margin-top: -30px;
+
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 18px;
+        }
+
+        .stat-card {
+            background: white;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+
+            padding: 22px;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .stat-title {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* CONTENT */
+
+        .content {
+            margin-top: 35px;
+            padding-bottom: 50px;
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 20px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .view-all {
+            font-size: 13px;
+            color: #0052ff;
+            text-decoration: none;
+        }
+
+        .list {
+            padding: 0;
+        }
+
+        .list-item {
+            padding: 16px 20px;
+
+            border-bottom: 1px solid #f0f1f3;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:last-child {
+            border-bottom: 0;
+        }
+
+        .item-main {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .item-title {
+            color: #0052ff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .item-sub {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .item-value {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* FOOTER */
+
+        footer {
+            border-top: 1px solid #e5e7eb;
+            background: white;
+            padding: 25px;
+            text-align: center;
+
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 768px) {
+
+            nav {
+                display: none;
+            }
+
+            .hero {
+                padding: 60px 15px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .search-box {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .search-btn {
+                height: 48px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                margin-top: 20px;
+            }
+
+            .columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="header-container">
+
+        <div class="logo">
+            <div class="logo-icon">B</div>
+            Base Explorer
+        </div>
+
+        <nav>
+            <a href="#">Blockchain</a>
+            <a href="#">Tokens</a>
+            <a href="#">Contracts</a>
+            <a href="#">Tools</a>
+        </nav>
+
+        <button class="connect-btn" onclick="connectWallet()">
+            Connect Wallet
+        </button>
+
+    </div>
+
+</header>
+
+
+<section class="hero">
+
+    <h1>Explore Base Blockchain</h1>
+
+    <p>
+        Search addresses, transactions, blocks and tokens
+    </p>
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search address, transaction hash, block or token..."
+        >
+
+        <button class="search-btn" onclick="searchBlockchain()">
+            Search
+        </button>
+
+    </div>
+
+    <div class="network">
+        ● <span>Base Mainnet</span>
+        &nbsp;•&nbsp;
+        Chain ID: 8453
+    </div>
+
+</section>
+
+
+<main class="container">
+
+    <section class="stats">
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Latest Block
+            </div>
+
+            <div class="stat-value" id="latestBlock">
+                Loading...
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Network
+            </div>
+
+            <div class="stat-value">
+                Base Mainnet
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Chain ID
+            </div>
+
+            <div class="stat-value">
+                8453
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="content">
+
+        <div class="columns">
+
+
+            <!-- BLOCKS -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>Latest Blocks</h2>
+
+                    <a href="#" class="view-all">
+                        View All
+                    </a>
+
+                </div>
+
+
+                <div class="list">
+
+                    <div class="list-item">
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+                                Block #Loading
+                            </div>
+
+                            <div class="item-sub">
+                                Just now
+                            </div>
+
+                        </div>
+
+                        <div class="item-value">
+                            Base
+                        </div>
+
+                    </div>
+
+
+                    <div class="list-item">
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+                                Block
+                            </div>
+
+                            <div class="item-sub">
+                                Waiting for data
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="list-item">
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+                                Block
+                            </div>
+
+                            <div class="item-sub">
+                                Waiting for data
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- TRANSACTIONS -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>Latest Transactions</h2>
+
+                    <a href="#" class="view-all">
+                        View All
+                    </a>
+
+                </div>
+
+
+                <div class="list">
+
+                    <div class="list-item">
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+                                0x...
+                            </div>
+
+                            <div class="item-sub">
+                                Waiting for blockchain data
+                            </div>
+
+                        </div>
+
+                        <div class="item-value">
+                            Base
+                        </div>
+
+                    </div>
+
+
+                    <div class="list-item">
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+                                0x...
+                            </div>
+
+                            <div class="item-sub">
+                                Waiting for blockchain data
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="list-item">
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+                                0x...
+                            </div>
+
+                            <div class="item-sub">
+                                Waiting for blockchain data
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    Base Explorer © 2026
+
+</footer>
+
+
+<script>
+
+    /*
+     * BASE MAINNET
+     *
+     * Chain ID: 8453
+     */
+
+    const BASE_RPC =
+        "https://mainnet.base.org";
+
+
+    /*
+     * Make an RPC request
+     */
+
+    async function baseRPC(method, params = []) {
+
+        const response = await fetch(BASE_RPC, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                jsonrpc: "2.0",
+
+                id: 1,
+
+                method: method,
+
+                params: params
+
+            })
+
+        });
+
+        return await response.json();
+
+    }
+
+
+    /*
+     * Get latest Base block
+     */
+
+    async function loadLatestBlock() {
+
+        try {
+
+            const result =
+                await baseRPC(
+                    "eth_blockNumber"
+                );
+
+            const blockNumber =
+                parseInt(
+                    result.result,
+                    16
+                );
+
+            document.getElementById(
+                "latestBlock"
+            ).textContent =
+                blockNumber.toLocaleString();
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById(
+                "latestBlock"
+            ).textContent =
+                "Unavailable";
+
+        }
+
+    }
+
+
+    /*
+     * SEARCH
+     */
+
+    function searchBlockchain() {
+
+        const input =
+            document
+                .getElementById("searchInput")
+                .value
+                .trim();
+
+        if (!input) {
+
+            alert(
+                "Please enter an address, transaction hash, block number or token."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Ethereum / Base address
+         */
+
+        if (
+            /^0x[a-fA-F0-9]{40}$/.test(input)
+        ) {
+
+            window.location.href =
+                "/address/" + input;
+
+            return;
+
+        }
+
+
+        /*
+         * Transaction hash
+         */
+
+        if (
+            /^0x[a-fA-F0-9]{64}$/.test(input)
+        ) {
+
+            window.location.href =
+                "/tx/" + input;
+
+            return;
+
+        }
+
+
+        /*
+         * Block number
+         */
+
+        if (
+            /^\d+$/.test(input)
+        ) {
+
+            window.location.href =
+                "/block/" + input;
+
+            return;
+
+        }
+
+
+        alert(
+            "We will add token and advanced search support next."
+        );
+
+    }
+
+
+    /*
+     * CONNECT WALLET
+     */
+
+    async function connectWallet() {
+
+        if (!window.ethereum) {
+
+            alert(
+                "Please install MetaMask or another compatible wallet."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const accounts =
+                await window.ethereum.request({
+
+                    method: "eth_requestAccounts"
+
+                });
+
+
+            alert(
+                "Connected: " +
+                accounts[0]
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    /*
+     * Load blockchain data
+     */
+
+    loadLatestBlock();
+
+
+    /*
+     * Refresh every 10 seconds
+     */
+
+    setInterval(
+        loadLatestBlock,
+        10000
+    );
+
+</script>
+
+</body>
+</html>
