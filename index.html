@@ -1421,31 +1421,33 @@
     }
 
 
-    /*
-     * Load blockchain data
-     */
-
+    /* =========================================
+       START LIVE BLOCKCHAIN DATA
+    ========================================= */
+    
     loadLatestBlock();
-
-
+    
+    loadLatestBlocks();
+    
+    loadLatestTransactions();
+    
+    
     /*
      * Refresh every 10 seconds
      */
-
+    
     setInterval(
         loadLatestBlock,
         10000
     );
-
-
-    /* =========================================
-       LOAD LIVE LATEST BLOCKS
-    ========================================= */
     
-    loadLatestBlocks();
-
     setInterval(
         loadLatestBlocks,
+        10000
+    );
+    
+    setInterval(
+        loadLatestTransactions,
         10000
     );
 
