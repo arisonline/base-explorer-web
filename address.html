@@ -5,10 +5,22 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Address | Base Explorer</title>
+
+    <meta
+        name="description"
+        content="View Base Mainnet address balance, transaction history and contract information."
+    >
+
+    <meta
+        name="robots"
+        content="index, follow"
+    >
 
     <style>
 
@@ -18,286 +30,533 @@
             box-sizing: border-box;
         }
 
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f6f8fb;
-            color: #1f2937;
-        }
 
-        header {
-            height: 64px;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
 
-            display: flex;
-            align-items: center;
-        }
+            background: #f8fafc;
 
-        .header-inner {
-            width: min(1200px, 94%);
-            margin: auto;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            text-decoration: none;
             color: #111827;
 
-            font-size: 19px;
-            font-weight: 700;
+            line-height: 1.5;
+
         }
 
-        .logo-icon {
-            width: 34px;
-            height: 34px;
 
-            border-radius: 9px;
-
-            background: #0052ff;
-            color: white;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-weight: bold;
-        }
-
-        nav {
-            display: flex;
-            gap: 22px;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #4b5563;
-            font-size: 14px;
-        }
-
-        nav a:hover {
-            color: #0052ff;
-        }
+        /* =================================================
+           PAGE CONTAINER
+        ================================================= */
 
         .container {
-            width: min(1200px, 94%);
-            margin: 30px auto 60px;
+
+            width:
+                min(1240px, 94%);
+
+            margin:
+                0 auto 60px;
+
         }
+
+
+        /* =================================================
+           BREADCRUMB
+        ================================================= */
 
         .breadcrumb {
-            font-size: 13px;
+
+            padding:
+                25px 0 16px;
+
             color: #6b7280;
-            margin-bottom: 15px;
+
+            font-size: 13px;
+
         }
+
 
         .breadcrumb a {
+
             color: #0052ff;
+
             text-decoration: none;
+
         }
+
+
+        .breadcrumb a:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* =================================================
+           ADDRESS CARD
+        ================================================= */
 
         .address-card {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+
+            background: #ffffff;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 10px;
 
             padding: 24px;
+
         }
+
 
         .address-title {
-            font-size: 14px;
-            color: #6b7280;
+
             margin-bottom: 10px;
+
+            color: #6b7280;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            text-transform: uppercase;
+
+            letter-spacing: .3px;
+
         }
+
 
         .address-row {
+
             display: flex;
+
             align-items: center;
+
             gap: 12px;
+
         }
+
 
         .address {
-            font-family: monospace;
-            font-size: 17px;
+
+            min-width: 0;
+
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                monospace;
+
+            font-size: 15px;
+
             word-break: break-all;
+
         }
 
-        .copy-btn {
-            border: 1px solid #d1d5db;
-            background: white;
 
-            padding: 7px 12px;
+        .copy-btn {
+
+            flex-shrink: 0;
+
+            border:
+                1px solid #d1d5db;
+
+            background: #ffffff;
+
+            color: #374151;
+
+            padding:
+                7px 12px;
+
             border-radius: 7px;
 
             cursor: pointer;
-            font-size: 13px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
         }
+
 
         .copy-btn:hover {
+
             background: #f3f4f6;
+
         }
 
+
         .network-badge {
-            display: inline-block;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
 
             margin-top: 14px;
 
+            padding:
+                5px 9px;
+
             background: #ecfdf5;
+
             color: #15803d;
 
-            padding: 6px 10px;
+            border-radius: 999px;
 
-            border-radius: 20px;
+            font-size: 11px;
 
-            font-size: 12px;
             font-weight: 600;
+
         }
 
+
+        /* =================================================
+           STATS
+        ================================================= */
+
         .stats {
+
             display: grid;
 
             grid-template-columns:
                 repeat(3, 1fr);
 
-            gap: 18px;
+            gap: 16px;
 
-            margin-top: 20px;
+            margin-top: 18px;
+
         }
+
 
         .stat {
-            background: white;
 
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            background: #ffffff;
 
-            padding: 22px;
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            padding: 20px;
+
         }
+
 
         .stat-label {
-            color: #6b7280;
-            font-size: 13px;
 
-            margin-bottom: 8px;
+            margin-bottom: 7px;
+
+            color: #6b7280;
+
+            font-size: 12px;
+
         }
+
 
         .stat-value {
-            font-size: 21px;
+
+            color: #111827;
+
+            font-size: 20px;
+
             font-weight: 700;
+
+            word-break: break-word;
+
         }
+
+
+        /* =================================================
+           SECTIONS
+        ================================================= */
 
         .section {
-            margin-top: 22px;
 
-            background: white;
+            margin-top: 18px;
 
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            background: #ffffff;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 10px;
 
             overflow: hidden;
+
         }
+
 
         .section-header {
-            padding: 18px 20px;
 
-            border-bottom: 1px solid #e5e7eb;
+            min-height: 55px;
+
+            padding:
+                0 18px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
+
+            border-bottom:
+                1px solid #eef0f3;
+
         }
+
 
         .section-header h2 {
-            font-size: 17px;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
         }
+
+
+        .section-subtitle {
+
+            color: #9ca3af;
+
+            font-size: 11px;
+
+        }
+
+
+        /* =================================================
+           TABLE
+        ================================================= */
 
         .table-wrapper {
+
             overflow-x: auto;
+
         }
 
+
         table {
+
             width: 100%;
+
             border-collapse: collapse;
+
         }
+
 
         th,
         td {
-            padding: 15px 20px;
+
+            padding:
+                13px 18px;
 
             text-align: left;
 
-            border-bottom: 1px solid #f0f1f3;
+            border-bottom:
+                1px solid #f0f1f3;
 
-            font-size: 13px;
+            font-size: 12px;
 
             white-space: nowrap;
+
         }
+
 
         th {
-            color: #6b7280;
-            font-weight: 600;
+
             background: #fafafa;
+
+            color: #6b7280;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
         }
+
+
+        tbody tr:hover {
+
+            background: #f8faff;
+
+        }
+
 
         td a {
+
             color: #0052ff;
+
             text-decoration: none;
 
-            font-family: monospace;
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                monospace;
+
         }
+
+
+        td a:hover {
+
+            text-decoration: underline;
+
+        }
+
 
         .status {
+
             color: #16a34a;
+
             font-weight: 600;
+
         }
+
+
+        .failed {
+
+            color: #dc2626;
+
+            font-weight: 600;
+
+        }
+
+
+        /* =================================================
+           EMPTY / LOADING
+        ================================================= */
 
         .empty {
-            padding: 40px;
+
+            padding: 45px 20px;
 
             text-align: center;
 
             color: #9ca3af;
-        }
-
-        .loading {
-            color: #9ca3af;
-        }
-
-        footer {
-            background: white;
-
-            border-top: 1px solid #e5e7eb;
-
-            padding: 25px;
-
-            text-align: center;
-
-            color: #6b7280;
 
             font-size: 13px;
+
         }
+
+
+        .loading {
+
+            color: #9ca3af;
+
+        }
+
+
+        /* =================================================
+           EXTERNAL LINK
+        ================================================= */
+
+        .explorer-link {
+
+            display: inline-block;
+
+            margin: 20px;
+
+            padding:
+                9px 13px;
+
+            background: #0052ff;
+
+            color: #ffffff;
+
+            border-radius: 7px;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+        }
+
+
+        .explorer-link:hover {
+
+            background: #0047df;
+
+        }
+
+
+        /* =================================================
+           MOBILE
+        ================================================= */
 
         @media (max-width: 768px) {
 
-            nav {
-                display: none;
+            .container {
+
+                width: 94%;
+
             }
 
-            .stats {
-                grid-template-columns: 1fr;
+
+            .breadcrumb {
+
+                padding-top: 18px;
+
             }
 
-            .address {
-                font-size: 14px;
+
+            .address-card {
+
+                padding: 18px;
+
             }
+
 
             .address-row {
+
                 align-items: flex-start;
+
                 flex-direction: column;
+
+            }
+
+
+            .address {
+
+                font-size: 13px;
+
+            }
+
+
+            .stats {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .stat-value {
+
+                font-size: 18px;
+
+            }
+
+
+            th,
+            td {
+
+                padding:
+                    12px 14px;
+
+                font-size: 11px;
+
             }
 
         }
@@ -310,50 +569,16 @@
 <body>
 
 
-<header>
-
-    <div class="header-inner">
-
-        <a href="index.html"
-           class="logo">
-
-            <div class="logo-icon">
-                B
-            </div>
-
-            Base Explorer
-
-        </a>
-
-
-        <nav>
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="#">
-                Blockchain
-            </a>
-
-            <a href="#">
-                Tokens
-            </a>
-
-            <a href="#">
-                Contracts
-            </a>
-
-        </nav>
-
-    </div>
-
-</header>
+<div id="siteHeader"></div>
 
 
 
 <main class="container">
 
+
+    <!-- =================================================
+         BREADCRUMB
+    ================================================= -->
 
     <div class="breadcrumb">
 
@@ -368,6 +593,9 @@
     </div>
 
 
+    <!-- =================================================
+         ADDRESS
+    ================================================= -->
 
     <div class="address-card">
 
@@ -380,17 +608,17 @@
 
             <div
                 class="address"
-                id="address">
+                id="address"
+            >
                 Loading...
             </div>
 
 
             <button
                 class="copy-btn"
-                onclick="copyAddress()">
-
+                onclick="copyAddress()"
+            >
                 Copy
-
             </button>
 
         </div>
@@ -405,6 +633,9 @@
     </div>
 
 
+    <!-- =================================================
+         STATS
+    ================================================= -->
 
     <div class="stats">
 
@@ -417,10 +648,9 @@
 
             <div
                 class="stat-value"
-                id="balance">
-
+                id="balance"
+            >
                 Loading...
-
             </div>
 
         </div>
@@ -434,10 +664,9 @@
 
             <div
                 class="stat-value"
-                id="addressType">
-
+                id="addressType"
+            >
                 Detecting...
-
             </div>
 
         </div>
@@ -450,9 +679,7 @@
             </div>
 
             <div class="stat-value">
-
-                Base
-
+                Base Mainnet
             </div>
 
         </div>
@@ -461,6 +688,9 @@
     </div>
 
 
+    <!-- =================================================
+         TRANSACTIONS
+    ================================================= -->
 
     <section class="section">
 
@@ -471,11 +701,16 @@
                 Recent Transactions
             </h2>
 
+            <span
+                class="section-subtitle"
+            >
+                Base Mainnet
+            </span>
+
         </div>
 
 
-        <div
-            id="transactions">
+        <div id="transactions">
 
             <div class="empty loading">
 
@@ -489,6 +724,9 @@
     </section>
 
 
+    <!-- =================================================
+         EXPLORER LINK
+    ================================================= -->
 
     <section class="section">
 
@@ -502,18 +740,17 @@
         </div>
 
 
-        <div style="padding:20px">
+        <a
+            id="basescanLink"
+            class="explorer-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
 
-            <a
-                id="basescanLink"
-                href="#"
-                target="_blank">
+            View on BaseScan →
 
-                View this address on BaseScan →
-
-            </a>
-
-        </div>
+        </a>
 
     </section>
 
@@ -522,13 +759,11 @@
 
 
 
-<footer>
-
-    Base Explorer © 2026
-
-</footer>
+<div id="siteFooter"></div>
 
 
+    
+<script src="site.js"></script>
 
 <script>
 
@@ -538,56 +773,12 @@
 ========================================= */
 
 
-const BASE_RPC =
-    "https://mainnet.base.org";
+
 
 
 const BASE_CHAIN_ID =
     8453;
 
-
-
-/* =========================================
-   RPC FUNCTION
-========================================= */
-
-
-async function baseRPC(
-    method,
-    params = []
-) {
-
-    const response =
-        await fetch(
-            BASE_RPC,
-            {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    jsonrpc: "2.0",
-
-                    id: 1,
-
-                    method: method,
-
-                    params: params
-
-                })
-
-            }
-        );
-
-
-    return await response.json();
-
-}
 
 
 
