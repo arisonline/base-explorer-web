@@ -811,30 +811,282 @@ async function copyAddress() {
 
 
 
+
+
+
 /* =========================================
-   TRANSACTIONS
+   SHORT HASH
 ========================================= */
 
+function shortHash(hash) {
 
-function loadTransactions() {
+    if (!hash) {
+        return "-";
+    }
 
-    /*
-     * Historical transaction indexing
-     * will be added in the next stage.
-     */
+    return (
+        hash.substring(0, 10)
+        + "..."
+        + hash.substring(hash.length - 8)
+    );
 
-    document.getElementById(
-        "transactions"
-    ).innerHTML = `
+}
 
-        <div class="empty">
+    
 
-            Transaction indexing will
-            be connected in the next step.
 
+/* =========================================
+   TRANSACTION HISTORY
+========================================= */
+
+async function loadTransactions() {
+
+    const container =
+        document.getElementById("transactions");
+
+    container.innerHTML = `
+        <div class="empty loading">
+            Loading transactions...
         </div>
-
     `;
+
+    try {
+
+        const apiURL =
+            "https://base.blockscout.com/api/v2/addresses/"
+            + address
+            + "/transactions";
+
+        const response =
+            await fetch(apiURL);
+
+        if (!response.ok) {
+            throw new Error(
+                "Transaction API request failed"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        const transactions =
+            data.items || [];
+
+        if (transactions.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    No transactions found.
+                </div>
+            `;
+
+            return;
+        }
+
+        let html = `
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Transaction
+                            </th>
+
+                            <th>
+                                Block
+                            </th>
+
+                            <th>
+                                From
+                            </th>
+
+                            <th>
+                                To
+                            </th>
+
+                            <th>
+                                Value
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+        `;
+
+
+        transactions.forEach(tx => {
+
+            const hash =
+                tx.hash || "";
+
+            const blockNumber =
+                tx.block_number || "-";
+
+            const from =
+                tx.from?.hash || "-";
+
+            const to =
+                tx.to?.hash || "-";
+
+            const valueWei =
+                tx.value || "0";
+
+            const valueETH =
+                Number(valueWei) / 1e18;
+
+            const status =
+                tx.status === "ok"
+                    ? "Success"
+                    : "Failed";
+
+            const timestamp =
+                tx.timestamp
+                    ? new Date(
+                        tx.timestamp
+                      ).toLocaleString()
+                    : "-";
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        <a
+                            href="tx.html?hash=${hash}"
+                            title="${hash}"
+                        >
+
+                            ${shortHash(hash)}
+
+                        </a>
+
+                    </td>
+
+
+                    <td>
+
+                        ${blockNumber}
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="address.html?address=${from}"
+                            title="${from}"
+                        >
+
+                            ${shortHash(from)}
+
+                        </a>
+
+                    </td>
+
+
+                    <td>
+
+                        <a
+                            href="address.html?address=${to}"
+                            title="${to}"
+                        >
+
+                            ${shortHash(to)}
+
+                        </a>
+
+                    </td>
+
+
+                    <td>
+
+                        ${valueETH.toFixed(6)}
+                        ETH
+
+                    </td>
+
+
+                    <td>
+
+                        <span
+                            class="${status === "Success"
+                                ? "status"
+                                : ""}"
+                        >
+
+                            ${status}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${timestamp}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+
+        container.innerHTML = html;
+
+
+    } catch (error) {
+
+        console.error(
+            "Transaction loading error:",
+            error
+        );
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                Unable to load transactions.
+
+                <br><br>
+
+                Please try again later.
+
+            </div>
+
+        `;
+
+    }
 
 }
 
