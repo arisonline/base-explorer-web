@@ -1,424 +1,1379 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Base Explorer</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <meta name="description"
-          content="Explore Base blockchain addresses, transactions, tokens and blocks.">
+    <title>Base Explorer — Base Mainnet Blockchain Explorer</title>
+
+    <meta
+        name="description"
+        content="Explore Base Mainnet blocks, transactions, addresses, tokens and smart contracts with Base Explorer."
+    >
+
+    <meta
+        name="robots"
+        content="index, follow"
+    >
+
+    <link
+        rel="canonical"
+        href="https://arisonline.github.io/base-explorer-web/"
+    >
 
     <style>
+
+        /* =================================================
+           RESET
+        ================================================= */
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f6f8fb;
-            color: #1f2937;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            background: #f8fafc;
+
+            color: #111827;
+
+            line-height: 1.5;
+
         }
 
-        /* HEADER */
 
-        header {
+        a {
+            color: inherit;
+        }
+
+
+        button,
+        input {
+            font: inherit;
+        }
+
+
+        /* =================================================
+           UNIVERSAL HEADER
+        ================================================= */
+
+        .site-header {
+
             background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            height: 64px;
-            display: flex;
-            align-items: center;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+
         }
 
-        .header-container {
-            width: min(1200px, 94%);
+
+        .site-header-inner {
+
+            width:
+                min(1240px, 94%);
+
+            min-height: 68px;
+
             margin: auto;
 
             display: flex;
+
             align-items: center;
-            justify-content: space-between;
+
+            gap: 28px;
+
         }
 
-        .logo {
+
+        .site-logo {
+
             display: flex;
-            align-items: center;
-            gap: 10px;
 
-            font-size: 20px;
-            font-weight: 700;
+            align-items: center;
+
+            gap: 9px;
+
+            text-decoration: none;
+
             color: #111827;
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
         }
 
-        .logo-icon {
+
+        .site-logo-icon {
+
             width: 34px;
+
             height: 34px;
-            border-radius: 10px;
+
+            border-radius: 9px;
 
             background: #0052ff;
-            color: white;
 
-            display: flex;
+            color: #ffffff;
+
+            display: inline-flex;
+
             align-items: center;
+
             justify-content: center;
 
-            font-weight: bold;
+            font-size: 17px;
+
+            font-weight: 800;
+
         }
 
-        nav {
+
+        .site-nav {
+
             display: flex;
-            gap: 24px;
+
+            align-items: center;
+
+            gap: 22px;
+
+            margin-right: auto;
+
         }
 
-        nav a {
+
+        .site-nav a {
+
             text-decoration: none;
+
             color: #4b5563;
+
             font-size: 14px;
+
+            font-weight: 500;
+
+            transition: color 0.15s ease;
+
         }
 
-        nav a:hover {
+
+        .site-nav a:hover {
+
             color: #0052ff;
+
         }
 
-        .connect-btn {
-            border: 0;
-            background: #0052ff;
-            color: white;
 
-            padding: 10px 16px;
+        /* =================================================
+           HEADER SEARCH
+        ================================================= */
+
+        .header-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+        }
+
+
+        .header-search {
+
+            width: 310px;
+
+            height: 40px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            background: #f8fafc;
+
+            border:
+                1px solid #dbe1ea;
+
             border-radius: 8px;
 
-            font-weight: 600;
-            cursor: pointer;
+            padding-left: 11px;
+
         }
 
-        /* HERO */
 
-        .hero {
-            background: linear-gradient(
-                135deg,
-                #eef4ff,
-                #ffffff
-            );
+        .search-icon {
 
-            padding: 80px 20px 70px;
-            text-align: center;
+            color: #9ca3af;
+
+            font-size: 19px;
+
+            line-height: 1;
+
         }
 
-        .hero h1 {
-            font-size: 42px;
-            margin-bottom: 14px;
-            color: #111827;
-        }
 
-        .hero p {
-            color: #6b7280;
-            font-size: 16px;
-            margin-bottom: 30px;
-        }
+        .header-search input {
 
-        .search-box {
-            width: min(760px, 100%);
-            margin: auto;
+            min-width: 0;
 
-            background: white;
-            border: 1px solid #dbe1ea;
-
-            border-radius: 12px;
-
-            display: flex;
-            padding: 6px;
-
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-        }
-
-        .search-box input {
             flex: 1;
 
             border: 0;
+
             outline: 0;
 
-            padding: 15px;
+            background: transparent;
 
-            font-size: 15px;
+            color: #111827;
+
+            font-size: 13px;
+
         }
 
-        .search-btn {
-            border: 0;
-            background: #0052ff;
-            color: white;
 
-            padding: 0 24px;
+        .header-search input::placeholder {
+
+            color: #9ca3af;
+
+        }
+
+
+        .header-search button {
+
+            height: 32px;
+
+            margin-right: 4px;
+
+            padding: 0 12px;
+
+            border: 0;
+
+            border-radius: 6px;
+
+            background: #0052ff;
+
+            color: #ffffff;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+        }
+
+
+        .header-search button:hover {
+
+            background: #0047df;
+
+        }
+
+
+        .mobile-menu-button {
+
+            display: none;
+
+            border: 0;
+
+            background: transparent;
+
+            font-size: 23px;
+
+            cursor: pointer;
+
+        }
+
+
+        .mobile-navigation {
+
+            display: none;
+
+        }
+
+
+        /* =================================================
+           HERO
+        ================================================= */
+
+        .hero {
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #eef4ff 0%,
+                    #f8fafc 100%
+                );
+
+            border-bottom:
+                1px solid #e7edf5;
+
+            padding:
+                68px 20px 74px;
+
+        }
+
+
+        .hero-inner {
+
+            width:
+                min(900px, 94%);
+
+            margin: auto;
+
+            text-align: center;
+
+        }
+
+
+        .hero-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding:
+                6px 11px;
+
+            background: #ffffff;
+
+            border:
+                1px solid #dbe5f5;
+
+            border-radius: 999px;
+
+            color: #374151;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #16a34a;
+
+        }
+
+
+        .hero h1 {
+
+            font-size:
+                clamp(32px, 5vw, 48px);
+
+            line-height: 1.1;
+
+            letter-spacing: -1.5px;
+
+            margin-bottom: 15px;
+
+            color: #111827;
+
+        }
+
+
+        .hero p {
+
+            max-width: 650px;
+
+            margin:
+                0 auto 28px;
+
+            color: #6b7280;
+
+            font-size: 16px;
+
+        }
+
+
+        .hero-search {
+
+            width:
+                min(760px, 100%);
+
+            height: 58px;
+
+            margin: auto;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 5px;
+
+            background: #ffffff;
+
+            border:
+                1px solid #d8e0ec;
+
+            border-radius: 11px;
+
+            box-shadow:
+                0 12px 35px rgba(15, 23, 42, 0.08);
+
+        }
+
+
+        .hero-search input {
+
+            flex: 1;
+
+            min-width: 0;
+
+            height: 100%;
+
+            padding:
+                0 15px;
+
+            border: 0;
+
+            outline: 0;
+
+            color: #111827;
+
+            font-size: 14px;
+
+        }
+
+
+        .hero-search input::placeholder {
+
+            color: #9ca3af;
+
+        }
+
+
+        .hero-search button {
+
+            height: 48px;
+
+            padding:
+                0 23px;
+
+            border: 0;
 
             border-radius: 8px;
 
-            cursor: pointer;
-            font-weight: 600;
-        }
+            background: #0052ff;
 
-        .network {
-            margin-top: 18px;
+            color: #ffffff;
+
             font-size: 13px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+        }
+
+
+        .hero-search button:hover {
+
+            background: #0047df;
+
+        }
+
+
+        .hero-network {
+
+            margin-top: 16px;
+
             color: #6b7280;
+
+            font-size: 12px;
+
         }
 
-        .network span {
-            color: #16a34a;
-            font-weight: 600;
+
+        .hero-network strong {
+
+            color: #15803d;
+
         }
 
-        /* STATS */
+
+        /* =================================================
+           MAIN CONTAINER
+        ================================================= */
 
         .container {
-            width: min(1200px, 94%);
+
+            width:
+                min(1240px, 94%);
+
             margin: auto;
+
         }
+
+
+        /* =================================================
+           NETWORK STATS
+        ================================================= */
 
         .stats {
-            margin-top: -30px;
 
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
 
-            gap: 18px;
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 16px;
+
+            margin-top: -28px;
+
+            position: relative;
+
+            z-index: 2;
+
         }
+
 
         .stat-card {
-            background: white;
 
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            background: #ffffff;
 
-            padding: 22px;
+            border:
+                1px solid #e5e7eb;
 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 4px 18px rgba(15, 23, 42, 0.04);
+
         }
+
+
+        .stat-top {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 8px;
+
+        }
+
 
         .stat-title {
+
             color: #6b7280;
-            font-size: 13px;
-            margin-bottom: 8px;
+
+            font-size: 12px;
+
+            font-weight: 500;
+
         }
+
+
+        .stat-icon {
+
+            width: 30px;
+
+            height: 30px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 7px;
+
+            background: #eef4ff;
+
+            color: #0052ff;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+        }
+
 
         .stat-value {
-            font-size: 22px;
+
+            font-size: 21px;
+
             font-weight: 700;
+
+            color: #111827;
+
         }
 
-        /* CONTENT */
+
+        .stat-sub {
+
+            margin-top: 3px;
+
+            color: #9ca3af;
+
+            font-size: 11px;
+
+        }
+
+
+        /* =================================================
+           CONTENT
+        ================================================= */
 
         .content {
-            margin-top: 35px;
-            padding-bottom: 50px;
+
+            padding:
+                32px 0 65px;
+
         }
+
+
+        .section-title {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 13px;
+
+        }
+
+
+        .section-title h2 {
+
+            font-size: 17px;
+
+            letter-spacing: -0.2px;
+
+        }
+
+
+        .section-title span {
+
+            color: #9ca3af;
+
+            font-size: 12px;
+
+        }
+
 
         .columns {
+
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 18px;
+
         }
+
+
+        /* =================================================
+           CARDS
+        ================================================= */
 
         .card {
-            background: white;
 
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            background: #ffffff;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 10px;
 
             overflow: hidden;
+
         }
+
 
         .card-header {
-            padding: 18px 20px;
 
-            border-bottom: 1px solid #e5e7eb;
+            min-height: 56px;
+
+            padding:
+                0 18px;
 
             display: flex;
-            justify-content: space-between;
+
             align-items: center;
+
+            justify-content: space-between;
+
+            border-bottom:
+                1px solid #eef0f3;
+
         }
+
 
         .card-header h2 {
-            font-size: 17px;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
         }
+
 
         .view-all {
-            font-size: 13px;
+
             color: #0052ff;
+
             text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
         }
+
+
+        .view-all:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* =================================================
+           BLOCK / TRANSACTION LIST
+        ================================================= */
 
         .list {
-            padding: 0;
+
+            min-height: 300px;
+
         }
+
 
         .list-item {
-            padding: 16px 20px;
 
-            border-bottom: 1px solid #f0f1f3;
+            min-height: 60px;
+
+            padding:
+                11px 18px;
 
             display: flex;
-            justify-content: space-between;
+
             align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            border-bottom:
+                1px solid #f0f1f3;
+
+            transition:
+                background 0.12s ease;
+
         }
+
 
         .list-item:last-child {
+
             border-bottom: 0;
+
         }
+
+
+        .list-item.clickable {
+
+            cursor: pointer;
+
+        }
+
+
+        .list-item.clickable:hover {
+
+            background: #f8faff;
+
+        }
+
 
         .item-main {
+
+            min-width: 0;
+
             display: flex;
+
             flex-direction: column;
-            gap: 5px;
+
+            gap: 3px;
+
         }
+
 
         .item-title {
+
             color: #0052ff;
-            font-size: 14px;
+
+            font-size: 13px;
+
             font-weight: 600;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
         }
+
 
         .item-sub {
+
             color: #9ca3af;
-            font-size: 12px;
+
+            font-size: 11px;
+
         }
+
 
         .item-value {
-            font-size: 13px;
+
+            flex-shrink: 0;
+
+            color: #374151;
+
+            font-size: 12px;
+
             font-weight: 600;
+
         }
 
-        /* FOOTER */
 
-        footer {
-            border-top: 1px solid #e5e7eb;
-            background: white;
-            padding: 25px;
-            text-align: center;
+        /* =================================================
+           LOADING
+        ================================================= */
+
+        .loading-item {
+
+            min-height: 300px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #9ca3af;
+
+            font-size: 13px;
+
+        }
+
+
+        /* =================================================
+           FOOTER
+        ================================================= */
+
+        .site-footer {
+
+            background: #ffffff;
+
+            border-top:
+                1px solid #e5e7eb;
+
+        }
+
+
+        .footer-inner {
+
+            width:
+                min(1240px, 94%);
+
+            margin: auto;
+
+            padding:
+                42px 0;
+
+            display: grid;
+
+            grid-template-columns:
+                2fr 1fr 1fr 1fr;
+
+            gap: 30px;
+
+        }
+
+
+        .footer-logo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .footer-brand p {
+
+            max-width: 250px;
+
+            color: #9ca3af;
+
+            font-size: 12px;
+
+        }
+
+
+        .footer-column {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+
+        }
+
+
+        .footer-column h3 {
+
+            margin-bottom: 5px;
+
+            font-size: 12px;
+
+            color: #374151;
+
+        }
+
+
+        .footer-column a {
 
             color: #6b7280;
-            font-size: 13px;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
         }
 
-        /* MOBILE */
 
-        @media (max-width: 768px) {
+        .footer-column a:hover {
 
-            nav {
+            color: #0052ff;
+
+        }
+
+
+        .footer-network {
+
+            color: #9ca3af;
+
+            font-size: 11px;
+
+        }
+
+
+        .footer-bottom {
+
+            width:
+                min(1240px, 94%);
+
+            margin: auto;
+
+            padding:
+                16px 0;
+
+            border-top:
+                1px solid #f0f1f3;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            color: #9ca3af;
+
+            font-size: 11px;
+
+        }
+
+
+        /* =================================================
+           RESPONSIVE
+        ================================================= */
+
+        @media (max-width: 900px) {
+
+            .site-nav {
+
                 display: none;
+
             }
 
-            .hero {
-                padding: 60px 15px;
+
+            .header-search {
+
+                width: 250px;
+
             }
 
-            .hero h1 {
-                font-size: 32px;
-            }
-
-            .search-box {
-                flex-direction: column;
-                gap: 6px;
-            }
-
-            .search-btn {
-                height: 48px;
-            }
-
-            .stats {
-                grid-template-columns: 1fr;
-                margin-top: 20px;
-            }
 
             .columns {
+
                 grid-template-columns: 1fr;
+
             }
+
+
+            .footer-inner {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+            }
+
         }
+
+
+        @media (max-width: 650px) {
+
+            .site-header-inner {
+
+                min-height: 62px;
+
+                gap: 10px;
+
+            }
+
+
+            .site-logo {
+
+                font-size: 16px;
+
+            }
+
+
+            .site-logo-icon {
+
+                width: 31px;
+
+                height: 31px;
+
+            }
+
+
+            .header-search {
+
+                display: none;
+
+            }
+
+
+            .mobile-menu-button {
+
+                display: block;
+
+            }
+
+
+            .mobile-navigation {
+
+                padding: 10px 3% 15px;
+
+                border-top:
+                    1px solid #f0f1f3;
+
+                background: #ffffff;
+
+            }
+
+
+            .mobile-navigation.show {
+
+                display: grid;
+
+                gap: 3px;
+
+            }
+
+
+            .mobile-navigation a {
+
+                padding: 10px;
+
+                color: #4b5563;
+
+                text-decoration: none;
+
+                font-size: 14px;
+
+                border-radius: 7px;
+
+            }
+
+
+            .mobile-navigation a:hover {
+
+                background: #f5f8ff;
+
+                color: #0052ff;
+
+            }
+
+
+            .hero {
+
+                padding:
+                    52px 15px 60px;
+
+            }
+
+
+            .hero h1 {
+
+                font-size: 32px;
+
+                letter-spacing: -1px;
+
+            }
+
+
+            .hero p {
+
+                font-size: 14px;
+
+            }
+
+
+            .hero-search {
+
+                height: auto;
+
+                flex-direction: column;
+
+                padding: 5px;
+
+            }
+
+
+            .hero-search input {
+
+                width: 100%;
+
+                height: 48px;
+
+            }
+
+
+            .hero-search button {
+
+                width: 100%;
+
+            }
+
+
+            .stats {
+
+                grid-template-columns: 1fr;
+
+                margin-top: 18px;
+
+            }
+
+
+            .content {
+
+                padding-top: 25px;
+
+            }
+
+
+            .footer-inner {
+
+                grid-template-columns: 1fr;
+
+                gap: 25px;
+
+            }
+
+
+            .footer-bottom {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 5px;
+
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-<header>
 
-    <div class="header-container">
+<!-- =====================================================
+     UNIVERSAL HEADER
+===================================================== -->
 
-        <div class="logo">
-            <div class="logo-icon">B</div>
-            Base Explorer
-        </div>
+<div id="siteHeader"></div>
 
-        <nav>
-            <a href="#">Blockchain</a>
-            <a href="#">Tokens</a>
-            <a href="#">Contracts</a>
-            <a href="#">Tools</a>
-        </nav>
 
-        <button class="connect-btn" onclick="connectWallet()">
-            Connect Wallet
-        </button>
-
-    </div>
-
-</header>
-
+<!-- =====================================================
+     HERO
+===================================================== -->
 
 <section class="hero">
 
-    <h1>Explore Base Blockchain</h1>
+    <div class="hero-inner">
 
-    <p>
-        Search addresses, transactions, blocks and tokens
-    </p>
 
-    <div class="search-box">
+        <div class="hero-badge">
 
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search address, transaction hash, block or token..."
-        >
+            <span class="status-dot"></span>
 
-        <button class="search-btn" onclick="searchBlockchain()">
-            Search
-        </button>
+            Base Mainnet
 
-    </div>
+            <span>
+                •
+            </span>
 
-    <div class="network">
-        ● <span>Base Mainnet</span>
-        &nbsp;•&nbsp;
-        Chain ID: 8453
+            Chain ID 8453
+
+        </div>
+
+
+        <h1>
+            Explore Base
+        </h1>
+
+
+        <p>
+            Search Base Mainnet blocks, transactions,
+            addresses, tokens and smart contracts.
+        </p>
+
+
+        <div class="hero-search">
+
+            <input
+                type="text"
+                id="heroSearchInput"
+                placeholder="Search by address, transaction hash or block number..."
+                autocomplete="off"
+            >
+
+
+            <button
+                type="button"
+                onclick="searchFromHero()"
+            >
+                Search
+            </button>
+
+        </div>
+
+
+        <div class="hero-network">
+
+            <strong>
+                ● Base Mainnet
+            </strong>
+
+            &nbsp;•&nbsp;
+
+            Ethereum-compatible L2
+
+        </div>
+
     </div>
 
 </section>
 
 
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
 <main class="container">
+
+
+    <!-- =================================================
+         STATS
+    ================================================= -->
 
     <section class="stats">
 
+
         <div class="stat-card">
 
-            <div class="stat-title">
-                Latest Block
+            <div class="stat-top">
+
+                <div class="stat-title">
+                    Latest Block
+                </div>
+
+                <div class="stat-icon">
+                    #
+                </div>
+
             </div>
 
-            <div class="stat-value" id="latestBlock">
+
+            <div
+                class="stat-value"
+                id="latestBlock"
+            >
                 Loading...
             </div>
 
-        </div>
 
-
-        <div class="stat-card">
-
-            <div class="stat-title">
-                Network
-            </div>
-
-            <div class="stat-value">
+            <div class="stat-sub">
                 Base Mainnet
             </div>
 
@@ -427,1033 +1382,813 @@
 
         <div class="stat-card">
 
-            <div class="stat-title">
-                Chain ID
+            <div class="stat-top">
+
+                <div class="stat-title">
+                    Network
+                </div>
+
+                <div class="stat-icon">
+                    B
+                </div>
+
             </div>
+
+
+            <div class="stat-value">
+                Base Mainnet
+            </div>
+
+
+            <div class="stat-sub">
+                Ethereum Layer 2
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-top">
+
+                <div class="stat-title">
+                    Chain ID
+                </div>
+
+                <div class="stat-icon">
+                    8453
+                </div>
+
+            </div>
+
 
             <div class="stat-value">
                 8453
             </div>
 
+
+            <div class="stat-sub">
+                Base Mainnet
+
+            </div>
+
         </div>
+
 
     </section>
 
 
+    <!-- =================================================
+         BLOCKS / TRANSACTIONS
+    ================================================= -->
+
     <section class="content">
+
 
         <div class="columns">
 
 
             <!-- BLOCKS -->
+
             <div class="card">
-            
+
+
                 <div class="card-header">
-            
-                    <h2>Latest Blocks</h2>
-            
-                    <a href="#" class="view-all">
-                        Live
-                    </a>
-            
+
+                    <h2>
+                        Latest Blocks
+                    </h2>
+
+                    <span>
+                        <a
+                            href="block.html"
+                            class="view-all"
+                        >
+                            View all
+                        </a>
+                    </span>
+
                 </div>
-            
-                <div class="list" id="latestBlocksList">
-            
-                    <div class="list-item">
-            
-                        <div class="item-main">
-            
-                            <div class="item-title">
-                                Loading...
-                            </div>
-            
-                            <div class="item-sub">
-                                Fetching latest blocks
-                            </div>
-            
-                        </div>
-            
-                        <div class="item-value">
-                            Base
-                        </div>
-            
+
+
+                <div
+                    class="list"
+                    id="latestBlocksList"
+                >
+
+                    <div class="loading-item">
+                        Loading latest blocks...
                     </div>
-            
+
                 </div>
-            
+
+
             </div>
 
 
             <!-- TRANSACTIONS -->
 
             <div class="card">
-            
+
+
                 <div class="card-header">
-            
-                    <h2>Latest Transactions</h2>
-            
-                    <a href="#" class="view-all">
-                        Live
-                    </a>
-            
+
+                    <h2>
+                        Latest Transactions
+                    </h2>
+
+                    <span>
+                        <a
+                            href="#"
+                            class="view-all"
+                        >
+                            View all
+                        </a>
+                    </span>
+
                 </div>
-            
+
+
                 <div
                     class="list"
                     id="latestTransactionsList"
                 >
-            
-                    <div class="list-item">
-            
-                        <div class="item-main">
-            
-                            <div class="item-title">
-                                Loading...
-                            </div>
-            
-                            <div class="item-sub">
-                                Fetching latest transactions
-                            </div>
-            
-                        </div>
-            
-                        <div class="item-value">
-                            Base
-                        </div>
-            
+
+                    <div class="loading-item">
+                        Loading latest transactions...
                     </div>
-            
+
                 </div>
-            
+
+
             </div>
+
 
         </div>
 
+
     </section>
+
 
 </main>
 
 
-<footer>
+<!-- =====================================================
+     UNIVERSAL FOOTER
+===================================================== -->
 
-    Base Explorer © 2026
+<div id="siteFooter"></div>
 
-</footer>
+
+<!-- =====================================================
+     UNIVERSAL SITE JS
+===================================================== -->
+
+<script src="site.js"></script>
 
 
 <script>
 
-    /*
-     * BASE MAINNET
-     *
-     * Chain ID: 8453
-     */
 
-    const BASE_RPC =
-        "https://mainnet.base.org";
+/* =========================================================
+   HERO SEARCH
+   ========================================================= */
+
+function searchFromHero() {
+
+    const input =
+        document.getElementById(
+            "heroSearchInput"
+        );
 
 
-    /*
-     * Make an RPC request
-     */
-
-    async function baseRPC(method, params = []) {
-
-        const response = await fetch(BASE_RPC, {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-                jsonrpc: "2.0",
-
-                id: 1,
-
-                method: method,
-
-                params: params
-
-            })
-
-        });
-
-        return await response.json();
-
+    if (!input) {
+        return;
     }
 
 
-    /*
-     * Get latest Base block
-     */
+    performBlockchainSearch(
+        input.value.trim()
+    );
 
-    async function loadLatestBlock() {
+}
 
-        try {
 
-            const result =
-                await baseRPC(
-                    "eth_blockNumber"
-                );
+document
+    .getElementById("heroSearchInput")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                searchFromHero();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   LOAD LATEST BLOCK
+   ========================================================= */
+
+async function loadLatestBlock() {
+
+    try {
+
+        const result =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!result.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const blockNumber =
+            parseInt(
+                result.result,
+                16
+            );
+
+
+        document.getElementById(
+            "latestBlock"
+        ).textContent =
+            blockNumber.toLocaleString();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest block error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestBlock"
+        ).textContent =
+            "Unavailable";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD LATEST BLOCKS
+   Uses blocks 2-6 behind chain tip
+   ========================================================= */
+
+async function loadLatestBlocks() {
+
+    try {
+
+        const latestResult =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!latestResult.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const latestBlock =
+            parseInt(
+                latestResult.result,
+                16
+            );
+
+
+        const blocks = [];
+
+
+        for (
+            let i = 2;
+            i <= 6;
+            i++
+        ) {
 
             const blockNumber =
-                parseInt(
-                    result.result,
-                    16
-                );
-
-            document.getElementById(
-                "latestBlock"
-            ).textContent =
-                blockNumber.toLocaleString();
-
-        } catch (error) {
-
-            console.error(error);
-
-            document.getElementById(
-                "latestBlock"
-            ).textContent =
-                "Unavailable";
-
-        }
-
-    }
+                latestBlock - i;
 
 
-    /*
-     * SEARCH
-     */
-
-    /* =========================================
-           SEARCH BLOCKCHAIN
-        ========================================= */
-        
-        async function searchBlockchain() {
-        
-            const input =
-                document
-                    .getElementById("searchInput")
-                    .value
-                    .trim();
-        
-        
-            if (!input) {
-        
-                alert(
-                    "Please enter an address, transaction hash, block number or token."
-                );
-        
-                return;
-        
+            if (blockNumber < 0) {
+                continue;
             }
-        
-        
-            /* =====================================
-               TRANSACTION HASH
-            ===================================== */
-        
-            if (
-                /^0x[a-fA-F0-9]{64}$/.test(input)
-            ) {
-        
-                window.location.href =
-                    "tx.html?hash=" +
-                    encodeURIComponent(input);
-        
-                return;
-        
-            }
-        
-        
-            /* =====================================
-               BLOCK NUMBER
-            ===================================== */
-        
-            if (
-                /^\d+$/.test(input)
-            ) {
-        
-                window.location.href =
-                    "block.html?block=" +
-                    encodeURIComponent(input);
-        
-                return;
-        
-            }
-        
-        
-            /* =====================================
-               ADDRESS / TOKEN
-            ===================================== */
-        
-            if (
-                /^0x[a-fA-F0-9]{40}$/.test(input)
-            ) {
-        
-                await detectAddressOrToken(input);
-        
-                return;
-        
-            }
-        
-        
-            alert(
-                "Invalid search. Please enter a valid address, transaction hash, block number or token address."
-            );
-        
-        }
 
 
-    /* =========================================
-       DETECT ADDRESS OR TOKEN
-    ========================================= */
-    
-    async function detectAddressOrToken(address) {
-
-        try {
-    
-            const codeResult =
+            const blockResult =
                 await baseRPC(
-                    "eth_getCode",
+                    "eth_getBlockByNumber",
                     [
-                        address,
-                        "latest"
+                        "0x" +
+                        blockNumber.toString(16),
+                        false
                     ]
                 );
-    
-    
-            const code =
-                codeResult.result;
-    
-    
-            /*
-             * No bytecode = normal wallet address
-             */
-    
-            if (
-                !code ||
-                code === "0x"
-            ) {
-    
-                window.location.href =
-                    "address.html?address=" +
-                    encodeURIComponent(address);
-    
-                return;
-    
-            }
-    
-    
-            /*
-             * Contract detected.
-             */
-    
-            const isToken =
-                await checkERC20(address);
-    
-    
-            /*
-             * ERC-20 token
-             */
-    
-            if (isToken) {
-    
-                window.location.href =
-                    "token.html?address=" +
-                    encodeURIComponent(address);
-    
-                return;
-    
-            }
-    
-    
-            /*
-             * Other smart contract
-             */
-    
-            window.location.href =
-                "contract.html?address=" +
-                encodeURIComponent(address);
-    
-        }
-    
-        catch (error) {
-    
-            console.error(
-                "Address detection error:",
-                error
-            );
-    
-            window.location.href =
-                "address.html?address=" +
-                encodeURIComponent(address);
-    
-        }
-    
-    }
 
 
+            if (blockResult.result) {
 
-
-
-    /* =========================================
-       CHECK ERC-20 TOKEN
-    ========================================= */
-    
-    async function checkERC20(address) {
-
-        try {
-    
-            /*
-             * Check symbol()
-             */
-    
-            const symbolResult =
-                await baseRPC(
-                    "eth_call",
-                    [
-                        {
-                            to: address,
-                            data: "0x95d89b41"
-                        },
-                        "latest"
-                    ]
-                );
-    
-    
-            /*
-             * Check decimals()
-             */
-    
-            const decimalsResult =
-                await baseRPC(
-                    "eth_call",
-                    [
-                        {
-                            to: address,
-                            data: "0x313ce567"
-                        },
-                        "latest"
-                    ]
-                );
-    
-    
-            /*
-             * If either call fails,
-             * don't classify as ERC-20.
-             */
-    
-            if (
-                !symbolResult.result ||
-                symbolResult.result === "0x"
-            ) {
-    
-                return false;
-    
-            }
-    
-    
-            if (
-                !decimalsResult.result ||
-                decimalsResult.result === "0x"
-            ) {
-    
-                return false;
-    
-            }
-    
-    
-            return true;
-    
-        }
-    
-        catch (error) {
-    
-            console.error(
-                "ERC-20 detection failed:",
-                error
-            );
-    
-            return false;
-    
-        }
-    
-    }
-
-
-    /*
-     * CONNECT WALLET
-     */
-
-    async function connectWallet() {
-
-        if (!window.ethereum) {
-
-            alert(
-                "Please install MetaMask or another compatible wallet."
-            );
-
-            return;
-
-        }
-
-
-        try {
-
-            const accounts =
-                await window.ethereum.request({
-
-                    method: "eth_requestAccounts"
-
-                });
-
-
-            alert(
-                "Connected: " +
-                accounts[0]
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-        }
-
-    }
-
-
-
-
-
-
-
-    /* =========================================
-       LOAD LATEST BLOCKS
-       Shows blocks 2-6 behind chain tip
-    ========================================= */
-    
-    async function loadLatestBlocks() {
-    
-        try {
-    
-            const latestResult =
-                await baseRPC(
-                    "eth_blockNumber"
-                );
-    
-            if (
-                !latestResult.result
-            ) {
-                throw new Error(
-                    "Unable to get latest block"
-                );
-            }
-    
-            const latestBlock =
-                parseInt(
-                    latestResult.result,
-                    16
-                );
-    
-            /*
-             * Deliberately stay 2 blocks behind.
-             *
-             * Example:
-             *
-             * Current = 100
-             *
-             * Show:
-             * 98
-             * 97
-             * 96
-             * 95
-             * 94
-             */
-    
-            const blocks = [];
-    
-            for (
-                let i = 2;
-                i <= 6;
-                i++
-            ) {
-    
-                const blockNumber =
-                    latestBlock - i;
-    
-                const blockResult =
-                    await baseRPC(
-                        "eth_getBlockByNumber",
-                        [
-                            "0x" +
-                            blockNumber.toString(16),
-                            false
-                        ]
-                    );
-    
-                if (
+                blocks.push(
                     blockResult.result
-                ) {
-    
-                    blocks.push(
-                        blockResult.result
-                    );
-    
-                }
-    
+                );
+
             }
-    
-            renderLatestBlocks(
-                blocks
-            );
-    
+
         }
-    
-        catch (error) {
-    
-            console.error(
-                "Latest blocks error:",
-                error
-            );
-    
-            document.getElementById(
-                "latestBlocksList"
-            ).innerHTML = `
-                <div class="list-item">
-    
-                    <div class="item-main">
-    
-                        <div class="item-title">
-                            Unable to load blocks
-                        </div>
-    
-                        <div class="item-sub">
-                            Please refresh the page
-                        </div>
-    
-                    </div>
-    
-                </div>
-            `;
-    
-        }
-    
+
+
+        renderLatestBlocks(
+            blocks
+        );
+
     }
 
+    catch (error) {
+
+        console.error(
+            "Latest blocks error:",
+            error
+        );
 
 
+        document.getElementById(
+            "latestBlocksList"
+        ).innerHTML = `
 
+            <div class="loading-item">
 
-    /* =========================================
-       LOAD LATEST TRANSACTIONS
-       Uses blocks 2-6 behind chain tip
-    ========================================= */
-    
-    async function loadLatestTransactions() {
-    
-        try {
-    
-            const latestResult =
-                await baseRPC(
-                    "eth_blockNumber"
-                );
-    
-            if (
-                !latestResult.result
-            ) {
-                throw new Error(
-                    "Unable to get latest block"
-                );
-            }
-    
-            const latestBlock =
-                parseInt(
-                    latestResult.result,
-                    16
-                );
-    
-            const transactions = [];
-    
-            /*
-             * Start 2 blocks behind.
-             *
-             * This avoids depending on the
-             * absolute newest block.
-             */
-    
-            for (
-                let i = 2;
-                i <= 6;
-                i++
-            ) {
-    
-                if (
-                    transactions.length >= 5
-                ) {
-                    break;
-                }
-    
-                const blockNumber =
-                    latestBlock - i;
-    
-                const blockResult =
-                    await baseRPC(
-                        "eth_getBlockByNumber",
-                        [
-                            "0x" +
-                            blockNumber.toString(16),
-                            true
-                        ]
-                    );
-    
-                const block =
-                    blockResult.result;
-    
-                if (
-                    !block ||
-                    !block.transactions
-                ) {
-                    continue;
-                }
-    
-                transactions.push(
-                    ...block.transactions
-                );
-    
-            }
-    
-            /*
-             * Only show first 5
-             */
-    
-            renderLatestTransactions(
-                transactions.slice(0, 5)
-            );
-    
-        }
-    
-        catch (error) {
-    
-            console.error(
-                "Latest transactions error:",
-                error
-            );
-    
-            document.getElementById(
-                "latestTransactionsList"
-            ).innerHTML = `
-                <div class="list-item">
-    
-                    <div class="item-main">
-    
-                        <div class="item-title">
-                            Unable to load transactions
-                        </div>
-    
-                        <div class="item-sub">
-                            Please refresh the page
-                        </div>
-    
-                    </div>
-    
-                </div>
-            `;
-    
-        }
-    
+                Unable to load blocks.
+                Please refresh the page.
+
+            </div>
+
+        `;
+
     }
 
+}
 
 
+/* =========================================================
+   LOAD LATEST TRANSACTIONS
+   Uses blocks 2-6 behind chain tip
+   ========================================================= */
 
+async function loadLatestTransactions() {
 
-    /* =========================================
-       DISPLAY LATEST BLOCKS
-    ========================================= */
-    
-    function renderLatestBlocks(blocks) {
-    
-        const container =
-            document.getElementById(
-                "latestBlocksList"
+    try {
+
+        const latestResult =
+            await baseRPC(
+                "eth_blockNumber"
             );
-    
-        if (
-            !blocks ||
-            blocks.length === 0
+
+
+        if (!latestResult.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const latestBlock =
+            parseInt(
+                latestResult.result,
+                16
+            );
+
+
+        const transactions = [];
+
+
+        for (
+            let i = 2;
+            i <= 6;
+            i++
         ) {
-    
-            container.innerHTML = `
-                <div class="list-item">
-    
-                    <div class="item-main">
-    
-                        <div class="item-title">
-                            No blocks found
-                        </div>
-    
-                        <div class="item-sub">
-                            Please refresh the page
-                        </div>
-    
-                    </div>
-    
-                </div>
-            `;
-    
-            return;
+
+            if (
+                transactions.length >= 5
+            ) {
+
+                break;
+
+            }
+
+
+            const blockNumber =
+                latestBlock - i;
+
+
+            if (blockNumber < 0) {
+                continue;
+            }
+
+
+            const blockResult =
+                await baseRPC(
+                    "eth_getBlockByNumber",
+                    [
+                        "0x" +
+                        blockNumber.toString(16),
+                        true
+                    ]
+                );
+
+
+            const block =
+                blockResult.result;
+
+
+            if (
+                !block ||
+                !block.transactions
+            ) {
+
+                continue;
+
+            }
+
+
+            transactions.push(
+                ...block.transactions
+            );
+
         }
-    
-        container.innerHTML =
-            blocks.map(block => {
-    
+
+
+        renderLatestTransactions(
+            transactions.slice(0, 5)
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest transactions error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestTransactionsList"
+        ).innerHTML = `
+
+            <div class="loading-item">
+
+                Unable to load transactions.
+                Please refresh the page.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER LATEST BLOCKS
+   ========================================================= */
+
+function renderLatestBlocks(blocks) {
+
+    const container =
+        document.getElementById(
+            "latestBlocksList"
+        );
+
+
+    if (
+        !blocks ||
+        blocks.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="loading-item">
+
+                No blocks found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        blocks.map(
+            block => {
+
                 const blockNumber =
                     parseInt(
                         block.number,
                         16
                     );
-    
+
+
                 const transactionCount =
                     block.transactions
                         ? block.transactions.length
                         : 0;
-    
+
+
                 const timestamp =
                     parseInt(
                         block.timestamp,
                         16
                     );
-    
+
+
                 const date =
                     new Date(
                         timestamp * 1000
                     );
-    
+
+
                 return `
+
                     <div
-                        class="list-item"
+                        class="list-item clickable"
                         onclick="openBlock(${blockNumber})"
-                        style="cursor:pointer;"
                     >
-    
+
                         <div class="item-main">
-    
+
                             <div class="item-title">
-                                Block #${blockNumber.toLocaleString()}
+
+                                Block
+                                #${blockNumber.toLocaleString()}
+
                             </div>
-    
+
+
                             <div class="item-sub">
+
                                 ${transactionCount}
                                 transaction${transactionCount !== 1 ? "s" : ""}
-                                • ${date.toLocaleTimeString()}
+                                •
+                                ${date.toLocaleTimeString()}
+
                             </div>
-    
+
                         </div>
-    
+
+
                         <div class="item-value">
-                            Base
+
+                            ${transactionCount}
+                            txns
+
                         </div>
-    
+
                     </div>
+
                 `;
-    
-            }).join("");
-    
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   RENDER LATEST TRANSACTIONS
+   ========================================================= */
+
+function renderLatestTransactions(
+    transactions
+) {
+
+    const container =
+        document.getElementById(
+            "latestTransactionsList"
+        );
+
+
+    if (
+        !transactions ||
+        transactions.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="loading-item">
+
+                No transactions found.
+
+            </div>
+
+        `;
+
+        return;
+
     }
 
 
+    container.innerHTML =
+        transactions.map(
+            tx => {
 
-
-
-
-    /* =========================================
-       DISPLAY LATEST TRANSACTIONS
-    ========================================= */
-    
-    function renderLatestTransactions(
-        transactions
-    ) {
-    
-        const container =
-            document.getElementById(
-                "latestTransactionsList"
-            );
-    
-        if (
-            !transactions ||
-            transactions.length === 0
-        ) {
-    
-            container.innerHTML = `
-                <div class="list-item">
-    
-                    <div class="item-main">
-    
-                        <div class="item-title">
-                            No transactions found
-                        </div>
-    
-                        <div class="item-sub">
-                            No transactions available
-                        </div>
-    
-                    </div>
-    
-                </div>
-            `;
-    
-            return;
-        }
-    
-        container.innerHTML =
-            transactions.map(tx => {
-    
                 const hash =
                     tx.hash || "";
-    
+
+
                 const blockNumber =
-                    parseInt(
-                        tx.blockNumber,
-                        16
-                    );
-    
+                    tx.blockNumber
+                        ? parseInt(
+                            tx.blockNumber,
+                            16
+                        )
+                        : 0;
+
+
                 const value =
                     tx.value || "0";
-    
+
+
                 return `
+
                     <div
-                        class="list-item"
+                        class="list-item clickable"
                         onclick="openTransaction('${hash}')"
-                        style="cursor:pointer;"
                     >
-    
+
                         <div class="item-main">
-    
+
                             <div class="item-title">
+
                                 ${shortHash(hash)}
+
                             </div>
-    
+
+
                             <div class="item-sub">
+
                                 Block
                                 ${blockNumber.toLocaleString()}
+
                             </div>
-    
+
                         </div>
-    
+
+
                         <div class="item-value">
-                            ${formatEthValue(value)} ETH
+
+                            ${formatEthValue(value)}
+                            ETH
+
                         </div>
-    
+
                     </div>
+
                 `;
-    
-            }).join("");
-    
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   SHORT TRANSACTION HASH
+   ========================================================= */
+
+function shortHash(hash) {
+
+    if (!hash) {
+        return "0x...";
     }
 
 
+    return (
+        hash.substring(0, 10) +
+        "..." +
+        hash.substring(
+            hash.length - 8
+        )
+    );
+
+}
 
 
+/* =========================================================
+   FORMAT ETH VALUE
+   ========================================================= */
+
+function formatEthValue(value) {
+
+    try {
+
+        const wei =
+            BigInt(value);
 
 
+        const whole =
+            wei /
+            1000000000000000000n;
 
-    /* =========================================
-       SHORT TRANSACTION HASH
-    ========================================= */
-    
-    function shortHash(hash) {
-    
-        if (!hash) {
-            return "0x...";
-        }
-    
+
+        const fraction =
+            wei %
+            1000000000000000000n;
+
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
+
+
         return (
-            hash.substring(0, 10) +
-            "..." +
-            hash.substring(hash.length - 8)
+            whole.toString() +
+            "." +
+            fractionText
         );
-    
+
     }
-    
-    
-    /* =========================================
-       FORMAT ETH VALUE
-    ========================================= */
-    
-    function formatEthValue(value) {
-    
-        try {
-    
-            const wei =
-                BigInt(value);
-    
-            const eth =
-                Number(wei) / 1e18;
-    
-            return eth.toFixed(6);
-    
-        }
-    
-        catch (error) {
-    
-            return "0";
-    
-        }
-    
+
+    catch {
+
+        return "0.000000";
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN TRANSACTION
+   ========================================================= */
+
+function openTransaction(hash) {
+
+    if (!hash) {
+        return;
     }
 
 
-    /* =========================================
-       OPEN TRANSACTION
-    ========================================= */
-    
-    function openTransaction(hash) {
-    
-        if (!hash) {
-            return;
-        }
-    
-        window.location.href =
-            "tx.html?hash=" +
-            encodeURIComponent(hash);
-    
-    }
+    window.location.href =
+        "tx.html?hash=" +
+        encodeURIComponent(hash);
+
+}
 
 
+/* =========================================================
+   OPEN BLOCK
+   ========================================================= */
+
+function openBlock(blockNumber) {
+
+    window.location.href =
+        "block.html?block=" +
+        encodeURIComponent(blockNumber);
+
+}
 
 
+/* =========================================================
+   LOAD DATA ON PAGE LOAD ONLY
+   ========================================================= */
 
-    /* =========================================
-       OPEN BLOCK PAGE
-    ========================================= */
-    
-    function openBlock(blockNumber) {
-    
-        window.location.href =
-            "block.html?block=" +
-            encodeURIComponent(blockNumber);
-    
-    }
+loadLatestBlock();
 
+loadLatestBlocks();
 
-    /* =========================================
-       LOAD DATA ON PAGE LOAD ONLY
-    ========================================= */
-    
-    loadLatestBlock();
-    
-    loadLatestBlocks();
-    
-    loadLatestTransactions();
+loadLatestTransactions();
 
-    
 
 </script>
 
+
 </body>
+
 </html>
