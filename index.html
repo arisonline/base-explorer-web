@@ -782,13 +782,8 @@
     ========================================= */
     
     async function detectAddressOrToken(address) {
-    
+
         try {
-    
-            /*
-             * Check whether this address
-             * contains contract bytecode.
-             */
     
             const codeResult =
                 await baseRPC(
@@ -805,7 +800,7 @@
     
     
             /*
-             * Normal wallet address
+             * No bytecode = normal wallet address
              */
     
             if (
@@ -824,13 +819,15 @@
     
             /*
              * Contract detected.
-             *
-             * Now check ERC-20 functions.
              */
     
             const isToken =
                 await checkERC20(address);
     
+    
+            /*
+             * ERC-20 token
+             */
     
             if (isToken) {
     
@@ -844,27 +841,21 @@
     
     
             /*
-             * Contract but not detected
-             * as ERC-20.
+             * Other smart contract
              */
     
             window.location.href =
-                "address.html?address=" +
+                "contract.html?address=" +
                 encodeURIComponent(address);
     
+        }
     
-        } catch (error) {
+        catch (error) {
     
             console.error(
                 "Address detection error:",
                 error
             );
-    
-    
-            /*
-             * If detection fails,
-             * safely open address page.
-             */
     
             window.location.href =
                 "address.html?address=" +
@@ -883,36 +874,12 @@
     ========================================= */
     
     async function checkERC20(address) {
-    
+
         try {
     
             /*
-             * ERC-20:
-             *
-             * name()
-             * symbol()
-             * decimals()
-             *
-             * Function selectors:
-             *
-             * name()      = 0x06fdde03
-             * symbol()    = 0x95d89b41
-             * decimals()  = 0x313ce567
+             * Check symbol()
              */
-    
-    
-            const nameResult =
-                await baseRPC(
-                    "eth_call",
-                    [
-                        {
-                            to: address,
-                            data: "0x06fdde03"
-                        },
-                        "latest"
-                    ]
-                );
-    
     
             const symbolResult =
                 await baseRPC(
@@ -926,6 +893,10 @@
                     ]
                 );
     
+    
+            /*
+             * Check decimals()
+             */
     
             const decimalsResult =
                 await baseRPC(
@@ -941,19 +912,9 @@
     
     
             /*
-             * All three calls should return
-             * valid data for a normal ERC-20.
+             * If either call fails,
+             * don't classify as ERC-20.
              */
-    
-            if (
-                !nameResult.result ||
-                nameResult.result === "0x"
-            ) {
-    
-                return false;
-    
-            }
-    
     
             if (
                 !symbolResult.result ||
@@ -977,8 +938,9 @@
     
             return true;
     
+        }
     
-        } catch (error) {
+        catch (error) {
     
             console.error(
                 "ERC-20 detection failed:",
