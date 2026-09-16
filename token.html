@@ -340,6 +340,113 @@
         }
 
 
+
+        /* =========================================
+           TOKEN TRANSFERS
+        ========================================= */
+        
+        .transfer-header {
+        
+            display: flex;
+        
+            justify-content: space-between;
+        
+            align-items: center;
+        
+        }
+        
+        
+        .transfer-pagination {
+        
+            display: flex;
+        
+            justify-content: center;
+        
+            align-items: center;
+        
+            gap: 15px;
+        
+            padding: 18px;
+        
+            border-top:
+                1px solid #e5e7eb;
+        
+        }
+        
+        
+        .transfer-pagination button {
+        
+            border: 1px solid #dbe1ea;
+        
+            background: white;
+        
+            color: #0052ff;
+        
+            padding: 8px 14px;
+        
+            border-radius: 7px;
+        
+            cursor: pointer;
+        
+            font-size: 13px;
+        
+        }
+        
+        
+        .transfer-pagination button:hover {
+        
+            background: #f5f8ff;
+        
+        }
+        
+        
+        .transfer-pagination button:disabled {
+        
+            color: #9ca3af;
+        
+            background: #f3f4f6;
+        
+            cursor: not-allowed;
+        
+        }
+        
+        
+        #transferPage {
+        
+            font-size: 13px;
+        
+            color: #6b7280;
+        
+            font-weight: 600;
+        
+        }
+        
+        
+        .transfer-amount {
+        
+            font-weight: 600;
+        
+        }
+        
+        
+        .transfer-time {
+        
+            color: #6b7280;
+        
+            font-size: 12px;
+        
+        }
+        
+        
+        .transfer-method {
+        
+            font-size: 11px;
+        
+            color: #6b7280;
+        
+        }
+
+
         /* =========================================
            TOKEN HOLDERS
         ========================================= */
@@ -759,6 +866,11 @@ async function loadToken() {
 
 function displayToken(token) {
 
+    window.currentTokenDecimals =
+    Number(
+        token.decimals ?? 18
+    );
+
     const container =
         document.getElementById(
             "tokenContainer"
@@ -1044,26 +1156,70 @@ function displayToken(token) {
 
 
 
+        <!-- TOKEN TRANSFERS -->
+
         <div class="card">
-
-            <div class="card-header">
-
-                Token Transfers
-
+        
+            <div class="card-header transfer-header">
+        
+                <span>
+                    Token Transfers
+                </span>
+        
+                <span
+                    id="transferCount"
+                    class="holder-count">
+                    Loading...
+                </span>
+        
             </div>
-
-
+        
+        
             <div
                 id="transfers">
-
+        
                 <div class="loading">
-
+        
                     Loading token transfers...
-
+        
                 </div>
-
+        
             </div>
-
+        
+        
+            <!-- PAGINATION -->
+        
+            <div
+                id="transferPagination"
+                class="transfer-pagination"
+                style="display:none;">
+        
+                <button
+                    id="previousTransfers"
+                    onclick="previousTransferPage()">
+        
+                    ← Previous
+        
+                </button>
+        
+        
+                <span id="transferPage">
+        
+                    Page 1
+        
+                </span>
+        
+        
+                <button
+                    id="nextTransfers"
+                    onclick="nextTransferPage()">
+        
+                    Next →
+        
+                </button>
+        
+            </div>
+        
         </div>
 
 
@@ -1316,234 +1472,599 @@ function displayToken(token) {
     
 
 
-/* =========================================
-   TOKEN TRANSFERS
-========================================= */
-
-async function loadTransfers(decimals) {
-
-    const container =
-        document.getElementById(
-            "transfers"
-        );
-
-
-    try {
-
-        const response =
-            await fetch(
-
-                BLOCKSCOUT_API
-                + "/tokens/"
-                + tokenAddress
-                + "/transfers"
-
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Transfers unavailable"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const transfers =
-            data.items || [];
+    /* =========================================
+       TOKEN TRANSFERS
+    ========================================= */
+    
+    let transferPage = 1;
+    
+    let transferNextPageKey = null;
+    
+    let transferPreviousKeys = [];
+    
+    
+    /* =========================================
+       LOAD TOKEN TRANSFERS
+    ========================================= */
+    
+    async function loadTransfers(decimals) {
 
 
         if (
-            transfers.length === 0
-        ) {
+    transferPage === 1
+) {
 
-            container.innerHTML = `
-
-                <div class="empty">
-
-                    No token transfers found.
-
-                </div>
-
-            `;
-
-            return;
-
-        }
-
-
-        let html = `
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Transaction
-                            </th>
-
-                            <th>
-                                From
-                            </th>
-
-                            <th>
-                                To
-                            </th>
-
-                            <th>
-                                Amount
-                            </th>
-
-                            <th>
-                                Block
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-        `;
-
-
-        transfers.forEach(
-            transfer => {
-
-                const hash =
-                    transfer.tx_hash ||
-                    transfer.transaction_hash ||
-                    transfer.transaction?.hash ||
-                    "";
-
-
-                const from =
-                    transfer.from?.hash ||
-                    "-";
-
-
-                const to =
-                    transfer.to?.hash ||
-                    "-";
-
-
-                const amount =
-                    transfer.total?.value ||
-                    transfer.value ||
-                    "0";
-
-
-                const block =
-                    transfer.block_number ||
-                    "-";
-
-
-                html += `
-
-                    <tr>
-
-                        <td>
-
-                            <a
-                                href="tx.html?hash=${hash}">
-
-                                ${shortAddress(hash)}
-
-                            </a>
-
-                        </td>
-
-
-                        <td>
-
-                            <a
-                                href="address.html?address=${from}">
-
-                                ${shortAddress(from)}
-
-                            </a>
-
-                        </td>
-
-
-                        <td>
-
-                            <a
-                                href="address.html?address=${to}">
-
-                                ${shortAddress(to)}
-
-                            </a>
-
-                        </td>
-
-
-                        <td>
-
-                            ${formatTokenAmount(
-                                amount,
-                                decimals
-                            )}
-
-                        </td>
-
-
-                        <td>
-
-                            ${block}
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-
-        html += `
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        `;
-
-
-        container.innerHTML =
-            html;
-
-
-    } catch (error) {
-
-        console.error(error);
-
-
-        container.innerHTML = `
-
-            <div class="empty">
-
-                Unable to load token transfers.
-
-            </div>
-
-        `;
-
-    }
+    transferNextPageKey = null;
 
 }
+
+        
+    
+        const container =
+            document.getElementById(
+                "transfers"
+            );
+    
+        const countElement =
+            document.getElementById(
+                "transferCount"
+            );
+    
+        try {
+    
+            let url =
+                BLOCKSCOUT_API +
+                "/tokens/" +
+                tokenAddress +
+                "/transfers";
+    
+    
+            /*
+             * If we are loading the next page,
+             * add the pagination key.
+             */
+    
+            if (
+                transferNextPageKey
+            ) {
+    
+                url +=
+                    "?next_page_params=" +
+                    encodeURIComponent(
+                        JSON.stringify(
+                            transferNextPageKey
+                        )
+                    );
+    
+            }
+    
+    
+            const response =
+                await fetch(url);
+    
+    
+            if (!response.ok) {
+    
+                throw new Error(
+                    "Transfers unavailable"
+                );
+    
+            }
+    
+    
+            const data =
+                await response.json();
+    
+    
+            console.log(
+                "Token transfers:",
+                data
+            );
+    
+    
+            const transfers =
+                data.items || [];
+    
+    
+            /*
+             * Save next page information
+             */
+    
+            if (
+                data.next_page_params
+            ) {
+    
+                transferNextPageKey =
+                    data.next_page_params;
+    
+            } else {
+    
+                transferNextPageKey =
+                    null;
+    
+            }
+    
+    
+            /*
+             * Update count
+             */
+    
+            countElement.textContent =
+                transfers.length +
+                " shown";
+    
+    
+            /*
+             * No transfers
+             */
+    
+            if (
+                transfers.length === 0
+            ) {
+    
+                container.innerHTML = `
+    
+                    <div class="empty">
+    
+                        No token transfers found.
+    
+                    </div>
+    
+                `;
+    
+                updateTransferPagination();
+    
+                return;
+    
+            }
+    
+    
+            /*
+             * Create table
+             */
+    
+            let html = `
+    
+                <div class="table-wrapper">
+    
+                    <table>
+    
+                        <thead>
+    
+                            <tr>
+    
+                                <th>
+                                    Transaction
+                                </th>
+    
+                                <th>
+                                    From
+                                </th>
+    
+                                <th>
+                                    To
+                                </th>
+    
+                                <th>
+                                    Amount
+                                </th>
+    
+                                <th>
+                                    Block
+                                </th>
+    
+                                <th>
+                                    Time
+                                </th>
+    
+                            </tr>
+    
+                        </thead>
+    
+                        <tbody>
+    
+            `;
+    
+    
+            transfers.forEach(
+                transfer => {
+    
+                    /*
+                     * Transaction hash
+                     */
+    
+                    const hash =
+                        transfer.tx_hash ||
+                        transfer.transaction_hash ||
+                        transfer.transaction?.hash ||
+                        "";
+    
+    
+                    /*
+                     * From
+                     */
+    
+                    const from =
+                        transfer.from?.hash ||
+                        transfer.from ||
+                        "";
+    
+    
+                    /*
+                     * To
+                     */
+    
+                    const to =
+                        transfer.to?.hash ||
+                        transfer.to ||
+                        "";
+    
+    
+                    /*
+                     * Amount
+                     */
+    
+                    const amount =
+                        transfer.total?.value ||
+                        transfer.value ||
+                        "0";
+    
+    
+                    /*
+                     * Block
+                     */
+    
+                    const block =
+                        transfer.block_number ||
+                        transfer.blockNumber ||
+                        "-";
+    
+    
+                    /*
+                     * Timestamp
+                     */
+    
+                    const timestamp =
+                        transfer.timestamp ||
+                        transfer.block_timestamp ||
+                        "";
+    
+    
+                    const formattedTime =
+                        formatTransferTime(
+                            timestamp
+                        );
+    
+    
+                    html += `
+    
+                        <tr>
+    
+                            <td>
+    
+                                <a
+                                    href="tx.html?hash=${encodeURIComponent(hash)}">
+    
+                                    ${shortAddress(hash)}
+    
+                                </a>
+    
+                            </td>
+    
+    
+                            <td>
+    
+                                <a
+                                    href="address.html?address=${encodeURIComponent(from)}">
+    
+                                    ${shortAddress(from)}
+    
+                                </a>
+    
+                            </td>
+    
+    
+                            <td>
+    
+                                <a
+                                    href="address.html?address=${encodeURIComponent(to)}">
+    
+                                    ${shortAddress(to)}
+    
+                                </a>
+    
+                            </td>
+    
+    
+                            <td
+                                class="transfer-amount">
+    
+                                ${formatTokenAmount(
+                                    amount,
+                                    decimals
+                                )}
+    
+                            </td>
+    
+    
+                            <td>
+    
+                                ${block}
+    
+                            </td>
+    
+    
+                            <td
+                                class="transfer-time">
+    
+                                ${formattedTime}
+    
+                            </td>
+    
+                        </tr>
+    
+                    `;
+    
+                }
+            );
+    
+    
+            html += `
+    
+                        </tbody>
+    
+                    </table>
+    
+                </div>
+    
+            `;
+    
+    
+            container.innerHTML =
+                html;
+    
+    
+            updateTransferPagination();
+    
+    
+        }
+    
+        catch (error) {
+    
+            console.error(
+                "Token transfers error:",
+                error
+            );
+    
+    
+            countElement.textContent =
+                "Unavailable";
+    
+    
+            container.innerHTML = `
+    
+                <div class="empty">
+    
+                    Unable to load token transfers.
+    
+                    <br><br>
+    
+                    Please refresh the page.
+    
+                </div>
+    
+            `;
+    
+        }
+    
+    }
+
+
+
+
+
+    /* =========================================
+       FORMAT TRANSFER TIME
+    ========================================= */
+    
+    function formatTransferTime(
+        timestamp
+    ) {
+    
+        if (!timestamp) {
+    
+            return "-";
+    
+        }
+    
+    
+        try {
+    
+            const date =
+                new Date(timestamp);
+    
+    
+            if (
+                isNaN(
+                    date.getTime()
+                )
+            ) {
+    
+                return "-";
+    
+            }
+    
+    
+            return date.toLocaleString();
+    
+        }
+    
+        catch {
+    
+            return "-";
+    
+        }
+    
+    }
+
+
+
+
+    /* =========================================
+       UPDATE PAGINATION
+    ========================================= */
+    
+    function updateTransferPagination() {
+    
+        const pagination =
+            document.getElementById(
+                "transferPagination"
+            );
+    
+        const previousButton =
+            document.getElementById(
+                "previousTransfers"
+            );
+    
+        const nextButton =
+            document.getElementById(
+                "nextTransfers"
+            );
+    
+        const pageElement =
+            document.getElementById(
+                "transferPage"
+            );
+    
+    
+        if (!pagination) {
+    
+            return;
+    
+        }
+    
+    
+        pagination.style.display =
+            "flex";
+    
+    
+        pageElement.textContent =
+            "Page " +
+            transferPage;
+    
+    
+        /*
+         * Previous is disabled on page 1
+         */
+    
+        previousButton.disabled =
+            transferPage <= 1;
+    
+    
+        /*
+         * Next is disabled when
+         * there is no next page
+         */
+    
+        nextButton.disabled =
+            !transferNextPageKey;
+    
+    }
+
+
+
+
+
+    /* =========================================
+       NEXT TRANSFER PAGE
+    ========================================= */
+    
+    async function nextTransferPage() {
+    
+        if (
+            !transferNextPageKey
+        ) {
+    
+            return;
+    
+        }
+    
+    
+        transferPreviousKeys.push(
+            transferNextPageKey
+        );
+    
+    
+        transferPage++;
+    
+    
+        /*
+         * Load next page
+         */
+    
+        await loadTransfers(
+            getCurrentTokenDecimals()
+        );
+    
+    }
+
+
+
+
+    /* =========================================
+       PREVIOUS TRANSFER PAGE
+    ========================================= */
+    
+    async function previousTransferPage() {
+    
+        if (
+            transferPage <= 1
+        ) {
+    
+            return;
+    
+        }
+    
+    
+        /*
+         * Return to first page for now.
+         */
+    
+        transferPage = 1;
+    
+        transferNextPageKey = null;
+    
+        transferPreviousKeys = [];
+    
+    
+        await loadTransfers(
+            getCurrentTokenDecimals()
+        );
+    
+    }
+
+
+
+
+    /* =========================================
+       GET TOKEN DECIMALS
+    ========================================= */
+    
+    function getCurrentTokenDecimals() {
+    
+        const decimalsElement =
+            document.querySelector(
+                ".stat-value"
+            );
+    
+        /*
+         * Your token object already gives us
+         * decimals, so store it globally.
+         */
+    
+        return window.currentTokenDecimals ?? 18;
+    
+    }
 
 
 /* =========================================
