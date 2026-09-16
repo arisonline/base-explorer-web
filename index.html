@@ -697,80 +697,298 @@
      * SEARCH
      */
 
-    function searchBlockchain() {
-
-        const input =
-            document
-                .getElementById("searchInput")
-                .value
-                .trim();
-
-        if (!input) {
-
+    /* =========================================
+           SEARCH BLOCKCHAIN
+        ========================================= */
+        
+        async function searchBlockchain() {
+        
+            const input =
+                document
+                    .getElementById("searchInput")
+                    .value
+                    .trim();
+        
+        
+            if (!input) {
+        
+                alert(
+                    "Please enter an address, transaction hash, block number or token."
+                );
+        
+                return;
+        
+            }
+        
+        
+            /* =====================================
+               TRANSACTION HASH
+            ===================================== */
+        
+            if (
+                /^0x[a-fA-F0-9]{64}$/.test(input)
+            ) {
+        
+                window.location.href =
+                    "tx.html?hash=" +
+                    encodeURIComponent(input);
+        
+                return;
+        
+            }
+        
+        
+            /* =====================================
+               BLOCK NUMBER
+            ===================================== */
+        
+            if (
+                /^\d+$/.test(input)
+            ) {
+        
+                window.location.href =
+                    "block.html?block=" +
+                    encodeURIComponent(input);
+        
+                return;
+        
+            }
+        
+        
+            /* =====================================
+               ADDRESS / TOKEN
+            ===================================== */
+        
+            if (
+                /^0x[a-fA-F0-9]{40}$/.test(input)
+            ) {
+        
+                await detectAddressOrToken(input);
+        
+                return;
+        
+            }
+        
+        
             alert(
-                "Please enter an address, transaction hash, block number or token."
+                "Invalid search. Please enter a valid address, transaction hash, block number or token address."
             );
-
-            return;
-
+        
         }
 
 
-        /*
-         * Ethereum / Base address
-         */
-
-        if (
-            /^0x[a-fA-F0-9]{40}$/.test(input)
-        ) {
-
+    /* =========================================
+       DETECT ADDRESS OR TOKEN
+    ========================================= */
+    
+    async function detectAddressOrToken(address) {
+    
+        try {
+    
+            /*
+             * Check whether this address
+             * contains contract bytecode.
+             */
+    
+            const codeResult =
+                await baseRPC(
+                    "eth_getCode",
+                    [
+                        address,
+                        "latest"
+                    ]
+                );
+    
+    
+            const code =
+                codeResult.result;
+    
+    
+            /*
+             * Normal wallet address
+             */
+    
+            if (
+                !code ||
+                code === "0x"
+            ) {
+    
+                window.location.href =
+                    "address.html?address=" +
+                    encodeURIComponent(address);
+    
+                return;
+    
+            }
+    
+    
+            /*
+             * Contract detected.
+             *
+             * Now check ERC-20 functions.
+             */
+    
+            const isToken =
+                await checkERC20(address);
+    
+    
+            if (isToken) {
+    
+                window.location.href =
+                    "token.html?address=" +
+                    encodeURIComponent(address);
+    
+                return;
+    
+            }
+    
+    
+            /*
+             * Contract but not detected
+             * as ERC-20.
+             */
+    
             window.location.href =
                 "address.html?address=" +
-                encodeURIComponent(input);
-
-            return;
-
-        }
-
-
-        /*
-         * Transaction hash
-         */
-
-        if (
-            /^0x[a-fA-F0-9]{64}$/.test(input)
-        ) {
-
+                encodeURIComponent(address);
+    
+    
+        } catch (error) {
+    
+            console.error(
+                "Address detection error:",
+                error
+            );
+    
+    
+            /*
+             * If detection fails,
+             * safely open address page.
+             */
+    
             window.location.href =
-                "tx.html?hash=" +
-                encodeURIComponent(input);
-
-            return;
-
+                "address.html?address=" +
+                encodeURIComponent(address);
+    
         }
+    
+    }
 
 
-        /*
-         * Block number
-         */
 
-        if (
-            /^\d+$/.test(input)
-        ) {
 
-            window.location.href =
-                "block.html?block=" +
-                encodeURIComponent(input);
 
-            return;
-
+    /* =========================================
+       CHECK ERC-20 TOKEN
+    ========================================= */
+    
+    async function checkERC20(address) {
+    
+        try {
+    
+            /*
+             * ERC-20:
+             *
+             * name()
+             * symbol()
+             * decimals()
+             *
+             * Function selectors:
+             *
+             * name()      = 0x06fdde03
+             * symbol()    = 0x95d89b41
+             * decimals()  = 0x313ce567
+             */
+    
+    
+            const nameResult =
+                await baseRPC(
+                    "eth_call",
+                    [
+                        {
+                            to: address,
+                            data: "0x06fdde03"
+                        },
+                        "latest"
+                    ]
+                );
+    
+    
+            const symbolResult =
+                await baseRPC(
+                    "eth_call",
+                    [
+                        {
+                            to: address,
+                            data: "0x95d89b41"
+                        },
+                        "latest"
+                    ]
+                );
+    
+    
+            const decimalsResult =
+                await baseRPC(
+                    "eth_call",
+                    [
+                        {
+                            to: address,
+                            data: "0x313ce567"
+                        },
+                        "latest"
+                    ]
+                );
+    
+    
+            /*
+             * All three calls should return
+             * valid data for a normal ERC-20.
+             */
+    
+            if (
+                !nameResult.result ||
+                nameResult.result === "0x"
+            ) {
+    
+                return false;
+    
+            }
+    
+    
+            if (
+                !symbolResult.result ||
+                symbolResult.result === "0x"
+            ) {
+    
+                return false;
+    
+            }
+    
+    
+            if (
+                !decimalsResult.result ||
+                decimalsResult.result === "0x"
+            ) {
+    
+                return false;
+    
+            }
+    
+    
+            return true;
+    
+    
+        } catch (error) {
+    
+            console.error(
+                "ERC-20 detection failed:",
+                error
+            );
+    
+            return false;
+    
         }
-
-
-        alert(
-            "We will add token and advanced search support next."
-        );
-
+    
     }
 
 
