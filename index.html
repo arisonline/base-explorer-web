@@ -940,22 +940,19 @@
     
         try {
     
-            const result =
+            const latestResult =
                 await baseRPC(
                     "eth_blockNumber"
                 );
     
             const latestBlock =
                 parseInt(
-                    result.result,
+                    latestResult.result,
                     16
                 );
     
             const blocks = [];
     
-            /*
-             * Get latest 5 blocks
-             */
             for (
                 let i = 0;
                 i < 5;
@@ -965,26 +962,20 @@
                 const blockNumber =
                     latestBlock - i;
     
-                const blockResult =
-                    await baseRPC(
-                        "eth_getBlockByNumber",
-                        [
-                            "0x" +
-                            blockNumber.toString(16),
-                            false
-                        ]
+                const response =
+                    await fetch(
+                        "https://base.blockscout.com/api/v2/blocks/" +
+                        blockNumber
                     );
     
-                if (
-                    blockResult.result
-                ) {
-    
-                    blocks.push(
-                        blockResult.result
-                    );
-    
+                if (!response.ok) {
+                    continue;
                 }
     
+                const block =
+                    await response.json();
+    
+                blocks.push(block);
             }
     
             renderLatestBlocks(blocks);
@@ -1166,36 +1157,28 @@
             `;
     
             return;
-    
         }
     
         container.innerHTML =
             blocks.map(block => {
     
                 const blockNumber =
-                    parseInt(
-                        block.number,
-                        16
+                    Number(
+                        block.height
                     );
-    
-                const timestamp =
-                    parseInt(
-                        block.timestamp,
-                        16
-                    );
-    
-                const date =
-                    new Date(
-                        timestamp * 1000
-                    );
-    
-                const time =
-                    date.toLocaleTimeString();
     
                 const transactionCount =
-                    block.transactions
-                        ? block.transactions.length
-                        : 0;
+                    block.tx_count || 0;
+    
+                const timestamp =
+                    block.timestamp
+                        ? new Date(block.timestamp)
+                        : null;
+    
+                const time =
+                    timestamp
+                        ? timestamp.toLocaleTimeString()
+                        : "Unknown";
     
                 return `
                     <div
@@ -1211,7 +1194,8 @@
                             </div>
     
                             <div class="item-sub">
-                                ${transactionCount} transaction${transactionCount !== 1 ? "s" : ""}
+                                ${transactionCount}
+                                transaction${transactionCount !== 1 ? "s" : ""}
                                 • ${time}
                             </div>
     
