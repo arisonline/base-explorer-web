@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Contract | Base Explorer</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f8fb;
+            color: #1f2937;
+        }
+
+        header {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: min(1200px, 94%);
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            text-decoration: none;
+            color: #111827;
+
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 9px;
+
+            background: #0052ff;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #0052ff;
+        }
+
+        .container {
+            width: min(1200px, 94%);
+            margin: 30px auto 60px;
+        }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .breadcrumb a {
+            color: #0052ff;
+            text-decoration: none;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 20px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content:
+                space-between;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .contract-title {
+            font-size: 25px;
+
+            font-weight: 700;
+
+            margin-bottom: 12px;
+        }
+
+        .address {
+            font-family: monospace;
+
+            font-size: 14px;
+
+            word-break: break-all;
+        }
+
+        .network-badge {
+            display: inline-block;
+
+            margin-top: 15px;
+
+            background: #ecfdf5;
+
+            color: #15803d;
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+        .status {
+            display: inline-block;
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+        }
+
+        .verified {
+            background: #ecfdf5;
+
+            color: #15803d;
+        }
+
+        .unverified {
+            background: #fef2f2;
+
+            color: #dc2626;
+        }
+
+        .details {
+            display: grid;
+
+            grid-template-columns:
+                220px 1fr;
+        }
+
+        .detail-label {
+            padding: 16px 20px;
+
+            background: #fafafa;
+
+            border-bottom:
+                1px solid #f0f1f3;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+        .detail-value {
+            padding: 16px 20px;
+
+            border-bottom:
+                1px solid #f0f1f3;
+
+            font-size: 13px;
+
+            word-break: break-all;
+        }
+
+        .detail-value a {
+            color: #0052ff;
+
+            text-decoration: none;
+
+            font-family: monospace;
+        }
+
+        .code-box {
+            background: #111827;
+
+            color: #d1d5db;
+
+            padding: 20px;
+
+            border-radius: 8px;
+
+            font-family: monospace;
+
+            font-size: 13px;
+
+            overflow-x: auto;
+        }
+
+        .tabs {
+            display: flex;
+
+            border-bottom:
+                1px solid #e5e7eb;
+        }
+
+        .tab {
+            border: 0;
+
+            background: white;
+
+            padding: 14px 20px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            color: #6b7280;
+        }
+
+        .tab.active {
+            color: #0052ff;
+
+            border-bottom:
+                2px solid #0052ff;
+
+            font-weight: 600;
+        }
+
+        .tab-content {
+            padding: 25px;
+        }
+
+        .coming-soon {
+            padding: 40px;
+
+            text-align: center;
+
+            color: #9ca3af;
+        }
+
+        .external-link {
+            display: inline-block;
+
+            padding: 10px 14px;
+
+            background: #0052ff;
+
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+        }
+
+        .loading {
+            padding: 50px;
+
+            text-align: center;
+
+            color: #9ca3af;
+        }
+
+        .error {
+            padding: 20px;
+
+            background: #fef2f2;
+
+            color: #dc2626;
+
+            border-radius: 10px;
+
+            text-align: center;
+        }
+
+        footer {
+            background: white;
+
+            border-top:
+                1px solid #e5e7eb;
+
+            padding: 25px;
+
+            text-align: center;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+
+            nav {
+                display: none;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-label {
+                padding-bottom: 5px;
+
+                border-bottom: none;
+            }
+
+            .detail-value {
+                padding-top: 5px;
+            }
+
+            .tabs {
+                overflow-x: auto;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="header-inner">
+
+        <a
+            href="index.html"
+            class="logo">
+
+            <div class="logo-icon">
+                B
+            </div>
+
+            Base Explorer
+
+        </a>
+
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="#">
+                Blockchain
+            </a>
+
+            <a href="token.html">
+                Tokens
+            </a>
+
+            <a href="contract.html">
+                Contracts
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <div class="breadcrumb">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        /
+
+        Contract
+
+    </div>
+
+
+    <div
+        id="contractContainer">
+
+        <div class="loading">
+
+            Loading contract...
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+
+<footer>
+
+    Base Explorer © 2026
+
+</footer>
+
+
+
+<script>
+
+
+/* =========================================
+   CONFIG
+========================================= */
+
+const BLOCKSCOUT_API =
+    "https://base.blockscout.com/api/v2";
+
+
+/* =========================================
+   GET ADDRESS
+========================================= */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const contractAddress =
+    params.get("address");
+
+
+/* =========================================
+   VALIDATE ADDRESS
+========================================= */
+
+function isValidAddress(value) {
+
+    return /^0x[a-fA-F0-9]{40}$/
+        .test(value);
+
+}
+
+
+/* =========================================
+   SHORT ADDRESS
+========================================= */
+
+function shortAddress(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    return (
+        value.substring(0, 10)
+        + "..."
+        + value.substring(
+            value.length - 8
+        )
+    );
+
+}
+
+
+/* =========================================
+   LOAD CONTRACT
+========================================= */
+
+async function loadContract() {
+
+    const container =
+        document.getElementById(
+            "contractContainer"
+        );
+
+
+    if (
+        !contractAddress ||
+        !isValidAddress(contractAddress)
+    ) {
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Invalid contract address.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                BLOCKSCOUT_API
+                + "/smart-contracts/"
+                + contractAddress
+
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Contract information unavailable"
+            );
+
+        }
+
+
+        const contract =
+            await response.json();
+
+
+        displayContract(
+            contract
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        /*
+         * Even if Blockscout doesn't have
+         * verification information, check
+         * directly whether it is a contract.
+         */
+
+        await checkContractCode();
+
+    }
+
+}
+
+
+/* =========================================
+   FALLBACK CONTRACT CHECK
+========================================= */
+
+async function checkContractCode() {
+
+    const container =
+        document.getElementById(
+            "contractContainer"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "https://mainnet.base.org",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        jsonrpc: "2.0",
+
+                        id: 1,
+
+                        method:
+                            "eth_getCode",
+
+                        params: [
+                            contractAddress,
+                            "latest"
+                        ]
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        const code =
+            data.result;
+
+
+        if (
+            !code ||
+            code === "0x"
+        ) {
+
+            container.innerHTML = `
+
+                <div class="error">
+
+                    This address is not a contract.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        displayUnverifiedContract(
+            code
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Unable to load contract.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   DISPLAY VERIFIED CONTRACT
+========================================= */
+
+function displayContract(contract) {
+
+    const container =
+        document.getElementById(
+            "contractContainer"
+        );
+
+
+    const name =
+        contract.name ||
+        contract.contract_name ||
+        "Verified Contract";
+
+
+    const compiler =
+        contract.compiler_version ||
+        "-";
+
+
+    const optimization =
+        contract.optimization_enabled;
+
+
+    const sourceCode =
+        contract.source_code ||
+        contract.source ||
+        "";
+
+
+    const abi =
+        contract.abi ||
+        "";
+
+
+    container.innerHTML = `
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="contract-title">
+
+                    ${escapeHTML(name)}
+
+                </div>
+
+
+                <div class="address">
+
+                    ${contractAddress}
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="network-badge">
+
+                        ● Base Mainnet
+
+                    </span>
+
+
+                    <span
+                        class="status verified"
+                        style="margin-left:8px">
+
+                        ✓ Verified
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Contract Information
+                </h2>
+
+            </div>
+
+
+            <div class="details">
+
+
+                <div class="detail-label">
+                    Contract Address
+                </div>
+
+                <div class="detail-value">
+
+                    <a
+                        href="address.html?address=${contractAddress}">
+
+                        ${contractAddress}
+
+                    </a>
+
+                </div>
+
+
+                <div class="detail-label">
+                    Contract Name
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(name)}
+
+                </div>
+
+
+                <div class="detail-label">
+                    Compiler
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(compiler)}
+
+                </div>
+
+
+                <div class="detail-label">
+                    Optimization
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        optimization === true
+                            ? "Enabled"
+                            : optimization === false
+                                ? "Disabled"
+                                : "-"
+                    }
+
+                </div>
+
+
+                <div class="detail-label">
+                    ABI Available
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        abi
+                            ? "Yes"
+                            : "No"
+                    }
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Contract Interface
+                </h2>
+
+            </div>
+
+
+            <div class="tabs">
+
+                <button
+                    class="tab active"
+                    onclick="showTab('read', this)">
+
+                    Read Contract
+
+                </button>
+
+
+                <button
+                    class="tab"
+                    onclick="showTab('write', this)">
+
+                    Write Contract
+
+                </button>
+
+
+                <button
+                    class="tab"
+                    onclick="showTab('source', this)">
+
+                    Source Code
+
+                </button>
+
+            </div>
+
+
+            <div
+                id="read"
+                class="tab-content">
+
+                <div class="coming-soon">
+
+                    Read Contract interface
+                    will be connected next.
+
+                    <br><br>
+
+                    ABI detected:
+                    ${abi ? "Yes" : "No"}
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="write"
+                class="tab-content"
+                style="display:none">
+
+                <div class="coming-soon">
+
+                    Write Contract interface
+                    will be connected next.
+
+                    <br><br>
+
+                    Your wallet will be required
+                    to send transactions.
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="source"
+                class="tab-content"
+                style="display:none">
+
+                ${
+                    sourceCode
+                        ? `
+                            <div class="code-box">
+
+                                ${escapeHTML(
+                                    sourceCode
+                                )}
+
+                            </div>
+                          `
+                        : `
+                            <div class="coming-soon">
+
+                                Source code is not
+                                available here.
+
+                            </div>
+                          `
+                }
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Explorer Links
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <a
+                    class="external-link"
+                    href="https://basescan.org/address/${contractAddress}#code"
+                    target="_blank">
+
+                    View Contract on BaseScan →
+
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   DISPLAY UNVERIFIED CONTRACT
+========================================= */
+
+function displayUnverifiedContract(code) {
+
+    const container =
+        document.getElementById(
+            "contractContainer"
+        );
+
+
+    container.innerHTML = `
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <div class="contract-title">
+
+                    Contract
+
+                </div>
+
+
+                <div class="address">
+
+                    ${contractAddress}
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="network-badge">
+
+                        ● Base Mainnet
+
+                    </span>
+
+
+                    <span
+                        class="status unverified"
+                        style="margin-left:8px">
+
+                        Unverified
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Contract Information
+                </h2>
+
+            </div>
+
+
+            <div class="details">
+
+
+                <div class="detail-label">
+                    Contract Address
+                </div>
+
+                <div class="detail-value">
+
+                    <a
+                        href="address.html?address=${contractAddress}">
+
+                        ${contractAddress}
+
+                    </a>
+
+                </div>
+
+
+                <div class="detail-label">
+                    Bytecode
+                </div>
+
+                <div class="detail-value">
+
+                    Contract bytecode detected
+
+                </div>
+
+
+                <div class="detail-label">
+                    Verification
+                </div>
+
+                <div class="detail-value">
+
+                    Source code not verified
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Contract Interface
+                </h2>
+
+            </div>
+
+
+            <div class="coming-soon">
+
+                ABI is not available.
+
+                <br><br>
+
+                Read / Write Contract requires
+                a verified ABI.
+
+            </div>
+
+        </div>
+
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Explorer Links
+                </h2>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <a
+                    class="external-link"
+                    href="https://basescan.org/address/${contractAddress}#code"
+                    target="_blank">
+
+                    View Contract on BaseScan →
+
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   TAB SWITCHING
+========================================= */
+
+function showTab(
+    tabName,
+    button
+) {
+
+    const tabs = [
+        "read",
+        "write",
+        "source"
+    ];
+
+
+    tabs.forEach(
+        tab => {
+
+            const element =
+                document.getElementById(
+                    tab
+                );
+
+            if (element) {
+
+                element.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        tabName
+    ).style.display = "block";
+
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(
+            item => {
+
+                item.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    button.classList.add(
+        "active"
+    );
+
+}
+
+
+/* =========================================
+   HTML ESCAPE
+========================================= */
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+loadContract();
+
+
+</script>
+
+
+</body>
+
+</html>
