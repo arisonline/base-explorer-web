@@ -488,76 +488,44 @@
             <!-- TRANSACTIONS -->
 
             <div class="card">
-
+            
                 <div class="card-header">
-
+            
                     <h2>Latest Transactions</h2>
-
+            
                     <a href="#" class="view-all">
-                        View All
+                        Live
                     </a>
-
+            
                 </div>
-
-
-                <div class="list">
-
+            
+                <div
+                    class="list"
+                    id="latestTransactionsList"
+                >
+            
                     <div class="list-item">
-
+            
                         <div class="item-main">
-
+            
                             <div class="item-title">
-                                0x...
+                                Loading...
                             </div>
-
+            
                             <div class="item-sub">
-                                Waiting for blockchain data
+                                Fetching latest transactions
                             </div>
-
+            
                         </div>
-
+            
                         <div class="item-value">
                             Base
                         </div>
-
+            
                     </div>
-
-
-                    <div class="list-item">
-
-                        <div class="item-main">
-
-                            <div class="item-title">
-                                0x...
-                            </div>
-
-                            <div class="item-sub">
-                                Waiting for blockchain data
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="list-item">
-
-                        <div class="item-main">
-
-                            <div class="item-title">
-                                0x...
-                            </div>
-
-                            <div class="item-sub">
-                                Waiting for blockchain data
-                            </div>
-
-                        </div>
-
-                    </div>
-
+            
                 </div>
-
+            
             </div>
 
         </div>
@@ -1059,6 +1027,118 @@
 
 
     /* =========================================
+       LOAD LATEST TRANSACTIONS
+    ========================================= */
+    
+    async function loadLatestTransactions() {
+    
+        try {
+    
+            const latestResult =
+                await baseRPC(
+                    "eth_blockNumber"
+                );
+    
+            const latestBlock =
+                parseInt(
+                    latestResult.result,
+                    16
+                );
+    
+            const transactions = [];
+    
+            /*
+             * Check the latest 3 blocks
+             */
+            for (
+                let i = 0;
+                i < 3;
+                i++
+            ) {
+    
+                const blockNumber =
+                    latestBlock - i;
+    
+                const response =
+                    await fetch(
+                        "https://base.blockscout.com/api/v2/blocks/" +
+                        blockNumber +
+                        "/transactions"
+                    );
+    
+                if (!response.ok) {
+                    continue;
+                }
+    
+                const data =
+                    await response.json();
+    
+                if (
+                    data.items &&
+                    Array.isArray(data.items)
+                ) {
+    
+                    transactions.push(
+                        ...data.items
+                    );
+    
+                }
+    
+                /*
+                 * Stop once we have enough
+                 */
+                if (
+                    transactions.length >= 5
+                ) {
+    
+                    break;
+    
+                }
+    
+            }
+    
+            renderLatestTransactions(
+                transactions.slice(0, 5)
+            );
+    
+        }
+    
+        catch (error) {
+    
+            console.error(
+                "Latest transactions error:",
+                error
+            );
+    
+            document.getElementById(
+                "latestTransactionsList"
+            ).innerHTML = `
+                <div class="list-item">
+    
+                    <div class="item-main">
+    
+                        <div class="item-title">
+                            Unable to load transactions
+                        </div>
+    
+                        <div class="item-sub">
+                            Please try again
+                        </div>
+    
+                    </div>
+    
+                </div>
+            `;
+    
+        }
+    
+    }
+
+
+
+
+
+    /* =========================================
        DISPLAY LATEST BLOCKS
     ========================================= */
     
@@ -1145,6 +1225,182 @@
                 `;
     
             }).join("");
+    
+    }
+
+
+
+
+
+
+    /* =========================================
+       DISPLAY LATEST TRANSACTIONS
+    ========================================= */
+    
+    function renderLatestTransactions(
+        transactions
+    ) {
+    
+        const container =
+            document.getElementById(
+                "latestTransactionsList"
+            );
+    
+        if (
+            !transactions ||
+            transactions.length === 0
+        ) {
+    
+            container.innerHTML = `
+                <div class="list-item">
+    
+                    <div class="item-main">
+    
+                        <div class="item-title">
+                            No transactions found
+                        </div>
+    
+                        <div class="item-sub">
+                            Waiting for blockchain data
+                        </div>
+    
+                    </div>
+    
+                </div>
+            `;
+    
+            return;
+        }
+    
+        container.innerHTML =
+            transactions.map(tx => {
+    
+                const hash =
+                    tx.hash || "";
+    
+                const block =
+                    tx.block_number ||
+                    tx.block;
+    
+                const from =
+                    tx.from?.hash ||
+                    tx.from ||
+                    "";
+    
+                const to =
+                    tx.to?.hash ||
+                    tx.to ||
+                    "";
+    
+                const value =
+                    tx.value || "0";
+    
+                const timestamp =
+                    tx.timestamp
+                        ? new Date(tx.timestamp)
+                        : null;
+    
+                const time =
+                    timestamp
+                        ? timestamp.toLocaleTimeString()
+                        : "";
+    
+                return `
+                    <div
+                        class="list-item"
+                        onclick="openTransaction('${hash}')"
+                        style="cursor:pointer;"
+                    >
+    
+                        <div class="item-main">
+    
+                            <div class="item-title">
+                                ${shortHash(hash)}
+                            </div>
+    
+                            <div class="item-sub">
+                                Block ${block || "Unknown"}
+                                • ${time}
+                            </div>
+    
+                        </div>
+    
+                        <div class="item-value">
+                            ${formatEthValue(value)} ETH
+                        </div>
+    
+                    </div>
+                `;
+    
+            }).join("");
+    
+    }
+
+
+
+
+
+
+
+    /* =========================================
+       SHORT TRANSACTION HASH
+    ========================================= */
+    
+    function shortHash(hash) {
+    
+        if (!hash) {
+            return "0x...";
+        }
+    
+        return (
+            hash.substring(0, 10) +
+            "..." +
+            hash.substring(hash.length - 8)
+        );
+    
+    }
+    
+    
+    /* =========================================
+       FORMAT ETH VALUE
+    ========================================= */
+    
+    function formatEthValue(value) {
+    
+        try {
+    
+            const wei =
+                BigInt(value);
+    
+            const eth =
+                Number(wei) / 1e18;
+    
+            return eth.toFixed(6);
+    
+        }
+    
+        catch (error) {
+    
+            return "0";
+    
+        }
+    
+    }
+
+
+    /* =========================================
+       OPEN TRANSACTION
+    ========================================= */
+    
+    function openTransaction(hash) {
+    
+        if (!hash) {
+            return;
+        }
+    
+        window.location.href =
+            "tx.html?hash=" +
+            encodeURIComponent(hash);
     
     }
 
