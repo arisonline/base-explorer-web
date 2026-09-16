@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Address | Base Explorer</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f8fb;
+            color: #1f2937;
+        }
+
+        header {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: min(1200px, 94%);
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            text-decoration: none;
+            color: #111827;
+
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 9px;
+
+            background: #0052ff;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #0052ff;
+        }
+
+        .container {
+            width: min(1200px, 94%);
+            margin: 30px auto 60px;
+        }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .breadcrumb a {
+            color: #0052ff;
+            text-decoration: none;
+        }
+
+        .address-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+
+            padding: 24px;
+        }
+
+        .address-title {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .address-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .address {
+            font-family: monospace;
+            font-size: 17px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            border: 1px solid #d1d5db;
+            background: white;
+
+            padding: 7px 12px;
+            border-radius: 7px;
+
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .copy-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .network-badge {
+            display: inline-block;
+
+            margin-top: 14px;
+
+            background: #ecfdf5;
+            color: #15803d;
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: white;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 13px;
+
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .section {
+            margin-top: 22px;
+
+            background: white;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 18px 20px;
+
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-header h2 {
+            font-size: 17px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 15px 20px;
+
+            text-align: left;
+
+            border-bottom: 1px solid #f0f1f3;
+
+            font-size: 13px;
+
+            white-space: nowrap;
+        }
+
+        th {
+            color: #6b7280;
+            font-weight: 600;
+            background: #fafafa;
+        }
+
+        td a {
+            color: #0052ff;
+            text-decoration: none;
+
+            font-family: monospace;
+        }
+
+        .status {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .empty {
+            padding: 40px;
+
+            text-align: center;
+
+            color: #9ca3af;
+        }
+
+        .loading {
+            color: #9ca3af;
+        }
+
+        footer {
+            background: white;
+
+            border-top: 1px solid #e5e7eb;
+
+            padding: 25px;
+
+            text-align: center;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+
+            nav {
+                display: none;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .address {
+                font-size: 14px;
+            }
+
+            .address-row {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="header-inner">
+
+        <a href="index.html"
+           class="logo">
+
+            <div class="logo-icon">
+                B
+            </div>
+
+            Base Explorer
+
+        </a>
+
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="#">
+                Blockchain
+            </a>
+
+            <a href="#">
+                Tokens
+            </a>
+
+            <a href="#">
+                Contracts
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <div class="breadcrumb">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        /
+
+        Address
+
+    </div>
+
+
+
+    <div class="address-card">
+
+        <div class="address-title">
+            Address
+        </div>
+
+
+        <div class="address-row">
+
+            <div
+                class="address"
+                id="address">
+                Loading...
+            </div>
+
+
+            <button
+                class="copy-btn"
+                onclick="copyAddress()">
+
+                Copy
+
+            </button>
+
+        </div>
+
+
+        <div class="network-badge">
+
+            ● Base Mainnet
+
+        </div>
+
+    </div>
+
+
+
+    <div class="stats">
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                ETH Balance
+            </div>
+
+            <div
+                class="stat-value"
+                id="balance">
+
+                Loading...
+
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Address Type
+            </div>
+
+            <div
+                class="stat-value"
+                id="addressType">
+
+                Detecting...
+
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Network
+            </div>
+
+            <div class="stat-value">
+
+                Base
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <section class="section">
+
+
+        <div class="section-header">
+
+            <h2>
+                Recent Transactions
+            </h2>
+
+        </div>
+
+
+        <div
+            id="transactions">
+
+            <div class="empty loading">
+
+                Loading blockchain data...
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <section class="section">
+
+
+        <div class="section-header">
+
+            <h2>
+                Explorer Links
+            </h2>
+
+        </div>
+
+
+        <div style="padding:20px">
+
+            <a
+                id="basescanLink"
+                href="#"
+                target="_blank">
+
+                View this address on BaseScan →
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<footer>
+
+    Base Explorer © 2026
+
+</footer>
+
+
+
+<script>
+
+
+/* =========================================
+   BASE CONFIGURATION
+========================================= */
+
+
+const BASE_RPC =
+    "https://mainnet.base.org";
+
+
+const BASE_CHAIN_ID =
+    8453;
+
+
+
+/* =========================================
+   RPC FUNCTION
+========================================= */
+
+
+async function baseRPC(
+    method,
+    params = []
+) {
+
+    const response =
+        await fetch(
+            BASE_RPC,
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    jsonrpc: "2.0",
+
+                    id: 1,
+
+                    method: method,
+
+                    params: params
+
+                })
+
+            }
+        );
+
+
+    return await response.json();
+
+}
+
+
+
+/* =========================================
+   GET ADDRESS FROM URL
+========================================= */
+
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const address =
+    params.get("address");
+
+
+
+/* =========================================
+   VALIDATE ADDRESS
+========================================= */
+
+
+function isValidAddress(value) {
+
+    return /^0x[a-fA-F0-9]{40}$/
+        .test(value);
+
+}
+
+
+
+/* =========================================
+   DISPLAY ADDRESS
+========================================= */
+
+
+if (
+    !address ||
+    !isValidAddress(address)
+) {
+
+    document.getElementById(
+        "address"
+    ).textContent =
+        "Invalid address";
+
+} else {
+
+    document.getElementById(
+        "address"
+    ).textContent =
+        address;
+
+    loadAddress();
+
+}
+
+
+
+/* =========================================
+   LOAD ADDRESS
+========================================= */
+
+
+async function loadAddress() {
+
+    try {
+
+        await loadBalance();
+
+        await detectAddressType();
+
+        setBaseScanLink();
+
+        loadTransactions();
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+}
+
+
+
+/* =========================================
+   BALANCE
+========================================= */
+
+
+async function loadBalance() {
+
+    const result =
+        await baseRPC(
+
+            "eth_getBalance",
+
+            [
+                address,
+                "latest"
+            ]
+
+        );
+
+
+    if (!result.result) {
+
+        document.getElementById(
+            "balance"
+        ).textContent =
+            "Unavailable";
+
+        return;
+
+    }
+
+
+    const wei =
+        BigInt(
+            result.result
+        );
+
+
+    const eth =
+        Number(wei) /
+        1e18;
+
+
+    document.getElementById(
+        "balance"
+    ).textContent =
+        eth.toLocaleString(
+            undefined,
+            {
+                maximumFractionDigits: 6
+            }
+        ) + " ETH";
+
+}
+
+
+
+/* =========================================
+   DETECT ADDRESS TYPE
+========================================= */
+
+
+async function detectAddressType() {
+
+    const result =
+        await baseRPC(
+
+            "eth_getCode",
+
+            [
+                address,
+                "latest"
+            ]
+
+        );
+
+
+    if (
+        result.result &&
+        result.result !== "0x"
+    ) {
+
+        document.getElementById(
+            "addressType"
+        ).textContent =
+            "Contract";
+
+    } else {
+
+        document.getElementById(
+            "addressType"
+        ).textContent =
+            "EOA";
+
+    }
+
+}
+
+
+
+/* =========================================
+   BASESCAN
+========================================= */
+
+
+function setBaseScanLink() {
+
+    document.getElementById(
+        "basescanLink"
+    ).href =
+        "https://basescan.org/address/"
+        + address;
+
+}
+
+
+
+/* =========================================
+   COPY ADDRESS
+========================================= */
+
+
+async function copyAddress() {
+
+    await navigator.clipboard
+        .writeText(address);
+
+    alert(
+        "Address copied!"
+    );
+
+}
+
+
+
+/* =========================================
+   TRANSACTIONS
+========================================= */
+
+
+function loadTransactions() {
+
+    /*
+     * Historical transaction indexing
+     * will be added in the next stage.
+     */
+
+    document.getElementById(
+        "transactions"
+    ).innerHTML = `
+
+        <div class="empty">
+
+            Transaction indexing will
+            be connected in the next step.
+
+        </div>
+
+    `;
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
