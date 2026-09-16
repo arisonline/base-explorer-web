@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Transaction | Base Explorer</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f8fb;
+            color: #1f2937;
+        }
+
+        header {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: min(1200px, 94%);
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            text-decoration: none;
+            color: #111827;
+
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 9px;
+
+            background: #0052ff;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #0052ff;
+        }
+
+        .container {
+            width: min(1200px, 94%);
+            margin: 30px auto 60px;
+        }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .breadcrumb a {
+            color: #0052ff;
+            text-decoration: none;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e5e7eb;
+
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .tx-hash {
+            font-family: monospace;
+            font-size: 15px;
+            word-break: break-all;
+        }
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .success {
+            background: #ecfdf5;
+            color: #15803d;
+        }
+
+        .failed {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .details {
+            display: grid;
+
+            grid-template-columns:
+                220px 1fr;
+
+            border-top: 1px solid #f0f1f3;
+        }
+
+        .detail-label {
+            padding: 16px 20px;
+
+            background: #fafafa;
+
+            border-bottom: 1px solid #f0f1f3;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+        .detail-value {
+            padding: 16px 20px;
+
+            border-bottom: 1px solid #f0f1f3;
+
+            font-size: 13px;
+
+            word-break: break-all;
+        }
+
+        .detail-value a {
+            color: #0052ff;
+            text-decoration: none;
+            font-family: monospace;
+        }
+
+        .copy-btn {
+            margin-left: 8px;
+
+            border: 1px solid #d1d5db;
+            background: white;
+
+            padding: 5px 9px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .network-badge {
+            display: inline-block;
+
+            background: #ecfdf5;
+            color: #15803d;
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .external-link {
+            display: inline-block;
+
+            padding: 10px 14px;
+
+            background: #0052ff;
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+        }
+
+        .external-link:hover {
+            opacity: .9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+
+            color: #9ca3af;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            text-align: center;
+        }
+
+        footer {
+            background: white;
+
+            border-top: 1px solid #e5e7eb;
+
+            padding: 25px;
+
+            text-align: center;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+
+            nav {
+                display: none;
+            }
+
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-label {
+                padding-bottom: 5px;
+                border-bottom: none;
+            }
+
+            .detail-value {
+                padding-top: 5px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="header-inner">
+
+        <a href="index.html"
+           class="logo">
+
+            <div class="logo-icon">
+                B
+            </div>
+
+            Base Explorer
+
+        </a>
+
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="#">
+                Blockchain
+            </a>
+
+            <a href="#">
+                Tokens
+            </a>
+
+            <a href="#">
+                Contracts
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <div class="breadcrumb">
+
+        <a href="index.html">
+            Home
+        </a>
+
+        /
+
+        Transaction
+
+    </div>
+
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            Transaction Details
+
+        </div>
+
+
+        <div
+            class="card-body"
+            id="transactionSummary">
+
+            <div class="loading">
+
+                Loading transaction...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            Overview
+
+        </div>
+
+
+        <div
+            class="details"
+            id="transactionDetails">
+
+        </div>
+
+    </div>
+
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            Explorer Links
+
+        </div>
+
+
+        <div class="card-body">
+
+            <a
+                id="basescanLink"
+                href="#"
+                target="_blank"
+                class="external-link">
+
+                View on BaseScan →
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+</main>
+
+
+
+<footer>
+
+    Base Explorer © 2026
+
+</footer>
+
+
+
+<script>
+
+
+/* =========================================
+   CONFIG
+========================================= */
+
+const BASE_BLOCKSCOUT =
+    "https://base.blockscout.com/api/v2";
+
+
+/* =========================================
+   GET HASH
+========================================= */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const hash =
+    params.get("hash");
+
+
+/* =========================================
+   VALIDATE HASH
+========================================= */
+
+function isValidHash(value) {
+
+    return /^0x[a-fA-F0-9]{64}$/
+        .test(value);
+
+}
+
+
+/* =========================================
+   SHORT HASH
+========================================= */
+
+function shortHash(value) {
+
+    if (!value) {
+        return "-";
+    }
+
+    return (
+        value.substring(0, 12)
+        + "..."
+        + value.substring(
+            value.length - 10
+        )
+    );
+
+}
+
+
+/* =========================================
+   FORMAT ETH
+========================================= */
+
+function formatETH(value) {
+
+    if (!value) {
+        return "0 ETH";
+    }
+
+    try {
+
+        const eth =
+            Number(value) / 1e18;
+
+        return eth.toLocaleString(
+            undefined,
+            {
+                maximumFractionDigits: 8
+            }
+        ) + " ETH";
+
+    } catch {
+
+        return "0 ETH";
+
+    }
+
+}
+
+
+/* =========================================
+   LOAD TRANSACTION
+========================================= */
+
+async function loadTransaction() {
+
+    const summary =
+        document.getElementById(
+            "transactionSummary"
+        );
+
+    const details =
+        document.getElementById(
+            "transactionDetails"
+        );
+
+
+    if (
+        !hash ||
+        !isValidHash(hash)
+    ) {
+
+        summary.innerHTML = `
+
+            <div class="error">
+
+                Invalid transaction hash.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                BASE_BLOCKSCOUT
+                + "/transactions/"
+                + hash
+
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Transaction not found"
+            );
+
+        }
+
+
+        const tx =
+            await response.json();
+
+
+        displayTransaction(
+            tx
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        summary.innerHTML = `
+
+            <div class="error">
+
+                Transaction could not be loaded.
+
+                <br><br>
+
+                Please check the transaction hash.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   DISPLAY TRANSACTION
+========================================= */
+
+function displayTransaction(tx) {
+
+    const summary =
+        document.getElementById(
+            "transactionSummary"
+        );
+
+
+    const details =
+        document.getElementById(
+            "transactionDetails"
+        );
+
+
+    const status =
+        tx.status === "ok"
+            ? "Success"
+            : "Failed";
+
+
+    const statusClass =
+        tx.status === "ok"
+            ? "success"
+            : "failed";
+
+
+    const from =
+        tx.from?.hash || "-";
+
+
+    const to =
+        tx.to?.hash || "-";
+
+
+    const block =
+        tx.block_number || "-";
+
+
+    const timestamp =
+        tx.timestamp
+            ? new Date(
+                tx.timestamp
+              ).toLocaleString()
+            : "-";
+
+
+    const value =
+        formatETH(tx.value);
+
+
+    const gasUsed =
+        tx.gas_used || "-";
+
+
+    const gasPrice =
+        tx.gas_price
+            ? formatETH(tx.gas_price)
+            : "-";
+
+
+    const fee =
+        tx.fee?.value
+            ? formatETH(tx.fee.value)
+            : "-";
+
+
+    summary.innerHTML = `
+
+        <div style="margin-bottom:15px">
+
+            <span
+                class="network-badge">
+
+                ● Base Mainnet
+
+            </span>
+
+        </div>
+
+
+        <div
+            style="margin-bottom:10px;color:#6b7280;font-size:13px">
+
+            Transaction Hash
+
+        </div>
+
+
+        <div class="tx-hash">
+
+            ${tx.hash}
+
+            <button
+                class="copy-btn"
+                onclick="copyHash()">
+
+                Copy
+
+            </button>
+
+        </div>
+
+
+        <div style="margin-top:15px">
+
+            <span
+                class="status ${statusClass}">
+
+                ${status}
+
+            </span>
+
+        </div>
+
+    `;
+
+
+    details.innerHTML = `
+
+        <div class="detail-label">
+            Block
+        </div>
+
+        <div class="detail-value">
+
+            ${block}
+
+        </div>
+
+
+        <div class="detail-label">
+            Timestamp
+        </div>
+
+        <div class="detail-value">
+
+            ${timestamp}
+
+        </div>
+
+
+        <div class="detail-label">
+            From
+        </div>
+
+        <div class="detail-value">
+
+            <a
+                href="address.html?address=${from}">
+
+                ${shortHash(from)}
+
+            </a>
+
+        </div>
+
+
+        <div class="detail-label">
+            To
+        </div>
+
+        <div class="detail-value">
+
+            <a
+                href="address.html?address=${to}">
+
+                ${shortHash(to)}
+
+            </a>
+
+        </div>
+
+
+        <div class="detail-label">
+            Value
+        </div>
+
+        <div class="detail-value">
+
+            ${value}
+
+        </div>
+
+
+        <div class="detail-label">
+            Transaction Fee
+        </div>
+
+        <div class="detail-value">
+
+            ${fee}
+
+        </div>
+
+
+        <div class="detail-label">
+            Gas Used
+        </div>
+
+        <div class="detail-value">
+
+            ${gasUsed}
+
+        </div>
+
+
+        <div class="detail-label">
+            Gas Price
+        </div>
+
+        <div class="detail-value">
+
+            ${gasPrice}
+
+        </div>
+
+
+        <div class="detail-label">
+            Nonce
+        </div>
+
+        <div class="detail-value">
+
+            ${tx.nonce ?? "-"}
+
+        </div>
+
+
+        <div class="detail-label">
+            Network
+        </div>
+
+        <div class="detail-value">
+
+            Base Mainnet
+
+        </div>
+
+    `;
+
+
+    document.getElementById(
+        "basescanLink"
+    ).href =
+        "https://basescan.org/tx/"
+        + tx.hash;
+
+}
+
+
+/* =========================================
+   COPY HASH
+========================================= */
+
+async function copyHash() {
+
+    try {
+
+        await navigator.clipboard
+            .writeText(hash);
+
+        alert(
+            "Transaction hash copied!"
+        );
+
+    } catch {
+
+        alert(
+            "Unable to copy hash."
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+loadTransaction();
+
+
+</script>
+
+
+</body>
+
+</html>
