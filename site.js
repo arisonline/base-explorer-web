@@ -1,14 +1,18 @@
 /* =========================================================
-   BASE EXPLORER - UNIVERSAL SITE LAYOUT
-   Header + Search + Footer
-   ========================================================= */
+   BASE EXPLORER
+   UNIVERSAL SITE.JS
 
-const BASE_RPC = "https://mainnet.base.org";
+   Step 7  → Universal Search
+   Step 8  → Gas Tracker
+   ========================================================= */
 
 
 /* =========================================================
    BASE RPC
    ========================================================= */
+
+const BASE_RPC = "https://mainnet.base.org";
+
 
 async function baseRPC(method, params = []) {
 
@@ -34,11 +38,176 @@ async function baseRPC(method, params = []) {
 
     });
 
+
     if (!response.ok) {
-        throw new Error("RPC request failed");
+        throw new Error("Base RPC request failed");
     }
 
-    return await response.json();
+
+    const data = await response.json();
+
+
+    if (data.error) {
+        throw new Error(
+            data.error.message || "RPC error"
+        );
+    }
+
+
+    return data;
+
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   SHORT ADDRESS / HASH
+   ========================================================= */
+
+function shortHash(value, start = 8, end = 6) {
+
+    if (!value) {
+        return "-";
+    }
+
+
+    const text = String(value);
+
+
+    if (text.length <= start + end + 3) {
+        return text;
+    }
+
+
+    return (
+        text.slice(0, start) +
+        "..." +
+        text.slice(-end)
+    );
+
+}
+
+
+/* =========================================================
+   ONE-TAP COPY
+   ========================================================= */
+
+async function copyText(value, button = null) {
+
+    if (!value) {
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(value);
+
+
+        if (button) {
+
+            const original =
+                button.innerHTML;
+
+            button.innerHTML = "✓";
+
+
+            setTimeout(function() {
+
+                button.innerHTML = original;
+
+            }, 1200);
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Copy failed:",
+            error
+        );
+
+
+        /* Fallback */
+
+        const textarea =
+            document.createElement("textarea");
+
+        textarea.value = value;
+
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+
+        textarea.select();
+
+        document.execCommand("copy");
+
+        textarea.remove();
+
+
+        if (button) {
+
+            const original =
+                button.innerHTML;
+
+            button.innerHTML = "✓";
+
+
+            setTimeout(function() {
+
+                button.innerHTML = original;
+
+            }, 1200);
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   UNIVERSAL COPY BUTTON HTML
+   ========================================================= */
+
+function copyButton(value) {
+
+    const safeValue =
+        escapeHTML(value);
+
+
+    return `
+
+        <button
+            type="button"
+            class="copy-button"
+            title="Copy"
+            onclick="copyText('${safeValue}', this)"
+        >
+            ⧉
+        </button>
+
+    `;
+
 }
 
 
@@ -48,17 +217,25 @@ async function baseRPC(method, params = []) {
 
 function renderSiteHeader() {
 
-    const header = document.getElementById("siteHeader");
+    const header =
+        document.getElementById(
+            "siteHeader"
+        );
+
 
     if (!header) {
         return;
     }
+
 
     header.innerHTML = `
 
         <header class="site-header">
 
             <div class="site-header-inner">
+
+
+                <!-- LOGO -->
 
                 <a
                     href="index.html"
@@ -75,6 +252,8 @@ function renderSiteHeader() {
 
                 </a>
 
+
+                <!-- DESKTOP NAV -->
 
                 <nav class="site-nav">
 
@@ -97,7 +276,12 @@ function renderSiteHeader() {
                 </nav>
 
 
+                <!-- HEADER ACTIONS -->
+
                 <div class="header-actions">
+
+
+                    <!-- UNIVERSAL SEARCH -->
 
                     <div class="header-search">
 
@@ -105,12 +289,15 @@ function renderSiteHeader() {
                             ⌕
                         </span>
 
+
                         <input
                             type="text"
                             id="headerSearchInput"
                             placeholder="Search address, tx, block..."
                             autocomplete="off"
+                            spellcheck="false"
                         >
+
 
                         <button
                             type="button"
@@ -122,18 +309,44 @@ function renderSiteHeader() {
                     </div>
 
 
+                    <!-- GAS -->
+
+                    <button
+                        type="button"
+                        class="gas-header-button"
+                        onclick="openGasTracker()"
+                        title="Base Gas Tracker"
+                    >
+
+                        <span>
+                            ⛽
+                        </span>
+
+                        <span id="headerGasValue">
+                            Gas
+                        </span>
+
+                    </button>
+
+
+                    <!-- MOBILE MENU -->
+
                     <button
                         class="mobile-menu-button"
                         type="button"
                         onclick="toggleMobileMenu()"
+                        aria-label="Open menu"
                     >
                         ☰
                     </button>
+
 
                 </div>
 
             </div>
 
+
+            <!-- MOBILE NAVIGATION -->
 
             <div
                 id="mobileNavigation"
@@ -156,14 +369,99 @@ function renderSiteHeader() {
                     Contracts
                 </a>
 
+                <button
+                    type="button"
+                    onclick="openGasTracker()"
+                >
+                    ⛽ Gas Tracker
+                </button>
+
+            </div>
+
+
+            <!-- GAS PANEL -->
+
+            <div
+                id="gasTrackerPanel"
+                class="gas-tracker-panel"
+            >
+
+                <div class="gas-tracker-card">
+
+
+                    <div class="gas-tracker-header">
+
+                        <div>
+
+                            <strong>
+                                Base Gas Tracker
+                            </strong>
+
+                            <span>
+                                Live Base Mainnet RPC
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="gas-close"
+                            onclick="closeGasTracker()"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="gasTrackerContent"
+                        class="gas-tracker-content"
+                    >
+
+                        <div class="gas-loading">
+                            Loading gas...
+                        </div>
+
+                    </div>
+
+
+                    <div class="gas-tracker-footer">
+
+                        <span id="gasUpdated">
+                            Not updated
+                        </span>
+
+
+                        <button
+                            type="button"
+                            onclick="loadGasTracker()"
+                        >
+                            ↻ Refresh
+                        </button>
+
+                    </div>
+
+
+                </div>
+
             </div>
 
         </header>
 
     `;
 
+
+    /* =====================================================
+       SEARCH ENTER KEY
+       ===================================================== */
+
     const input =
-        document.getElementById("headerSearchInput");
+        document.getElementById(
+            "headerSearchInput"
+        );
+
 
     if (input) {
 
@@ -172,13 +470,24 @@ function renderSiteHeader() {
             function(event) {
 
                 if (event.key === "Enter") {
+
+                    event.preventDefault();
+
                     searchFromHeader();
+
                 }
 
             }
         );
 
     }
+
+
+    /* =====================================================
+       OPTIONAL: LOAD SMALL GAS PRICE
+       ===================================================== */
+
+    loadHeaderGas();
 
 }
 
@@ -189,17 +498,24 @@ function renderSiteHeader() {
 
 function renderSiteFooter() {
 
-    const footer = document.getElementById("siteFooter");
+    const footer =
+        document.getElementById(
+            "siteFooter"
+        );
+
 
     if (!footer) {
         return;
     }
 
+
     footer.innerHTML = `
 
         <footer class="site-footer">
 
+
             <div class="footer-inner">
+
 
                 <div class="footer-brand">
 
@@ -214,6 +530,7 @@ function renderSiteFooter() {
                         </strong>
 
                     </div>
+
 
                     <p>
                         Explore the Base Mainnet blockchain.
@@ -277,28 +594,32 @@ function renderSiteFooter() {
                     <a
                         href="https://base.org/"
                         target="_blank"
-                        rel="noopener"
+                        rel="noopener noreferrer"
                     >
                         Base
                     </a>
 
+
                     <a
                         href="https://basescan.org/"
                         target="_blank"
-                        rel="noopener"
+                        rel="noopener noreferrer"
                     >
                         BaseScan
                     </a>
 
+
                     <div class="footer-network">
                         Base Mainnet
                     </div>
+
 
                     <div class="footer-network">
                         Chain ID: 8453
                     </div>
 
                 </div>
+
 
             </div>
 
@@ -314,6 +635,7 @@ function renderSiteFooter() {
                 </span>
 
             </div>
+
 
         </footer>
 
@@ -333,11 +655,35 @@ function toggleMobileMenu() {
             "mobileNavigation"
         );
 
+
     if (!menu) {
         return;
     }
 
+
     menu.classList.toggle("show");
+
+}
+
+
+/* =========================================================
+   CLOSE MOBILE MENU
+   ========================================================= */
+
+function closeMobileMenu() {
+
+    const menu =
+        document.getElementById(
+            "mobileNavigation"
+        );
+
+
+    if (!menu) {
+        return;
+    }
+
+
+    menu.classList.remove("show");
 
 }
 
@@ -353,23 +699,52 @@ async function searchFromHeader() {
             "headerSearchInput"
         );
 
+
     if (!input) {
         return;
     }
 
+
     const value =
         input.value.trim();
 
-    await performBlockchainSearch(value);
+
+    if (!value) {
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    input.disabled = true;
+
+
+    try {
+
+        await performBlockchainSearch(value);
+
+    }
+
+    finally {
+
+        input.disabled = false;
+
+    }
 
 }
 
 
 /* =========================================================
-   COMMON BLOCKCHAIN SEARCH
+   UNIVERSAL BLOCKCHAIN SEARCH
    ========================================================= */
 
 async function performBlockchainSearch(input) {
+
+    input =
+        String(input || "").trim();
+
 
     if (!input) {
 
@@ -382,7 +757,9 @@ async function performBlockchainSearch(input) {
     }
 
 
-    /* Transaction hash */
+    /* =====================================================
+       TRANSACTION HASH
+       ===================================================== */
 
     if (
         /^0x[a-fA-F0-9]{64}$/.test(input)
@@ -397,7 +774,9 @@ async function performBlockchainSearch(input) {
     }
 
 
-    /* Block number */
+    /* =====================================================
+       BLOCK NUMBER
+       ===================================================== */
 
     if (
         /^\d+$/.test(input)
@@ -412,7 +791,9 @@ async function performBlockchainSearch(input) {
     }
 
 
-    /* Address / Contract / Token */
+    /* =====================================================
+       ADDRESS / CONTRACT / TOKEN
+       ===================================================== */
 
     if (
         /^0x[a-fA-F0-9]{40}$/.test(input)
@@ -454,7 +835,9 @@ async function detectAddressOrToken(address) {
             codeResult.result;
 
 
-        /* Normal wallet */
+        /* =================================================
+           NORMAL WALLET / EOA
+           ================================================= */
 
         if (
             !code ||
@@ -470,7 +853,9 @@ async function detectAddressOrToken(address) {
         }
 
 
-        /* Smart contract */
+        /* =================================================
+           SMART CONTRACT
+           ================================================= */
 
         const isToken =
             await checkERC20(address);
@@ -487,7 +872,9 @@ async function detectAddressOrToken(address) {
         }
 
 
-        /* Other contract */
+        /* =================================================
+           NORMAL CONTRACT
+           ================================================= */
 
         window.location.href =
             "contract.html?address=" +
@@ -501,6 +888,12 @@ async function detectAddressOrToken(address) {
             "Address detection error:",
             error
         );
+
+
+        /*
+         * If RPC detection fails,
+         * send it to address page.
+         */
 
         window.location.href =
             "address.html?address=" +
@@ -519,6 +912,8 @@ async function checkERC20(address) {
 
     try {
 
+        /* symbol() */
+
         const symbolResult =
             await baseRPC(
                 "eth_call",
@@ -531,6 +926,8 @@ async function checkERC20(address) {
                 ]
             );
 
+
+        /* decimals() */
 
         const decimalsResult =
             await baseRPC(
@@ -576,6 +973,7 @@ async function checkERC20(address) {
             error
         );
 
+
         return false;
 
     }
@@ -584,7 +982,372 @@ async function checkERC20(address) {
 
 
 /* =========================================================
-   INITIALIZE UNIVERSAL LAYOUT
+   GAS TRACKER
+   ========================================================= */
+
+
+/*
+ * Base gas tracker uses:
+ *
+ * eth_gasPrice
+ *
+ * This returns the current gas price
+ * suggested by the Base RPC.
+ */
+
+
+async function getBaseGasPrice() {
+
+    const result =
+        await baseRPC(
+            "eth_gasPrice"
+        );
+
+
+    if (
+        !result.result
+    ) {
+
+        throw new Error(
+            "Gas price unavailable"
+        );
+
+    }
+
+
+    return BigInt(
+        result.result
+    );
+
+}
+
+
+/* =========================================================
+   WEI → GWEI
+   ========================================================= */
+
+function weiToGwei(wei) {
+
+    const base =
+        1000000000n;
+
+
+    const whole =
+        wei / base;
+
+
+    const remainder =
+        wei % base;
+
+
+    const decimal =
+        remainder
+            .toString()
+            .padStart(9, "0")
+            .slice(0, 2);
+
+
+    return (
+        whole.toString() +
+        "." +
+        decimal
+    );
+
+}
+
+
+/* =========================================================
+   LOAD HEADER GAS
+   ========================================================= */
+
+async function loadHeaderGas() {
+
+    const element =
+        document.getElementById(
+            "headerGasValue"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    try {
+
+        const gas =
+            await getBaseGasPrice();
+
+
+        element.textContent =
+            weiToGwei(gas) + " Gwei";
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Header gas error:",
+            error
+        );
+
+
+        element.textContent =
+            "Gas";
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN GAS TRACKER
+   ========================================================= */
+
+async function openGasTracker() {
+
+    const panel =
+        document.getElementById(
+            "gasTrackerPanel"
+        );
+
+
+    if (!panel) {
+        return;
+    }
+
+
+    panel.classList.add("show");
+
+
+    await loadGasTracker();
+
+}
+
+
+/* =========================================================
+   CLOSE GAS TRACKER
+   ========================================================= */
+
+function closeGasTracker() {
+
+    const panel =
+        document.getElementById(
+            "gasTrackerPanel"
+        );
+
+
+    if (!panel) {
+        return;
+    }
+
+
+    panel.classList.remove("show");
+
+}
+
+
+/* =========================================================
+   LOAD GAS TRACKER
+   ========================================================= */
+
+async function loadGasTracker() {
+
+    const content =
+        document.getElementById(
+            "gasTrackerContent"
+        );
+
+
+    const updated =
+        document.getElementById(
+            "gasUpdated"
+        );
+
+
+    if (!content) {
+        return;
+    }
+
+
+    content.innerHTML = `
+
+        <div class="gas-loading">
+            Loading current Base gas...
+        </div>
+
+    `;
+
+
+    try {
+
+        const gas =
+            await getBaseGasPrice();
+
+
+        const gwei =
+            weiToGwei(gas);
+
+
+        content.innerHTML = `
+
+            <div class="gas-main">
+
+                <span class="gas-label">
+                    Current Gas Price
+                </span>
+
+                <strong>
+                    ${escapeHTML(gwei)}
+                    <small>Gwei</small>
+                </strong>
+
+            </div>
+
+
+            <div class="gas-info-grid">
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Network
+                    </span>
+
+                    <strong>
+                        Base Mainnet
+                    </strong>
+
+                </div>
+
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Chain ID
+                    </span>
+
+                    <strong>
+                        8453
+                    </strong>
+
+                </div>
+
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Gas Price
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(gwei)} Gwei
+                    </strong>
+
+                </div>
+
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Source
+                    </span>
+
+                    <strong>
+                        Base RPC
+                    </strong>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        if (updated) {
+
+            updated.textContent =
+                "Updated just now";
+
+        }
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Gas tracker error:",
+            error
+        );
+
+
+        content.innerHTML = `
+
+            <div class="gas-error">
+
+                Unable to load current gas price.
+
+                <button
+                    type="button"
+                    onclick="loadGasTracker()"
+                >
+                    Try again
+                </button>
+
+            </div>
+
+        `;
+
+
+        if (updated) {
+
+            updated.textContent =
+                "Update failed";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE GAS WHEN CLICKING OUTSIDE
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const panel =
+            document.getElementById(
+                "gasTrackerPanel"
+            );
+
+
+        const button =
+            event.target.closest(
+                ".gas-header-button"
+            );
+
+
+        if (
+            panel &&
+            panel.classList.contains("show") &&
+            !panel.contains(event.target) &&
+            !button
+        ) {
+
+            closeGasTracker();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
    ========================================================= */
 
 document.addEventListener(
