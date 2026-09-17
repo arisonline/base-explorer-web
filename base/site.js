@@ -1,3 +1,69 @@
+function getRoute() {
+    const path = window.location.pathname
+        .replace(/\/+$/, "");
+
+    if (path === "" || path === "/base") {
+        return {
+            type: "home"
+        };
+    }
+
+    let match;
+
+    match = path.match(/^\/base\/block\/(\d+)$/);
+    if (match) {
+        return {
+            type: "block",
+            value: match[1]
+        };
+    }
+
+    match = path.match(/^\/base\/tx\/(0x[a-fA-F0-9]{64})$/);
+    if (match) {
+        return {
+            type: "tx",
+            value: match[1]
+        };
+    }
+
+    match = path.match(/^\/base\/address\/(0x[a-fA-F0-9]{40})$/);
+    if (match) {
+        return {
+            type: "address",
+            value: match[1]
+        };
+    }
+
+    match = path.match(/^\/base\/token\/(0x[a-fA-F0-9]{40})$/);
+    if (match) {
+        return {
+            type: "token",
+            value: match[1]
+        };
+    }
+
+    match = path.match(/^\/base\/contract\/(0x[a-fA-F0-9]{40})$/);
+    if (match) {
+        return {
+            type: "contract",
+            value: match[1]
+        };
+    }
+
+    return {
+        type: "404"
+    };
+}
+
+
+
+function navigateTo(url) {
+    history.pushState({}, "", url);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+}
+
+
+
 /* =========================================================
    BASE EXPLORER
    UNIVERSAL SITE.JS
@@ -215,42 +281,57 @@ function copyButton(value) {
    ========================================================= */
 
 function goToAddress(address) {
+    if (!address) return;
 
-    window.location.href =
+    navigateTo(
         EXPLORER_BASE_PATH +
         "/address/" +
-        encodeURIComponent(address);
-
+        encodeURIComponent(address)
+    );
 }
 
 
 function goToBlock(blockNumber) {
+    if (!blockNumber) return;
 
-    window.location.href =
+    navigateTo(
         EXPLORER_BASE_PATH +
         "/block/" +
-        encodeURIComponent(blockNumber);
-
+        encodeURIComponent(blockNumber)
+    );
 }
 
 
 function goToTransaction(hash) {
+    if (!hash) return;
 
-    window.location.href =
+    navigateTo(
         EXPLORER_BASE_PATH +
         "/tx/" +
-        encodeURIComponent(hash);
-
+        encodeURIComponent(hash)
+    );
 }
 
 
 function goToToken(address) {
+    if (!address) return;
 
-    window.location.href =
+    navigateTo(
         EXPLORER_BASE_PATH +
         "/token/" +
-        encodeURIComponent(address);
+        encodeURIComponent(address)
+    );
+}
 
+
+function goToContract(address) {
+    if (!address) return;
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/contract/" +
+        encodeURIComponent(address)
+    );
 }
 
 
