@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Base Explorer</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+            background: #f8fafc;
+            color: #111827;
+        }
+
+        .loading {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="loading">
+        Loading Base Explorer...
+    </div>
+
+
+    <script>
+
+        (function() {
+
+            const pathname =
+                window.location.pathname;
+
+
+            /*
+             * Only handle Base Explorer routes.
+             */
+
+            if (
+                !pathname.startsWith("/base/")
+            ) {
+
+                window.location.replace(
+                    "/base/"
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Remove /base/
+             */
+
+            const route =
+                pathname
+                    .replace(/^\/base\/?/, "")
+                    .split("/")
+                    .filter(Boolean);
+
+
+            if (
+                route.length === 0
+            ) {
+
+                window.location.replace(
+                    "/base/"
+                );
+
+                return;
+
+            }
+
+
+            let page = "";
+            let parameter = "";
+
+
+            /*
+             * /base/address/0x...
+             */
+
+            if (
+                route[0] === "address" &&
+                route[1]
+            ) {
+
+                page = "address.html";
+
+                parameter =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /*
+             * /base/block/123
+             */
+
+            else if (
+                route[0] === "block" &&
+                route[1]
+            ) {
+
+                page = "block.html";
+
+                parameter =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /*
+             * /base/tx/0x...
+             */
+
+            else if (
+                route[0] === "tx" &&
+                route[1]
+            ) {
+
+                page = "tx.html";
+
+                parameter =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /*
+             * /base/token/0x...
+             */
+
+            else if (
+                route[0] === "token" &&
+                route[1]
+            ) {
+
+                page = "token.html";
+
+                parameter =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /*
+             * /base/contract/0x...
+             */
+
+            else if (
+                route[0] === "contract" &&
+                route[1]
+            ) {
+
+                page = "contract.html";
+
+                parameter =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /*
+             * Unknown route.
+             */
+
+            if (!page) {
+
+                window.location.replace(
+                    "/base/"
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Create the query parameters
+             * expected by your existing pages.
+             */
+
+            let query = "";
+
+
+            if (
+                page === "address.html" ||
+                page === "token.html" ||
+                page === "contract.html"
+            ) {
+
+                query =
+                    "?address=" +
+                    encodeURIComponent(parameter);
+
+            }
+
+
+            if (
+                page === "block.html"
+            ) {
+
+                query =
+                    "?block=" +
+                    encodeURIComponent(parameter);
+
+            }
+
+
+            if (
+                page === "tx.html"
+            ) {
+
+                query =
+                    "?hash=" +
+                    encodeURIComponent(parameter);
+
+            }
+
+
+            /*
+             * IMPORTANT:
+             *
+             * GitHub Pages cannot internally rewrite
+             * the URL.
+             *
+             * For now we load the actual page in a
+             * hidden iframe and keep the clean URL.
+             */
+
+            const iframe =
+                document.createElement("iframe");
+
+
+            iframe.style.position = "fixed";
+            iframe.style.inset = "0";
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "0";
+            iframe.style.background = "#f8fafc";
+
+
+            /*
+             * Existing page URL.
+             */
+
+            iframe.src =
+                "/base/" +
+                page +
+                query;
+
+
+            document.body.innerHTML = "";
+
+            document.body.appendChild(
+                iframe
+            );
+
+
+        })();
+
+    </script>
+
+</body>
+
+</html>
