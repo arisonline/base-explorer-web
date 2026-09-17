@@ -2,8 +2,10 @@
    BASE EXPLORER
    UNIVERSAL SITE.JS
 
-   Step 7  → Universal Search
-   Step 8  → Gas Tracker
+   Universal Header
+   Universal Search
+   Gas Tracker
+   Clean URL Routing
    ========================================================= */
 
 
@@ -12,6 +14,8 @@
    ========================================================= */
 
 const BASE_RPC = "https://mainnet.base.org";
+
+const EXPLORER_BASE_PATH = "/base";
 
 
 async function baseRPC(method, params = []) {
@@ -27,11 +31,8 @@ async function baseRPC(method, params = []) {
         body: JSON.stringify({
 
             jsonrpc: "2.0",
-
             id: 1,
-
             method: method,
-
             params: params
 
         })
@@ -48,9 +49,11 @@ async function baseRPC(method, params = []) {
 
 
     if (data.error) {
+
         throw new Error(
             data.error.message || "RPC error"
         );
+
     }
 
 
@@ -76,7 +79,7 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   SHORT ADDRESS / HASH
+   SHORT HASH / ADDRESS
    ========================================================= */
 
 function shortHash(value, start = 8, end = 6) {
@@ -145,8 +148,6 @@ async function copyText(value, button = null) {
         );
 
 
-        /* Fallback */
-
         const textarea =
             document.createElement("textarea");
 
@@ -186,7 +187,7 @@ async function copyText(value, button = null) {
 
 
 /* =========================================================
-   UNIVERSAL COPY BUTTON HTML
+   COPY BUTTON
    ========================================================= */
 
 function copyButton(value) {
@@ -196,7 +197,6 @@ function copyButton(value) {
 
 
     return `
-
         <button
             type="button"
             class="copy-button"
@@ -205,8 +205,51 @@ function copyButton(value) {
         >
             ⧉
         </button>
-
     `;
+
+}
+
+
+/* =========================================================
+   CLEAN URL ROUTES
+   ========================================================= */
+
+function goToAddress(address) {
+
+    window.location.href =
+        EXPLORER_BASE_PATH +
+        "/address/" +
+        encodeURIComponent(address);
+
+}
+
+
+function goToBlock(blockNumber) {
+
+    window.location.href =
+        EXPLORER_BASE_PATH +
+        "/block/" +
+        encodeURIComponent(blockNumber);
+
+}
+
+
+function goToTransaction(hash) {
+
+    window.location.href =
+        EXPLORER_BASE_PATH +
+        "/tx/" +
+        encodeURIComponent(hash);
+
+}
+
+
+function goToToken(address) {
+
+    window.location.href =
+        EXPLORER_BASE_PATH +
+        "/token/" +
+        encodeURIComponent(address);
 
 }
 
@@ -218,9 +261,7 @@ function copyButton(value) {
 function renderSiteHeader() {
 
     const header =
-        document.getElementById(
-            "siteHeader"
-        );
+        document.getElementById("siteHeader");
 
 
     if (!header) {
@@ -238,7 +279,7 @@ function renderSiteHeader() {
                 <!-- LOGO -->
 
                 <a
-                    href="index.html"
+                    href="${EXPLORER_BASE_PATH}/"
                     class="site-logo"
                 >
 
@@ -257,19 +298,19 @@ function renderSiteHeader() {
 
                 <nav class="site-nav">
 
-                    <a href="index.html">
+                    <a href="${EXPLORER_BASE_PATH}/">
                         Home
                     </a>
 
-                    <a href="block.html">
+                    <a href="${EXPLORER_BASE_PATH}/block/">
                         Blockchain
                     </a>
 
-                    <a href="token.html">
+                    <a href="${EXPLORER_BASE_PATH}/token/">
                         Tokens
                     </a>
 
-                    <a href="contract.html">
+                    <a href="${EXPLORER_BASE_PATH}/address/">
                         Contracts
                     </a>
 
@@ -281,7 +322,7 @@ function renderSiteHeader() {
                 <div class="header-actions">
 
 
-                    <!-- UNIVERSAL SEARCH -->
+                    <!-- SEARCH -->
 
                     <div class="header-search">
 
@@ -346,26 +387,26 @@ function renderSiteHeader() {
             </div>
 
 
-            <!-- MOBILE NAVIGATION -->
+            <!-- MOBILE NAV -->
 
             <div
                 id="mobileNavigation"
                 class="mobile-navigation"
             >
 
-                <a href="index.html">
+                <a href="${EXPLORER_BASE_PATH}/">
                     Home
                 </a>
 
-                <a href="block.html">
+                <a href="${EXPLORER_BASE_PATH}/block/">
                     Blockchain
                 </a>
 
-                <a href="token.html">
+                <a href="${EXPLORER_BASE_PATH}/token/">
                     Tokens
                 </a>
 
-                <a href="contract.html">
+                <a href="${EXPLORER_BASE_PATH}/address/">
                     Contracts
                 </a>
 
@@ -379,7 +420,7 @@ function renderSiteHeader() {
             </div>
 
 
-            <!-- GAS PANEL -->
+            <!-- GAS TRACKER -->
 
             <div
                 id="gasTrackerPanel"
@@ -483,10 +524,6 @@ function renderSiteHeader() {
     }
 
 
-    /* =====================================================
-       OPTIONAL: LOAD SMALL GAS PRICE
-       ===================================================== */
-
     loadHeaderGas();
 
 }
@@ -499,9 +536,7 @@ function renderSiteHeader() {
 function renderSiteFooter() {
 
     const footer =
-        document.getElementById(
-            "siteFooter"
-        );
+        document.getElementById("siteFooter");
 
 
     if (!footer) {
@@ -512,7 +547,6 @@ function renderSiteFooter() {
     footer.innerHTML = `
 
         <footer class="site-footer">
-
 
             <div class="footer-inner">
 
@@ -545,41 +579,20 @@ function renderSiteFooter() {
                         Explorer
                     </h3>
 
-                    <a href="index.html">
+                    <a href="${EXPLORER_BASE_PATH}/">
                         Home
                     </a>
 
-                    <a href="block.html">
+                    <a href="${EXPLORER_BASE_PATH}/block/">
                         Blocks
                     </a>
 
-                    <a href="#">
-                        Transactions
-                    </a>
-
-                    <a href="address.html">
+                    <a href="${EXPLORER_BASE_PATH}/address/">
                         Addresses
                     </a>
 
-                </div>
-
-
-                <div class="footer-column">
-
-                    <h3>
+                    <a href="${EXPLORER_BASE_PATH}/token/">
                         Tokens
-                    </h3>
-
-                    <a href="token.html">
-                        Tokens
-                    </a>
-
-                    <a href="#">
-                        Token Transfers
-                    </a>
-
-                    <a href="#">
-                        Token Holders
                     </a>
 
                 </div>
@@ -636,7 +649,6 @@ function renderSiteFooter() {
 
             </div>
 
-
         </footer>
 
     `;
@@ -665,10 +677,6 @@ function toggleMobileMenu() {
 
 }
 
-
-/* =========================================================
-   CLOSE MOBILE MENU
-   ========================================================= */
 
 function closeMobileMenu() {
 
@@ -737,7 +745,7 @@ async function searchFromHeader() {
 
 
 /* =========================================================
-   UNIVERSAL BLOCKCHAIN SEARCH
+   UNIVERSAL SEARCH
    ========================================================= */
 
 async function performBlockchainSearch(input) {
@@ -747,13 +755,7 @@ async function performBlockchainSearch(input) {
 
 
     if (!input) {
-
-        alert(
-            "Please enter an address, transaction hash, block number or token address."
-        );
-
         return;
-
     }
 
 
@@ -765,9 +767,7 @@ async function performBlockchainSearch(input) {
         /^0x[a-fA-F0-9]{64}$/.test(input)
     ) {
 
-        window.location.href =
-            "tx.html?hash=" +
-            encodeURIComponent(input);
+        goToTransaction(input);
 
         return;
 
@@ -782,9 +782,7 @@ async function performBlockchainSearch(input) {
         /^\d+$/.test(input)
     ) {
 
-        window.location.href =
-            "block.html?block=" +
-            encodeURIComponent(input);
+        goToBlock(input);
 
         return;
 
@@ -814,7 +812,7 @@ async function performBlockchainSearch(input) {
 
 
 /* =========================================================
-   ADDRESS / TOKEN / CONTRACT DETECTION
+   ADDRESS / CONTRACT / TOKEN DETECTION
    ========================================================= */
 
 async function detectAddressOrToken(address) {
@@ -836,7 +834,7 @@ async function detectAddressOrToken(address) {
 
 
         /* =================================================
-           NORMAL WALLET / EOA
+           NORMAL WALLET
            ================================================= */
 
         if (
@@ -844,9 +842,7 @@ async function detectAddressOrToken(address) {
             code === "0x"
         ) {
 
-            window.location.href =
-                "address.html?address=" +
-                encodeURIComponent(address);
+            goToAddress(address);
 
             return;
 
@@ -857,28 +853,28 @@ async function detectAddressOrToken(address) {
            SMART CONTRACT
            ================================================= */
 
+        /*
+         * We keep contracts under:
+         *
+         * /base/address/ADDRESS
+         *
+         * Token detection remains separate.
+         */
+
         const isToken =
             await checkERC20(address);
 
 
         if (isToken) {
 
-            window.location.href =
-                "token.html?address=" +
-                encodeURIComponent(address);
+            goToToken(address);
 
             return;
 
         }
 
 
-        /* =================================================
-           NORMAL CONTRACT
-           ================================================= */
-
-        window.location.href =
-            "contract.html?address=" +
-            encodeURIComponent(address);
+        goToAddress(address);
 
     }
 
@@ -892,12 +888,10 @@ async function detectAddressOrToken(address) {
 
         /*
          * If RPC detection fails,
-         * send it to address page.
+         * use the address route.
          */
 
-        window.location.href =
-            "address.html?address=" +
-            encodeURIComponent(address);
+        goToAddress(address);
 
     }
 
@@ -912,8 +906,6 @@ async function checkERC20(address) {
 
     try {
 
-        /* symbol() */
-
         const symbolResult =
             await baseRPC(
                 "eth_call",
@@ -926,8 +918,6 @@ async function checkERC20(address) {
                 ]
             );
 
-
-        /* decimals() */
 
         const decimalsResult =
             await baseRPC(
@@ -985,21 +975,10 @@ async function checkERC20(address) {
    GAS TRACKER
    ========================================================= */
 
-
-/*
- * Base gas tracker uses:
- *
- * eth_gasPrice
- *
- * This returns the current gas price
- * suggested by the Base RPC.
- */
-
-
 async function getBaseGasPrice() {
 
     /*
-     * Get latest Base block.
+     * First try latest block baseFeePerGas.
      */
 
     const blockResult =
@@ -1023,11 +1002,6 @@ async function getBaseGasPrice() {
     }
 
 
-    /*
-     * Base EIP-1559 blocks contain
-     * baseFeePerGas.
-     */
-
     const baseFee =
         blockResult.result.baseFeePerGas;
 
@@ -1043,7 +1017,7 @@ async function getBaseGasPrice() {
 
 
     /*
-     * Fallback to eth_gasPrice.
+     * Fallback.
      */
 
     const gasResult =
@@ -1070,6 +1044,7 @@ async function getBaseGasPrice() {
 
 }
 
+
 /* =========================================================
    WEI → GWEI
    ========================================================= */
@@ -1087,11 +1062,6 @@ function weiToGwei(wei) {
     const remainder =
         wei % base;
 
-
-    /*
-     * Keep 6 decimal places so
-     * small Base gas prices are visible.
-     */
 
     const decimal =
         remainder
@@ -1323,7 +1293,6 @@ async function loadGasTracker() {
 
         }
 
-
     }
 
     catch (error) {
@@ -1365,7 +1334,7 @@ async function loadGasTracker() {
 
 
 /* =========================================================
-   CLOSE GAS WHEN CLICKING OUTSIDE
+   CLOSE GAS ON OUTSIDE CLICK
    ========================================================= */
 
 document.addEventListener(
