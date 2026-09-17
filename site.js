@@ -998,14 +998,63 @@ async function checkERC20(address) {
 
 async function getBaseGasPrice() {
 
-    const result =
+    /*
+     * Get latest Base block.
+     */
+
+    const blockResult =
+        await baseRPC(
+            "eth_getBlockByNumber",
+            [
+                "latest",
+                false
+            ]
+        );
+
+
+    if (
+        !blockResult.result
+    ) {
+
+        throw new Error(
+            "Latest block unavailable"
+        );
+
+    }
+
+
+    /*
+     * Base EIP-1559 blocks contain
+     * baseFeePerGas.
+     */
+
+    const baseFee =
+        blockResult.result.baseFeePerGas;
+
+
+    if (
+        baseFee &&
+        baseFee !== "0x0"
+    ) {
+
+        return BigInt(baseFee);
+
+    }
+
+
+    /*
+     * Fallback to eth_gasPrice.
+     */
+
+    const gasResult =
         await baseRPC(
             "eth_gasPrice"
         );
 
 
     if (
-        !result.result
+        !gasResult.result ||
+        gasResult.result === "0x0"
     ) {
 
         throw new Error(
@@ -1016,11 +1065,10 @@ async function getBaseGasPrice() {
 
 
     return BigInt(
-        result.result
+        gasResult.result
     );
 
 }
-
 
 /* =========================================================
    WEI → GWEI
@@ -1040,11 +1088,16 @@ function weiToGwei(wei) {
         wei % base;
 
 
+    /*
+     * Keep 6 decimal places so
+     * small Base gas prices are visible.
+     */
+
     const decimal =
         remainder
             .toString()
             .padStart(9, "0")
-            .slice(0, 2);
+            .slice(0, 6);
 
 
     return (
