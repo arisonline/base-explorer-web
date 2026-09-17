@@ -417,3 +417,309 @@ input {
         gap: 5px;
     }
 }
+
+
+
+
+
+
+
+
+/* =========================================================
+   UNIVERSAL COPY BUTTON
+   ========================================================= */
+
+.copy-button {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    line-height: 1;
+}
+
+.copy-button:hover {
+    background: #f1f5f9;
+    color: #0052ff;
+}
+
+
+/* =========================================================
+   HEADER GAS BUTTON
+   ========================================================= */
+
+.gas-header-button {
+    height: 38px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #334155;
+    border-radius: 8px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.gas-header-button:hover {
+    border-color: #0052ff;
+    color: #0052ff;
+}
+
+
+/* =========================================================
+   GAS TRACKER PANEL
+   ========================================================= */
+
+.gas-tracker-panel {
+    position: fixed;
+    top: 72px;
+    right: 24px;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    z-index: 1000;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+
+    transition:
+        opacity 0.15s ease,
+        transform 0.15s ease,
+        visibility 0.15s ease;
+}
+
+.gas-tracker-panel.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+
+.gas-tracker-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow:
+        0 12px 30px rgba(15, 23, 42, 0.12);
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   GAS HEADER
+   ========================================================= */
+
+.gas-tracker-header {
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.gas-tracker-header strong {
+    display: block;
+    color: #0f172a;
+    font-size: 15px;
+}
+
+
+.gas-tracker-header span {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+
+.gas-close {
+    border: 0;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    padding: 0 4px;
+}
+
+
+.gas-close:hover {
+    color: #0f172a;
+}
+
+
+/* =========================================================
+   GAS CONTENT
+   ========================================================= */
+
+.gas-tracker-content {
+    padding: 18px;
+}
+
+
+.gas-loading {
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+    padding: 18px 0;
+}
+
+
+.gas-main {
+    text-align: center;
+    padding: 4px 0 18px;
+}
+
+
+.gas-label {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+
+.gas-main strong {
+    color: #0052ff;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+
+.gas-main small {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   GAS INFO GRID
+   ========================================================= */
+
+.gas-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+
+.gas-info-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px;
+    background: #f8fafc;
+}
+
+
+.gas-info-item span {
+    display: block;
+    color: #64748b;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+
+.gas-info-item strong {
+    display: block;
+    color: #0f172a;
+    font-size: 12px;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   GAS FOOTER
+   ========================================================= */
+
+.gas-tracker-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+
+.gas-tracker-footer span {
+    color: #64748b;
+    font-size: 11px;
+}
+
+
+.gas-tracker-footer button {
+    border: 0;
+    background: transparent;
+    color: #0052ff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+.gas-tracker-footer button:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   GAS ERROR
+   ========================================================= */
+
+.gas-error {
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+.gas-error button {
+    display: block;
+    margin: 12px auto 0;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #0052ff;
+    border-radius: 7px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .gas-header-button {
+        display: none;
+    }
+
+    .gas-tracker-panel {
+        top: 66px;
+        left: 16px;
+        right: 16px;
+        width: auto;
+        max-width: none;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .gas-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
