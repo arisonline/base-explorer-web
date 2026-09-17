@@ -1463,7 +1463,7 @@
 
                     <span>
                         <a
-                            href="block.html"
+                            href="/base/block/"
                             class="view-all"
                         >
                             View all
@@ -2156,10 +2156,7 @@ function openTransaction(hash) {
         return;
     }
 
-
-    window.location.href =
-        "tx.html?hash=" +
-        encodeURIComponent(hash);
+    goToTransaction(hash);
 
 }
 
@@ -2170,9 +2167,11 @@ function openTransaction(hash) {
 
 function openBlock(blockNumber) {
 
-    window.location.href =
-        "block.html?block=" +
-        encodeURIComponent(blockNumber);
+    if (!blockNumber) {
+        return;
+    }
+
+    goToBlock(blockNumber);
 
 }
 
