@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Base Explorer</title>
+
+</head>
+
+
+<body>
+
+    <div
+        id="routerLoading"
+        style="
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        "
+    >
+        Loading Base Explorer...
+    </div>
+
+
+    <script>
+
+        (async function() {
+
+            const path =
+                window.location.pathname;
+
+
+            /*
+             * Only handle /base/... routes.
+             */
+
+            if (
+                !path.startsWith("/base/")
+            ) {
+
+                return;
+
+            }
+
+
+            /*
+             * Remove /base/
+             */
+
+            const route =
+                path
+                    .replace(/^\/base\/?/, "")
+                    .split("/")
+                    .filter(Boolean);
+
+
+            let page = null;
+
+            let value = null;
+
+
+            /* =================================================
+               /base/address/0x...
+               ================================================= */
+
+            if (
+                route[0] === "address" &&
+                route[1]
+            ) {
+
+                page = "address.html";
+
+                value =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /* =================================================
+               /base/block/123
+               ================================================= */
+
+            else if (
+                route[0] === "block" &&
+                route[1]
+            ) {
+
+                page = "block.html";
+
+                value =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /* =================================================
+               /base/tx/0x...
+               ================================================= */
+
+            else if (
+                route[0] === "tx" &&
+                route[1]
+            ) {
+
+                page = "tx.html";
+
+                value =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /* =================================================
+               /base/token/0x...
+               ================================================= */
+
+            else if (
+                route[0] === "token" &&
+                route[1]
+            ) {
+
+                page = "token.html";
+
+                value =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /* =================================================
+               /base/contract/0x...
+               ================================================= */
+
+            else if (
+                route[0] === "contract" &&
+                route[1]
+            ) {
+
+                page = "contract.html";
+
+                value =
+                    decodeURIComponent(
+                        route.slice(1).join("/")
+                    );
+
+            }
+
+
+            /*
+             * Unknown route.
+             */
+
+            if (
+                !page
+            ) {
+
+                window.location.href =
+                    "/base/";
+
+                return;
+
+            }
+
+
+            try {
+
+                /*
+                 * Load the actual existing HTML page.
+                 */
+
+                const response =
+                    await fetch(
+                        "/base/" + page
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to load " + page
+                    );
+
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                /*
+                 * Parse the HTML.
+                 */
+
+                const parser =
+                    new DOMParser();
+
+
+                const documentPage =
+                    parser.parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                /*
+                 * Temporarily create the query
+                 * parameters expected by the
+                 * existing pages.
+                 */
+
+                let query = "";
+
+
+                if (
+                    page === "address.html" ||
+                    page === "contract.html" ||
+                    page === "token.html"
+                ) {
+
+                    query =
+                        "?address=" +
+                        encodeURIComponent(value);
+
+                }
+
+
+                if (
+                    page === "block.html"
+                ) {
+
+                    query =
+                        "?block=" +
+                        encodeURIComponent(value);
+
+                }
+
+
+                if (
+                    page === "tx.html"
+                ) {
+
+                    query =
+                        "?hash=" +
+                        encodeURIComponent(value);
+
+                }
+
+
+                /*
+                 * Temporarily change the URL so
+                 * existing page JavaScript can
+                 * read URLSearchParams.
+                 */
+
+                const cleanURL =
+                    window.location.href;
+
+
+                const queryURL =
+                    window.location.pathname +
+                    query;
+
+
+                history.replaceState(
+                    null,
+                    "",
+                    queryURL
+                );
+
+
+                /*
+                 * Replace the current document.
+                 */
+
+                document.title =
+                    documentPage.title ||
+                    "Base Explorer";
+
+
+                document.head.innerHTML =
+                    documentPage.head.innerHTML;
+
+
+                document.body.innerHTML =
+                    documentPage.body.innerHTML;
+
+
+                /*
+                 * Execute scripts from the
+                 * loaded page.
+                 */
+
+                const scripts =
+                    Array.from(
+                        documentPage.querySelectorAll(
+                            "script"
+                        )
+                    );
+
+
+                for (
+                    const oldScript of scripts
+                ) {
+
+                    const newScript =
+                        document.createElement(
+                            "script"
+                        );
+
+
+                    /*
+                     * Copy attributes.
+                     */
+
+                    for (
+                        const attribute
+                        of oldScript.attributes
+                    ) {
+
+                        newScript.setAttribute(
+                            attribute.name,
+                            attribute.value
+                        );
+
+                    }
+
+
+                    if (
+                        oldScript.src
+                    ) {
+
+                        newScript.src =
+                            oldScript.src;
+
+                    }
+
+                    else {
+
+                        newScript.textContent =
+                            oldScript.textContent;
+
+                    }
+
+
+                    document.body.appendChild(
+                        newScript
+                    );
+
+                }
+
+
+                /*
+                 * Restore the clean URL
+                 * after the page scripts have
+                 * been started.
+                 */
+
+                history.replaceState(
+                    null,
+                    "",
+                    cleanURL
+                );
+
+
+                /*
+                 * Some pages use DOMContentLoaded.
+                 * Trigger it after the page has
+                 * been reconstructed.
+                 */
+
+                setTimeout(function() {
+
+                    document.dispatchEvent(
+                        new Event(
+                            "DOMContentLoaded"
+                        )
+                    );
+
+                }, 0);
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Base Explorer router error:",
+                    error
+                );
+
+
+                document.body.innerHTML = `
+
+                    <div
+                        style="
+                            font-family: Arial, sans-serif;
+                            padding: 60px 20px;
+                            text-align: center;
+                        "
+                    >
+
+                        <h1>
+                            Base Explorer
+                        </h1>
+
+                        <p>
+                            Unable to load this page.
+                        </p>
+
+                        <a href="/base/">
+                            Go to Home
+                        </a>
+
+                    </div>
+
+                `;
+
+            }
+
+        })();
+
+    </script>
+
+</body>
+
+</html>
