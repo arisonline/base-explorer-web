@@ -995,50 +995,40 @@ tbody tr:hover {
 ========================================================= */
 
 .address-card {
-
+    width: 100%;
     background: #ffffff;
-
-    border:
-        1px solid #e5e7eb;
-
+    border: 1px solid #e5e7eb;
     border-radius: 10px;
-
     padding: 24px;
-
+    margin: 0;
 }
 
+
+/* =========================================================
+   ADDRESS CARD
+========================================================= */
 
 .address-title {
-
-    margin-bottom: 10px;
-
+    margin: 0 0 10px 0;
     color: #6b7280;
-
     font-size: 12px;
-
     font-weight: 600;
-
     text-transform: uppercase;
-
-    letter-spacing: .3px;
-
+    letter-spacing: 0.3px;
 }
-
 
 .address-row {
-
+    width: 100%;
     display: flex;
-
     align-items: center;
-
     gap: 12px;
-
 }
 
-
 .address {
-
+    flex: 1;
     min-width: 0;
+
+    color: #111827;
 
     font-family:
         ui-monospace,
@@ -1049,48 +1039,62 @@ tbody tr:hover {
         monospace;
 
     font-size: 15px;
+    line-height: 1.6;
 
     word-break: break-all;
-
+    overflow-wrap: anywhere;
 }
 
-
 .copy-btn {
-
     flex-shrink: 0;
 
-    border:
-        1px solid #d1d5db;
+    border: 1px solid #d1d5db;
 
     background: #ffffff;
-
     color: #374151;
 
-    padding:
-        7px 12px;
+    padding: 7px 12px;
 
     border-radius: 7px;
 
     cursor: pointer;
 
     font-size: 12px;
-
     font-weight: 600;
 
-}
+    line-height: 1.4;
 
+    white-space: nowrap;
+}
 
 .copy-btn:hover {
-
     background: #f3f4f6;
-
 }
 
 
+/* =========================================================
+   NETWORK BADGE
+========================================================= */
+
 .address-card .network-badge {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
 
     margin-top: 14px;
 
+    padding: 5px 9px;
+
+    background: #ecfdf5;
+    color: #15803d;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    line-height: 1.4;
 }
 
 
@@ -1098,55 +1102,51 @@ tbody tr:hover {
    ADDRESS STATS
 ========================================================= */
 
-.stats {
+.address-card + .stats {
+    width: 100%;
 
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(3, minmax(0, 1fr));
 
     gap: 16px;
 
     margin-top: 18px;
-
 }
 
-
-.stat {
+.address-card + .stats .stat {
+    min-width: 0;
 
     background: #ffffff;
 
-    border:
-        1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
 
     border-radius: 10px;
 
     padding: 20px;
-
 }
 
-
-.stat-label {
-
-    margin-bottom: 7px;
+.address-card + .stats .stat-label {
+    margin: 0 0 7px 0;
 
     color: #6b7280;
 
     font-size: 12px;
-
+    line-height: 1.5;
 }
 
-
-.stat-value {
+.address-card + .stats .stat-value {
+    min-width: 0;
 
     color: #111827;
 
     font-size: 20px;
-
     font-weight: 700;
 
-    word-break: break-word;
+    line-height: 1.4;
 
+    word-break: break-word;
 }
 
 
@@ -1154,28 +1154,26 @@ tbody tr:hover {
    ADDRESS SECTIONS
 ========================================================= */
 
-.section {
+.address-card ~ .section {
+    width: 100%;
 
     margin-top: 18px;
 
     background: #ffffff;
 
-    border:
-        1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
 
     border-radius: 10px;
 
     overflow: hidden;
-
 }
 
-
-.section-header {
+.address-card ~ .section .section-header {
+    width: 100%;
 
     min-height: 55px;
 
-    padding:
-        0 18px;
+    padding: 0 18px;
 
     display: flex;
 
@@ -1183,97 +1181,95 @@ tbody tr:hover {
 
     justify-content: space-between;
 
-    border-bottom:
-        1px solid #eef0f3;
+    gap: 15px;
 
+    border-bottom: 1px solid #eef0f3;
 }
 
+.address-card ~ .section .section-header h2 {
+    margin: 0;
 
-.section-header h2 {
+    color: #111827;
 
     font-size: 15px;
-
     font-weight: 700;
 
+    line-height: 1.4;
 }
 
-
-.section-subtitle {
+.address-card ~ .section .section-subtitle {
+    flex-shrink: 0;
 
     color: #9ca3af;
 
     font-size: 11px;
+    line-height: 1.4;
 
+    white-space: nowrap;
 }
 
 
 /* =========================================================
-   ADDRESS TABLE
+   ADDRESS TRANSACTION TABLE
 ========================================================= */
 
-.address-transactions {
-
+#addressTransactions {
     width: 100%;
-
+    min-width: 0;
 }
 
-
-.address-transactions .table-wrapper {
+#addressTransactions .table-wrapper {
+    width: 100%;
 
     overflow-x: auto;
+    overflow-y: hidden;
 
+    -webkit-overflow-scrolling: touch;
 }
 
-
-.address-transactions table {
-
+#addressTransactions table {
     width: 100%;
 
-    border-collapse: collapse;
+    min-width: 900px;
 
+    border-collapse: collapse;
 }
 
-
-.address-transactions th,
-.address-transactions td {
-
-    padding:
-        13px 18px;
+#addressTransactions th,
+#addressTransactions td {
+    padding: 13px 18px;
 
     text-align: left;
 
-    border-bottom:
-        1px solid #f0f1f3;
+    border-bottom: 1px solid #f0f1f3;
 
     font-size: 12px;
 
-    white-space: nowrap;
+    line-height: 1.5;
 
+    white-space: nowrap;
 }
 
-
-.address-transactions th {
-
+#addressTransactions th {
     background: #fafafa;
 
     color: #6b7280;
 
     font-size: 11px;
-
     font-weight: 600;
 
+    line-height: 1.4;
 }
 
+#addressTransactions tbody tr:last-child td {
+    border-bottom: 0;
+}
 
-.address-transactions tbody tr:hover {
-
+#addressTransactions tbody tr:hover {
     background: #f8faff;
-
 }
 
-
-.address-transactions td a {
-
+#addressTransactions td a {
     color: #0052ff;
 
     text-decoration: none;
@@ -1285,32 +1281,43 @@ tbody tr:hover {
         Monaco,
         Consolas,
         monospace;
-
 }
 
-
-.address-transactions td a:hover {
-
+#addressTransactions td a:hover {
     text-decoration: underline;
-
 }
 
 
-.address-transactions .status {
+/* =========================================================
+   TRANSACTION STATUS
+========================================================= */
 
+#addressTransactions .status {
     color: #16a34a;
-
     font-weight: 600;
+}
 
+#addressTransactions .failed {
+    color: #dc2626;
+    font-weight: 600;
 }
 
 
-.address-transactions .failed {
+/* =========================================================
+   LOADING / EMPTY
+========================================================= */
 
-    color: #dc2626;
+#addressTransactions .empty {
+    width: 100%;
 
-    font-weight: 600;
+    padding: 45px 20px;
 
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 
@@ -1319,28 +1326,28 @@ tbody tr:hover {
 ========================================================= */
 
 .explorer-links {
+    width: 100%;
 
     display: flex;
+
+    align-items: center;
 
     flex-wrap: wrap;
 
     gap: 10px;
 
-    padding: 0 20px 20px;
-
+    padding: 20px;
 }
 
-
 .explorer-link {
-
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
 
-    padding:
-        9px 13px;
+    min-height: 36px;
+
+    padding: 9px 13px;
 
     background: #0052ff;
 
@@ -1351,105 +1358,128 @@ tbody tr:hover {
     text-decoration: none;
 
     font-size: 12px;
-
     font-weight: 600;
 
-}
+    line-height: 1.4;
 
+    white-space: nowrap;
+}
 
 .explorer-link:hover {
-
     background: #0047df;
-
 }
 
-
 .explorer-link.secondary {
-
     background: #ffffff;
 
     color: #0052ff;
 
-    border:
-        1px solid #dbe1ea;
-
+    border: 1px solid #dbe1ea;
 }
 
-
 .explorer-link.secondary:hover {
-
     background: #f5f8ff;
 
     border-color: #0052ff;
-
 }
 
 
 /* =========================================================
-   ADDRESS MOBILE
+   ADDRESS PAGE MOBILE
 ========================================================= */
 
 @media (max-width: 768px) {
 
     .address-card {
-
         padding: 18px;
-
     }
 
-
     .address-row {
-
         align-items: flex-start;
 
         flex-direction: column;
 
+        gap: 10px;
     }
-
 
     .address {
-
-        font-size: 13px;
-
-    }
-
-
-    .stats {
-
-        grid-template-columns: 1fr;
-
-    }
-
-
-    .stat-value {
-
-        font-size: 18px;
-
-    }
-
-
-    .address-transactions th,
-    .address-transactions td {
-
-        padding:
-            12px 14px;
-
-        font-size: 11px;
-
-    }
-
-
-    .explorer-links {
-
-        flex-direction: column;
-
-    }
-
-
-    .explorer-link {
-
         width: 100%;
 
+        font-size: 13px;
+    }
+
+    .copy-btn {
+        width: auto;
+    }
+
+    .address-card + .stats {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+
+        margin-top: 16px;
+    }
+
+    .address-card + .stats .stat {
+        padding: 18px;
+    }
+
+    .address-card + .stats .stat-value {
+        font-size: 18px;
+    }
+
+    .address-card ~ .section {
+        margin-top: 16px;
+    }
+
+    .address-card ~ .section .section-header {
+        min-height: 54px;
+
+        padding: 0 14px;
+    }
+
+    .address-card ~ .section .section-header h2 {
+        font-size: 14px;
+    }
+
+    #addressTransactions th,
+    #addressTransactions td {
+        padding: 12px 14px;
+
+        font-size: 11px;
+    }
+
+    .explorer-links {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 16px;
+    }
+
+    .explorer-link {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .address-card {
+        padding: 16px;
+    }
+
+    .address {
+        font-size: 12px;
+    }
+
+    .address-card .network-badge {
+        margin-top: 12px;
     }
 
 }
