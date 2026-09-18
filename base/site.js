@@ -283,33 +283,15 @@ function searchFromHero() {
             "heroSearchInput"
         );
 
-
     if (!input) {
         return;
     }
-
 
     performBlockchainSearch(
         input.value.trim()
     );
 
 }
-
-
-document
-    .getElementById("heroSearchInput")
-    .addEventListener(
-        "keydown",
-        function(event) {
-
-            if (event.key === "Enter") {
-
-                searchFromHero();
-
-            }
-
-        }
-    );
 
 
 /* =========================================================
@@ -879,7 +861,7 @@ function openBlock(blockNumber) {
 async function renderBlock(app, blockNumber) {
 
     app.innerHTML = `
-        <main class="container">
+        <div class="container">
 
             <div class="breadcrumb">
                 <a href="/base/">Home</a>
@@ -895,7 +877,7 @@ async function renderBlock(app, blockNumber) {
 
             </div>
 
-        </main>
+        </div>
     `;
 
     loadBlockPage(blockNumber);
@@ -2185,19 +2167,19 @@ function renderSiteHeader() {
                     <a href="${EXPLORER_BASE_PATH}/">
                         Home
                     </a>
-
-                    <a href="${EXPLORER_BASE_PATH}/block/">
+                
+                    <a href="${EXPLORER_BASE_PATH}/">
                         Blockchain
                     </a>
-
-                    <a href="${EXPLORER_BASE_PATH}/token/">
+                
+                    <a href="${EXPLORER_BASE_PATH}/">
                         Tokens
                     </a>
-
-                    <a href="${EXPLORER_BASE_PATH}/address/">
+                
+                    <a href="${EXPLORER_BASE_PATH}/">
                         Contracts
                     </a>
-
+                
                 </nav>
 
 
