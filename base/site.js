@@ -66,10 +66,9 @@ async function renderHome(app) {
         </section>
 
 
-        <main class="container">
+        <div class="container">
 
             <section class="stats">
-
 
                 <div class="stat-card">
 
@@ -148,14 +147,12 @@ async function renderHome(app) {
 
                 </div>
 
-
             </section>
 
 
             <section class="content">
 
                 <div class="columns">
-
 
                     <div class="card">
 
@@ -166,7 +163,7 @@ async function renderHome(app) {
                             </h2>
 
                             <a
-                                href="/base/block/"
+                                href="/base/"
                                 class="view-all"
                             >
                                 View all
@@ -198,7 +195,7 @@ async function renderHome(app) {
                             </h2>
 
                             <a
-                                href="#"
+                                href="/base/"
                                 class="view-all"
                             >
                                 View all
@@ -220,15 +217,13 @@ async function renderHome(app) {
 
                     </div>
 
-
                 </div>
 
             </section>
 
-        </main>
+        </div>
 
     `;
-
 
     initializeHomePage();
 
@@ -799,28 +794,6 @@ function renderLatestTransactions(
 
             }
         ).join("");
-
-}
-
-
-/* =========================================================
-   SHORT TRANSACTION HASH
-   ========================================================= */
-
-function shortHash(hash) {
-
-    if (!hash) {
-        return "0x...";
-    }
-
-
-    return (
-        hash.substring(0, 10) +
-        "..." +
-        hash.substring(
-            hash.length - 8
-        )
-    );
 
 }
 
