@@ -1,69 +1,3 @@
-function getRoute() {
-    const path = window.location.pathname
-        .replace(/\/+$/, "");
-
-    if (path === "" || path === "/base") {
-        return {
-            type: "home"
-        };
-    }
-
-    let match;
-
-    match = path.match(/^\/base\/block\/(\d+)$/);
-    if (match) {
-        return {
-            type: "block",
-            value: match[1]
-        };
-    }
-
-    match = path.match(/^\/base\/tx\/(0x[a-fA-F0-9]{64})$/);
-    if (match) {
-        return {
-            type: "tx",
-            value: match[1]
-        };
-    }
-
-    match = path.match(/^\/base\/address\/(0x[a-fA-F0-9]{40})$/);
-    if (match) {
-        return {
-            type: "address",
-            value: match[1]
-        };
-    }
-
-    match = path.match(/^\/base\/token\/(0x[a-fA-F0-9]{40})$/);
-    if (match) {
-        return {
-            type: "token",
-            value: match[1]
-        };
-    }
-
-    match = path.match(/^\/base\/contract\/(0x[a-fA-F0-9]{40})$/);
-    if (match) {
-        return {
-            type: "contract",
-            value: match[1]
-        };
-    }
-
-    return {
-        type: "404"
-    };
-}
-
-
-
-function navigateTo(url) {
-    history.pushState({}, "", url);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-}
-
-
-
 /* =========================================================
    BASE EXPLORER
    UNIVERSAL SITE.JS
@@ -82,6 +16,352 @@ function navigateTo(url) {
 const BASE_RPC = "https://mainnet.base.org";
 
 const EXPLORER_BASE_PATH = "/base";
+
+
+
+
+/* =========================================================
+   BASE EXPLORER ROUTER
+   ========================================================= */
+
+function getRoute() {
+
+    let path = window.location.pathname;
+
+    path = path.replace(/\/+$/, "");
+
+
+    /* HOME */
+
+    if (
+        path === "" ||
+        path === "/base"
+    ) {
+        return {
+            type: "home"
+        };
+    }
+
+
+    /* BLOCK */
+
+    let match = path.match(
+        /^\/base\/block\/(\d+)$/
+    );
+
+    if (match) {
+
+        return {
+            type: "block",
+            value: match[1]
+        };
+
+    }
+
+
+    /* TRANSACTION */
+
+    match = path.match(
+        /^\/base\/tx\/(0x[a-fA-F0-9]{64})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "tx",
+            value: match[1]
+        };
+
+    }
+
+
+    /* ADDRESS */
+
+    match = path.match(
+        /^\/base\/address\/(0x[a-fA-F0-9]{40})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "address",
+            value: match[1]
+        };
+
+    }
+
+
+    /* TOKEN */
+
+    match = path.match(
+        /^\/base\/token\/(0x[a-fA-F0-9]{40})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "token",
+            value: match[1]
+        };
+
+    }
+
+
+    /* CONTRACT */
+
+    match = path.match(
+        /^\/base\/contract\/(0x[a-fA-F0-9]{40})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "contract",
+            value: match[1]
+        };
+
+    }
+
+
+    /* UNKNOWN */
+
+    return {
+        type: "404"
+    };
+
+}
+
+
+/* =========================================================
+   SPA NAVIGATION
+   ========================================================= */
+
+function navigateTo(url) {
+
+    if (!url) {
+        return;
+    }
+
+
+    if (
+        window.location.pathname === url
+    ) {
+        return;
+    }
+
+
+    history.pushState(
+        {},
+        "",
+        url
+    );
+
+
+    window.dispatchEvent(
+        new PopStateEvent("popstate")
+    );
+
+}
+
+
+/* =========================================================
+   ROUTE HELPERS
+   ========================================================= */
+
+function goToHome() {
+
+    navigateTo(
+        EXPLORER_BASE_PATH + "/"
+    );
+
+}
+
+
+function goToAddress(address) {
+
+    if (!address) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/address/" +
+        encodeURIComponent(address)
+    );
+
+}
+
+
+function goToBlock(blockNumber) {
+
+    if (
+        blockNumber === undefined ||
+        blockNumber === null ||
+        blockNumber === ""
+    ) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/block/" +
+        encodeURIComponent(blockNumber)
+    );
+
+}
+
+
+function goToTransaction(hash) {
+
+    if (!hash) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/tx/" +
+        encodeURIComponent(hash)
+    );
+
+}
+
+
+function goToToken(address) {
+
+    if (!address) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/token/" +
+        encodeURIComponent(address)
+    );
+
+}
+
+
+function goToContract(address) {
+
+    if (!address) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/contract/" +
+        encodeURIComponent(address)
+    );
+
+}
+
+
+/* =========================================================
+   BROWSER BACK / FORWARD
+   ========================================================= */
+
+window.addEventListener(
+    "popstate",
+    function() {
+
+        renderRoute();
+
+    }
+);
+
+
+
+
+/* =========================================================
+   INTERNAL LINK ROUTING
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const link =
+            event.target.closest("a");
+
+        if (!link) {
+            return;
+        }
+
+
+        /* Allow Ctrl/Cmd/Shift/Alt clicks */
+
+        if (
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+        ) {
+            return;
+        }
+
+
+        /* Allow new-tab links */
+
+        if (
+            link.target === "_blank"
+        ) {
+            return;
+        }
+
+
+        const href =
+            link.getAttribute("href");
+
+        if (!href) {
+            return;
+        }
+
+
+        /* Only Base Explorer links */
+
+        if (
+            !href.startsWith(
+                EXPLORER_BASE_PATH
+            )
+        ) {
+            return;
+        }
+
+
+        event.preventDefault();
+
+        navigateTo(href);
+
+    }
+);
+
+
+
+
+/* =========================================================
+   ROUTE RENDERER
+   TEST VERSION
+   ========================================================= */
+
+function renderRoute() {
+
+    const route =
+        getRoute();
+
+
+    console.log(
+        "Current route:",
+        route
+    );
+
+}
+
+
 
 
 async function baseRPC(method, params = []) {
@@ -276,63 +556,7 @@ function copyButton(value) {
 }
 
 
-/* =========================================================
-   CLEAN URL ROUTES
-   ========================================================= */
 
-function goToAddress(address) {
-    if (!address) return;
-
-    navigateTo(
-        EXPLORER_BASE_PATH +
-        "/address/" +
-        encodeURIComponent(address)
-    );
-}
-
-
-function goToBlock(blockNumber) {
-    if (!blockNumber) return;
-
-    navigateTo(
-        EXPLORER_BASE_PATH +
-        "/block/" +
-        encodeURIComponent(blockNumber)
-    );
-}
-
-
-function goToTransaction(hash) {
-    if (!hash) return;
-
-    navigateTo(
-        EXPLORER_BASE_PATH +
-        "/tx/" +
-        encodeURIComponent(hash)
-    );
-}
-
-
-function goToToken(address) {
-    if (!address) return;
-
-    navigateTo(
-        EXPLORER_BASE_PATH +
-        "/token/" +
-        encodeURIComponent(address)
-    );
-}
-
-
-function goToContract(address) {
-    if (!address) return;
-
-    navigateTo(
-        EXPLORER_BASE_PATH +
-        "/contract/" +
-        encodeURIComponent(address)
-    );
-}
 
 
 /* =========================================================
