@@ -738,19 +738,20 @@ function getRoute() {
    SPA NAVIGATION
    ========================================================= */
 
+
 function navigateTo(url) {
 
     if (!url) {
         return;
     }
 
+    const currentURL =
+        window.location.pathname +
+        window.location.search;
 
-    if (
-        window.location.pathname === url
-    ) {
+    if (currentURL === url) {
         return;
     }
-
 
     history.pushState(
         {},
@@ -758,10 +759,7 @@ function navigateTo(url) {
         url
     );
 
-
-    window.dispatchEvent(
-        new PopStateEvent("popstate")
-    );
+    renderRoute();
 
 }
 
@@ -2309,6 +2307,8 @@ document.addEventListener(
         renderSiteHeader();
 
         renderSiteFooter();
+
+        renderRoute();
 
     }
 );
