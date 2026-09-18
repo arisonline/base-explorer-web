@@ -132,6 +132,89 @@ function formatETH(value) {
 
 
 
+
+async function loadBlockPage(blockNumber) {
+
+    const container =
+        document.getElementById("blockContainer");
+
+    if (!container) {
+        return;
+    }
+
+    /* Validate block number */
+
+    if (!isValidBlock(blockNumber)) {
+
+        container.innerHTML = `
+            <div class="error">
+                Invalid block number.
+            </div>
+        `;
+
+        return;
+    }
+
+    /* Loading state */
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading block #${escapeHTML(blockNumber)}...
+        </div>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/blocks/" +
+                encodeURIComponent(blockNumber)
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Block not found"
+            );
+
+        }
+
+        const block =
+            await response.json();
+
+        displayBlockPage(
+            block,
+            blockNumber
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Block loading error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="error">
+
+                Unable to load this block.
+
+                <br><br>
+
+                Please check the block number
+                and try again.
+
+            </div>
+        `;
+
+    }
+
+}
+
+
+
+
 function displayBlockPage(block, blockNumber) {
 
     const container =
@@ -345,6 +428,10 @@ function displayBlockPage(block, blockNumber) {
 
     loadBlockTransactionsPage(blockNumber);
 }
+
+
+
+
 
 
 
