@@ -978,3 +978,129 @@ tbody tr:hover {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   ADDRESS PAGE
+========================================================= */
+
+.address-type-row {
+    margin-bottom: 14px;
+}
+
+.address-type-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    background: #eff6ff;
+    color: #0052ff;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.address-main {
+    min-width: 0;
+}
+
+.address-label {
+    margin-bottom: 6px;
+
+    color: #6b7280;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.address-value {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
+
+    color: #111827;
+    font-size: 13px;
+}
+
+.address-value .hash {
+    min-width: 0;
+}
+
+.address-balance {
+    font-weight: 600;
+}
+
+.address-transactions {
+    min-width: 0;
+}
+
+.address-links {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+}
+
+.secondary-link {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 9px 13px;
+
+    background: #ffffff;
+    color: #0052ff;
+
+    border: 1px solid #dbe1ea;
+
+    text-decoration: none;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.secondary-link:hover {
+    background: #f5f8ff;
+    border-color: #0052ff;
+}
+
+
+@media (max-width: 650px) {
+
+    .address-value {
+        align-items: flex-start;
+    }
+
+    .address-value .hash {
+        overflow-wrap: anywhere;
+    }
+
+    .address-links {
+        flex-direction: column;
+    }
+
+    .address-links a {
+        justify-content: center;
+    }
+
+}
