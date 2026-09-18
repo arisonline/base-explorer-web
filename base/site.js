@@ -1,3 +1,67 @@
+function renderHome(app) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>Base Explorer</h1>
+            <p>Home page is working.</p>
+        </section>
+    `;
+}
+
+function renderBlock(app, blockNumber) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>Block</h1>
+            <p>Block Number: ${escapeHTML(blockNumber)}</p>
+        </section>
+    `;
+}
+
+function renderTransaction(app, hash) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>Transaction</h1>
+            <p>${escapeHTML(hash)}</p>
+        </section>
+    `;
+}
+
+function renderAddress(app, address) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>Address</h1>
+            <p>${escapeHTML(address)}</p>
+        </section>
+    `;
+}
+
+function renderToken(app, address) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>Token</h1>
+            <p>${escapeHTML(address)}</p>
+        </section>
+    `;
+}
+
+function renderContract(app, address) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>Contract</h1>
+            <p>${escapeHTML(address)}</p>
+        </section>
+    `;
+}
+
+function renderNotFound(app) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>404</h1>
+            <p>Page not found.</p>
+        </section>
+    `;
+}
+
+
 /* =========================================================
    BASE EXPLORER
    UNIVERSAL SITE.JS
@@ -348,17 +412,40 @@ document.addEventListener(
    TEST VERSION
    ========================================================= */
 
-function renderRoute() {
+async function renderRoute() {
+    const route = getRoute();
+    const app = document.getElementById("app");
 
-    const route =
-        getRoute();
+    if (!app) return;
 
+    switch (route.type) {
+        case "home":
+            await renderHome(app);
+            break;
 
-    console.log(
-        "Current route:",
-        route
-    );
+        case "block":
+            await renderBlock(app, route.value);
+            break;
 
+        case "tx":
+            await renderTransaction(app, route.value);
+            break;
+
+        case "address":
+            await renderAddress(app, route.value);
+            break;
+
+        case "token":
+            await renderToken(app, route.value);
+            break;
+
+        case "contract":
+            await renderContract(app, route.value);
+            break;
+
+        default:
+            renderNotFound(app);
+    }
 }
 
 
