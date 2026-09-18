@@ -1,11 +1,281 @@
-function renderHome(app) {
+async function renderHome(app) {
+
     app.innerHTML = `
-        <section class="page-container">
-            <h1>Base Explorer</h1>
-            <p>Home page is working.</p>
+
+        <section class="hero">
+
+            <div class="hero-inner">
+
+                <div class="hero-badge">
+
+                    <span class="status-dot"></span>
+
+                    Base Mainnet
+
+                    <span>•</span>
+
+                    Chain ID 8453
+
+                </div>
+
+
+                <h1>
+                    Explore Base
+                </h1>
+
+
+                <p>
+                    Search Base Mainnet blocks, transactions,
+                    addresses, tokens and smart contracts.
+                </p>
+
+
+                <div class="hero-search">
+
+                    <input
+                        type="text"
+                        id="heroSearchInput"
+                        placeholder="Search by address, transaction hash or block number..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        onclick="searchFromHero()"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+
+                <div class="hero-network">
+
+                    <strong>
+                        ● Base Mainnet
+                    </strong>
+
+                    &nbsp;•&nbsp;
+
+                    Ethereum-compatible L2
+
+                </div>
+
+            </div>
+
         </section>
+
+
+        <main class="container">
+
+            <section class="stats">
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-title">
+                            Latest Block
+                        </div>
+
+                        <div class="stat-icon">
+                            #
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="latestBlock"
+                    >
+                        Loading...
+                    </div>
+
+                    <div class="stat-sub">
+                        Base Mainnet
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-title">
+                            Network
+                        </div>
+
+                        <div class="stat-icon">
+                            B
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        Base Mainnet
+                    </div>
+
+                    <div class="stat-sub">
+                        Ethereum Layer 2
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-title">
+                            Chain ID
+                        </div>
+
+                        <div class="stat-icon">
+                            8453
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        8453
+                    </div>
+
+                    <div class="stat-sub">
+                        Base Mainnet
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <section class="content">
+
+                <div class="columns">
+
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h2>
+                                Latest Blocks
+                            </h2>
+
+                            <a
+                                href="/base/block/"
+                                class="view-all"
+                            >
+                                View all
+                            </a>
+
+                        </div>
+
+
+                        <div
+                            class="list"
+                            id="latestBlocksList"
+                        >
+
+                            <div class="loading-item">
+                                Loading latest blocks...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h2>
+                                Latest Transactions
+                            </h2>
+
+                            <a
+                                href="#"
+                                class="view-all"
+                            >
+                                View all
+                            </a>
+
+                        </div>
+
+
+                        <div
+                            class="list"
+                            id="latestTransactionsList"
+                        >
+
+                            <div class="loading-item">
+                                Loading latest transactions...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+        </main>
+
     `;
+
+
+    initializeHomePage();
+
 }
+
+
+
+
+
+
+function initializeHomePage() {
+
+    const heroInput =
+        document.getElementById(
+            "heroSearchInput"
+        );
+
+    if (heroInput) {
+
+        heroInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    searchFromHero();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    loadLatestBlock();
+
+    loadLatestBlocks();
+
+    loadLatestTransactions();
+
+}
+
+
+
 
 async function renderBlock(app, blockNumber) {
 
