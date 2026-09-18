@@ -723,3 +723,258 @@ input {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   BLOCK PAGE
+========================================================= */
+
+.container {
+    width: min(1240px, 94%);
+    margin: 0 auto 60px;
+}
+
+.breadcrumb {
+    padding: 25px 0 16px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.breadcrumb a {
+    color: #0052ff;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.card-header {
+    min-height: 56px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eef0f3;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.block-label {
+    margin-bottom: 5px;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.block-number {
+    margin-bottom: 9px;
+    color: #111827;
+    font-size: 26px;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.network-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 9px;
+    background: #ecfdf5;
+    color: #15803d;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+}
+
+.detail-label {
+    padding: 14px 18px;
+    background: #fafafa;
+    border-bottom: 1px solid #f0f1f3;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.detail-value {
+    min-width: 0;
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0f1f3;
+    color: #111827;
+    font-size: 12px;
+    word-break: break-word;
+}
+
+.hash {
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    word-break: break-all;
+}
+
+.detail-value a,
+td a {
+    color: #0052ff;
+    text-decoration: none;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+}
+
+.detail-value a:hover,
+td a:hover {
+    text-decoration: underline;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 13px 18px;
+    text-align: left;
+    border-bottom: 1px solid #f0f1f3;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+th {
+    background: #fafafa;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background: #f8faff;
+}
+
+.status {
+    color: #15803d;
+    font-weight: 600;
+}
+
+.status.failed {
+    color: #dc2626;
+}
+
+.loading {
+    padding: 45px 20px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.error {
+    padding: 18px;
+    background: #fef2f2;
+    color: #dc2626;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.external-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 13px;
+    background: #0052ff;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.external-link:hover {
+    background: #0047df;
+}
+
+@media (max-width: 650px) {
+
+    .container {
+        width: 94%;
+    }
+
+    .breadcrumb {
+        padding-top: 18px;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .details {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-label {
+        padding: 11px 14px 4px;
+        border-bottom: none;
+        background: #ffffff;
+    }
+
+    .detail-value {
+        padding: 4px 14px 11px;
+    }
+
+    th,
+    td {
+        padding: 12px 14px;
+        font-size: 11px;
+    }
+
+}
