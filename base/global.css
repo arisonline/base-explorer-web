@@ -994,113 +994,462 @@ tbody tr:hover {
    ADDRESS PAGE
 ========================================================= */
 
-.address-type-row {
-    margin-bottom: 14px;
+.address-card {
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    padding: 24px;
+
 }
 
-.address-type-badge {
-    display: inline-flex;
+
+.address-title {
+
+    margin-bottom: 10px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: .3px;
+
+}
+
+
+.address-row {
+
+    display: flex;
+
     align-items: center;
 
-    padding: 5px 10px;
+    gap: 12px;
 
-    border-radius: 999px;
+}
 
-    background: #eff6ff;
-    color: #0052ff;
+
+.address {
+
+    min-width: 0;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 15px;
+
+    word-break: break-all;
+
+}
+
+
+.copy-btn {
+
+    flex-shrink: 0;
+
+    border:
+        1px solid #d1d5db;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    padding:
+        7px 12px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+.copy-btn:hover {
+
+    background: #f3f4f6;
+
+}
+
+
+.address-card .network-badge {
+
+    margin-top: 14px;
+
+}
+
+
+/* =========================================================
+   ADDRESS STATS
+========================================================= */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 16px;
+
+    margin-top: 18px;
+
+}
+
+
+.stat {
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    padding: 20px;
+
+}
+
+
+.stat-label {
+
+    margin-bottom: 7px;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+}
+
+
+.stat-value {
+
+    color: #111827;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    word-break: break-word;
+
+}
+
+
+/* =========================================================
+   ADDRESS SECTIONS
+========================================================= */
+
+.section {
+
+    margin-top: 18px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+}
+
+
+.section-header {
+
+    min-height: 55px;
+
+    padding:
+        0 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom:
+        1px solid #eef0f3;
+
+}
+
+
+.section-header h2 {
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+}
+
+
+.section-subtitle {
+
+    color: #9ca3af;
 
     font-size: 11px;
-    font-weight: 700;
+
 }
 
-.address-main {
-    min-width: 0;
+
+/* =========================================================
+   ADDRESS TABLE
+========================================================= */
+
+.address-transactions {
+
+    width: 100%;
+
 }
 
-.address-label {
-    margin-bottom: 6px;
+
+.address-transactions .table-wrapper {
+
+    overflow-x: auto;
+
+}
+
+
+.address-transactions table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+.address-transactions th,
+.address-transactions td {
+
+    padding:
+        13px 18px;
+
+    text-align: left;
+
+    border-bottom:
+        1px solid #f0f1f3;
+
+    font-size: 12px;
+
+    white-space: nowrap;
+
+}
+
+
+.address-transactions th {
+
+    background: #fafafa;
 
     color: #6b7280;
 
     font-size: 11px;
+
     font-weight: 600;
 
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
 }
 
-.address-value {
-    display: flex;
-    align-items: center;
 
-    gap: 8px;
+.address-transactions tbody tr:hover {
 
-    min-width: 0;
+    background: #f8faff;
 
-    color: #111827;
-    font-size: 13px;
 }
 
-.address-value .hash {
-    min-width: 0;
-}
 
-.address-balance {
-    font-weight: 600;
-}
+.address-transactions td a {
 
-.address-transactions {
-    min-width: 0;
-}
-
-.address-links {
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 10px;
-}
-
-.secondary-link {
-    display: inline-flex;
-    align-items: center;
-
-    padding: 9px 13px;
-
-    background: #ffffff;
     color: #0052ff;
-
-    border: 1px solid #dbe1ea;
 
     text-decoration: none;
 
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+}
+
+
+.address-transactions td a:hover {
+
+    text-decoration: underline;
+
+}
+
+
+.address-transactions .status {
+
+    color: #16a34a;
+
+    font-weight: 600;
+
+}
+
+
+.address-transactions .failed {
+
+    color: #dc2626;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================================================
+   EXPLORER LINKS
+========================================================= */
+
+.explorer-links {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    padding: 0 20px 20px;
+
+}
+
+
+.explorer-link {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        9px 13px;
+
+    background: #0052ff;
+
+    color: #ffffff;
+
     border-radius: 7px;
 
+    text-decoration: none;
+
     font-size: 12px;
+
     font-weight: 600;
+
 }
 
-.secondary-link:hover {
+
+.explorer-link:hover {
+
+    background: #0047df;
+
+}
+
+
+.explorer-link.secondary {
+
+    background: #ffffff;
+
+    color: #0052ff;
+
+    border:
+        1px solid #dbe1ea;
+
+}
+
+
+.explorer-link.secondary:hover {
+
     background: #f5f8ff;
+
     border-color: #0052ff;
+
 }
 
 
-@media (max-width: 650px) {
+/* =========================================================
+   ADDRESS MOBILE
+========================================================= */
 
-    .address-value {
+@media (max-width: 768px) {
+
+    .address-card {
+
+        padding: 18px;
+
+    }
+
+
+    .address-row {
+
         align-items: flex-start;
-    }
 
-    .address-value .hash {
-        overflow-wrap: anywhere;
-    }
-
-    .address-links {
         flex-direction: column;
+
     }
 
-    .address-links a {
-        justify-content: center;
+
+    .address {
+
+        font-size: 13px;
+
+    }
+
+
+    .stats {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .stat-value {
+
+        font-size: 18px;
+
+    }
+
+
+    .address-transactions th,
+    .address-transactions td {
+
+        padding:
+            12px 14px;
+
+        font-size: 11px;
+
+    }
+
+
+    .explorer-links {
+
+        flex-direction: column;
+
+    }
+
+
+    .explorer-link {
+
+        width: 100%;
+
     }
 
 }
