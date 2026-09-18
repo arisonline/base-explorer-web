@@ -1503,93 +1503,243 @@ function renderTransaction(app, hash) {
 
 
 
+/* =========================================================
+   ADDRESS PAGE
+========================================================= */
+
 async function renderAddress(app, address) {
 
     app.innerHTML = `
+
         <div class="container">
 
             <div class="breadcrumb">
-                <a href="/base/">Home</a>
+
+                <a href="/base/">
+                    Home
+                </a>
+
                 /
+
                 Address
+
             </div>
 
-            <div id="addressContainer">
 
-                <div class="loading">
-                    Loading address...
+            <!-- =========================================
+                 ADDRESS CARD
+            ========================================== -->
+
+            <div class="address-card">
+
+                <div class="address-title">
+                    Address
+                </div>
+
+
+                <div class="address-row">
+
+                    <div
+                        class="address"
+                        id="address"
+                    >
+                        ${escapeHTML(address)}
+                    </div>
+
+
+                    <button
+                        class="copy-btn"
+                        type="button"
+                        onclick="copyAddressPageAddress()"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+
+                <div class="network-badge">
+
+                    ● Base Mainnet
+
                 </div>
 
             </div>
 
+
+            <!-- =========================================
+                 STATS
+            ========================================== -->
+
+            <div class="stats">
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        ETH Balance
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="balance"
+                    >
+                        Loading...
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Address Type
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="addressType"
+                    >
+                        Detecting...
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Network
+                    </div>
+
+                    <div class="stat-value">
+                        Base Mainnet
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =========================================
+                 RECENT TRANSACTIONS
+            ========================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <h2>
+                        Recent Transactions
+                    </h2>
+
+
+                    <span class="section-subtitle">
+                        Base Mainnet
+                    </span>
+
+                </div>
+
+
+                <div id="addressTransactions">
+
+                    <div class="empty loading">
+
+                        Loading blockchain data...
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =========================================
+                 EXPLORER LINKS
+            ========================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <h2>
+                        Explorer Links
+                    </h2>
+
+                </div>
+
+
+                <div class="explorer-links">
+
+                    <a
+                        id="basescanLink"
+                        class="explorer-link"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on BaseScan →
+                    </a>
+
+
+                    <a
+                        id="blockscoutLink"
+                        class="explorer-link secondary"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on Blockscout →
+                    </a>
+
+                </div>
+
+
+            </section>
+
         </div>
+
     `;
 
+
     loadAddressPage(address);
+
 }
 
 
 /* =========================================================
-   ADDRESS PAGE
-   ========================================================= */
+   LOAD ADDRESS
+========================================================= */
 
 async function loadAddressPage(address) {
 
-    const container =
-        document.getElementById("addressContainer");
-
-    if (!container) {
-        return;
-    }
-
     if (!/^0x[a-fA-F0-9]{40}$/.test(address || "")) {
 
-        container.innerHTML = `
-            <div class="error">
-                Invalid Base address.
-            </div>
-        `;
+        const addressElement =
+            document.getElementById("address");
+
+        if (addressElement) {
+
+            addressElement.textContent =
+                "Invalid address";
+
+        }
 
         return;
     }
 
-    container.innerHTML = `
-        <div class="loading">
-            Loading address...
-        </div>
-    `;
 
     try {
 
-        const balanceResult =
-            await baseRPC(
-                "eth_getBalance",
-                [address, "latest"]
-            );
+        await loadAddressBalance(address);
 
-        const codeResult =
-            await baseRPC(
-                "eth_getCode",
-                [address, "latest"]
-            );
+        await detectAddressTypePage(address);
 
-        const balance =
-            balanceResult.result || "0x0";
-
-        const code =
-            codeResult.result || "0x";
-
-        const isContract =
-            code !== "0x";
-
-        const balanceETH =
-            formatETH(balance);
-
-        displayAddressPage(
-            address,
-            balanceETH,
-            isContract
-        );
+        setAddressExplorerLinks(address);
 
         loadAddressTransactions(address);
 
@@ -1600,201 +1750,251 @@ async function loadAddressPage(address) {
             error
         );
 
-        container.innerHTML = `
-            <div class="error">
-                Unable to load this address.
-                <br><br>
-                Please try again.
-            </div>
-        `;
     }
+
 }
 
 
 /* =========================================================
-   DISPLAY ADDRESS
-   ========================================================= */
+   BALANCE
+========================================================= */
 
-function displayAddressPage(
-    address,
-    balance,
-    isContract
-) {
+async function loadAddressBalance(address) {
 
-    const container =
-        document.getElementById("addressContainer");
+    const balanceElement =
+        document.getElementById("balance");
 
-    if (!container) {
+    if (!balanceElement) {
         return;
     }
 
-    const addressType =
-        isContract
-            ? "Contract"
-            : "EOA / Wallet";
 
-    const contractButton =
-        isContract
-            ? `
-                <a
-                    class="external-link"
-                    href="/base/contract/${encodeURIComponent(address)}"
-                >
-                    Open Contract →
-                </a>
-            `
-            : "";
+    try {
 
-    container.innerHTML = `
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <span>
-                    Address Overview
-                </span>
-
-                <span class="network-badge">
-                    ● Base Mainnet
-                </span>
-
-            </div>
+        const result =
+            await baseRPC(
+                "eth_getBalance",
+                [
+                    address,
+                    "latest"
+                ]
+            );
 
 
-            <div class="card-body">
+        if (!result.result) {
 
-                <div class="address-type-row">
+            balanceElement.textContent =
+                "Unavailable";
 
-                    <span class="address-type-badge">
-                        ${escapeHTML(addressType)}
-                    </span>
+            return;
 
-                </div>
-
-
-                <div class="address-main">
-
-                    <div class="address-label">
-                        Address
-                    </div>
-
-                    <div class="address-value">
-
-                        <span class="hash">
-                            ${escapeHTML(address)}
-                        </span>
-
-                        ${copyButton(address)}
-
-                    </div>
-
-                </div>
-
-            </div>
+        }
 
 
-            <div class="details">
-
-                <div class="detail-label">
-                    Balance
-                </div>
-
-                <div class="detail-value address-balance">
-                    ${escapeHTML(balance)}
-                </div>
+        const wei =
+            BigInt(result.result);
 
 
-                <div class="detail-label">
-                    Address Type
-                </div>
-
-                <div class="detail-value">
-                    ${escapeHTML(addressType)}
-                </div>
+        const whole =
+            wei /
+            1000000000000000000n;
 
 
-                <div class="detail-label">
-                    Network
-                </div>
-
-                <div class="detail-value">
-                    Base Mainnet
-                </div>
+        const fraction =
+            wei %
+            1000000000000000000n;
 
 
-                <div class="detail-label">
-                    Chain ID
-                </div>
-
-                <div class="detail-value">
-                    8453
-                </div>
-
-            </div>
-
-        </div>
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
 
 
-        <div class="card">
+        balanceElement.textContent =
+            whole.toString() +
+            "." +
+            fractionText +
+            " ETH";
 
-            <div class="card-header">
-                Transactions
-            </div>
+    } catch (error) {
 
-            <div
-                id="addressTransactions"
-                class="address-transactions"
-            >
+        console.error(
+            "Balance loading error:",
+            error
+        );
 
-                <div class="loading">
-                    Loading transactions...
-                </div>
+        balanceElement.textContent =
+            "Unavailable";
 
-            </div>
+    }
 
-        </div>
+}
 
 
-        <div class="card">
+/* =========================================================
+   DETECT ADDRESS TYPE
+========================================================= */
 
-            <div class="card-header">
-                Explorer Links
-            </div>
+async function detectAddressTypePage(address) {
 
-            <div class="card-body address-links">
+    const typeElement =
+        document.getElementById(
+            "addressType"
+        );
 
-                <a
-                    class="external-link"
-                    href="https://basescan.org/address/${encodeURIComponent(address)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    View on BaseScan →
-                </a>
+    if (!typeElement) {
+        return;
+    }
 
-                <a
-                    class="secondary-link"
-                    href="https://base.blockscout.com/address/${encodeURIComponent(address)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    View on Blockscout →
-                </a>
 
-                ${contractButton}
+    try {
 
-            </div>
+        const result =
+            await baseRPC(
+                "eth_getCode",
+                [
+                    address,
+                    "latest"
+                ]
+            );
 
-        </div>
 
-    `;
+        if (
+            result.result &&
+            result.result !== "0x"
+        ) {
+
+            typeElement.textContent =
+                "Contract";
+
+        } else {
+
+            typeElement.textContent =
+                "EOA";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Address type error:",
+            error
+        );
+
+        typeElement.textContent =
+            "Unknown";
+
+    }
+
+}
+
+
+/* =========================================================
+   EXPLORER LINKS
+========================================================= */
+
+function setAddressExplorerLinks(address) {
+
+    const baseScanLink =
+        document.getElementById(
+            "basescanLink"
+        );
+
+    const blockscoutLink =
+        document.getElementById(
+            "blockscoutLink"
+        );
+
+
+    if (baseScanLink) {
+
+        baseScanLink.href =
+            "https://basescan.org/address/" +
+            encodeURIComponent(address);
+
+    }
+
+
+    if (blockscoutLink) {
+
+        blockscoutLink.href =
+            "https://base.blockscout.com/address/" +
+            encodeURIComponent(address);
+
+    }
+
+}
+
+
+/* =========================================================
+   COPY ADDRESS
+========================================================= */
+
+async function copyAddressPageAddress() {
+
+    const addressElement =
+        document.getElementById("address");
+
+    if (!addressElement) {
+        return;
+    }
+
+
+    const address =
+        addressElement.textContent.trim();
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            address
+        );
+
+
+        const button =
+            document.querySelector(
+                ".copy-btn"
+            );
+
+
+        if (button) {
+
+            const originalText =
+                button.textContent;
+
+            button.textContent =
+                "Copied!";
+
+
+            setTimeout(
+                function() {
+
+                    button.textContent =
+                        originalText;
+
+                },
+                1500
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Copy error:",
+            error
+        );
+
+    }
+
 }
 
 
 /* =========================================================
    ADDRESS TRANSACTIONS
-   ========================================================= */
+========================================================= */
 
 async function loadAddressTransactions(address) {
 
@@ -1807,39 +2007,64 @@ async function loadAddressTransactions(address) {
         return;
     }
 
+
+    container.innerHTML = `
+
+        <div class="empty loading">
+
+            Loading transactions...
+
+        </div>
+
+    `;
+
+
     try {
 
+        const apiURL =
+            BLOCKSCOUT_API +
+            "/addresses/" +
+            encodeURIComponent(address) +
+            "/transactions";
+
+
         const response =
-            await fetch(
-                BLOCKSCOUT_API +
-                "/addresses/" +
-                encodeURIComponent(address) +
-                "/transactions"
-            );
+            await fetch(apiURL);
+
 
         if (!response.ok) {
+
             throw new Error(
-                "Transactions unavailable"
+                "Transaction API request failed"
             );
+
         }
+
 
         const data =
             await response.json();
 
+
         const transactions =
             data.items || [];
+
 
         if (
             transactions.length === 0
         ) {
 
             container.innerHTML = `
+
                 <div class="empty">
-                    No transactions found for this address.
+
+                    No transactions found.
+
                 </div>
+
             `;
 
             return;
+
         }
 
 
@@ -1852,14 +2077,39 @@ async function loadAddressTransactions(address) {
                     <thead>
 
                         <tr>
-                            <th>Transaction</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Value</th>
-                            <th>Status</th>
+
+                            <th>
+                                Transaction
+                            </th>
+
+                            <th>
+                                Block
+                            </th>
+
+                            <th>
+                                From
+                            </th>
+
+                            <th>
+                                To
+                            </th>
+
+                            <th>
+                                Value
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
                         </tr>
 
                     </thead>
+
 
                     <tbody>
 
@@ -1868,112 +2118,189 @@ async function loadAddressTransactions(address) {
 
         transactions
             .slice(0, 25)
-            .forEach(tx => {
+            .forEach(
+                function(tx) {
 
-                const hash =
-                    tx.hash || "";
-
-                const from =
-                    tx.from?.hash || "";
-
-                const to =
-                    tx.to?.hash || "";
-
-                const value =
-                    formatETH(
-                        tx.value
-                    );
-
-                const success =
-                    tx.status === "ok";
+                    const hash =
+                        tx.hash || "";
 
 
-                html += `
-
-                    <tr>
-
-                        <td>
-
-                            ${
-                                hash
-                                    ? `
-                                        <a
-                                            href="/base/tx/${encodeURIComponent(hash)}"
-                                            title="${escapeHTML(hash)}"
-                                        >
-                                            ${shortHash(hash)}
-                                        </a>
-                                    `
-                                    : "-"
-                            }
-
-                        </td>
+                    const blockNumber =
+                        tx.block_number ??
+                        tx.block?.height ??
+                        "-";
 
 
-                        <td>
-
-                            ${
-                                from
-                                    ? `
-                                        <a
-                                            href="/base/address/${encodeURIComponent(from)}"
-                                            title="${escapeHTML(from)}"
-                                        >
-                                            ${shortHash(from)}
-                                        </a>
-                                    `
-                                    : "-"
-                            }
-
-                        </td>
+                    const from =
+                        tx.from?.hash ||
+                        "-";
 
 
-                        <td>
-
-                            ${
-                                to
-                                    ? `
-                                        <a
-                                            href="/base/address/${encodeURIComponent(to)}"
-                                            title="${escapeHTML(to)}"
-                                        >
-                                            ${shortHash(to)}
-                                        </a>
-                                    `
-                                    : "-"
-                            }
-
-                        </td>
+                    const to =
+                        tx.to?.hash ||
+                        "-";
 
 
-                        <td>
-                            ${escapeHTML(value)}
-                        </td>
+                    const valueWei =
+                        tx.value ||
+                        "0";
 
 
-                        <td>
+                    const valueETH =
+                        formatETH(
+                            valueWei
+                        );
 
-                            <span
-                                class="${
-                                    success
-                                        ? "status"
-                                        : "status failed"
-                                }"
-                            >
+
+                    const success =
+                        tx.status === "ok";
+
+
+                    const statusText =
+                        success
+                            ? "Success"
+                            : "Failed";
+
+
+                    const timestamp =
+                        tx.timestamp
+                            ? new Date(
+                                tx.timestamp
+                            ).toLocaleString()
+                            : "-";
+
+
+                    html += `
+
+                        <tr>
+
+
+                            <!-- Transaction -->
+
+                            <td>
+
                                 ${
-                                    success
-                                        ? "Success"
-                                        : "Failed"
+                                    hash
+                                        ? `
+                                            <a
+                                                href="/base/tx/${encodeURIComponent(hash)}"
+                                                title="${escapeHTML(hash)}"
+                                            >
+                                                ${shortHash(hash)}
+                                            </a>
+                                        `
+                                        : "-"
                                 }
-                            </span>
 
-                        </td>
+                            </td>
 
-                    </tr>
 
-                `;
+                            <!-- Block -->
 
-            });
+                            <td>
+
+                                ${
+                                    blockNumber !== "-"
+                                        ? `
+                                            <a
+                                                href="/base/block/${encodeURIComponent(blockNumber)}"
+                                            >
+                                                ${escapeHTML(
+                                                    formatNumber(
+                                                        blockNumber
+                                                    )
+                                                )}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- From -->
+
+                            <td>
+
+                                ${
+                                    from !== "-"
+                                        ? `
+                                            <a
+                                                href="/base/address/${encodeURIComponent(from)}"
+                                                title="${escapeHTML(from)}"
+                                            >
+                                                ${shortHash(from)}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- To -->
+
+                            <td>
+
+                                ${
+                                    to !== "-"
+                                        ? `
+                                            <a
+                                                href="/base/address/${encodeURIComponent(to)}"
+                                                title="${escapeHTML(to)}"
+                                            >
+                                                ${shortHash(to)}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- Value -->
+
+                            <td>
+
+                                ${escapeHTML(valueETH)}
+
+                            </td>
+
+
+                            <!-- Status -->
+
+                            <td>
+
+                                <span
+                                    class="${
+                                        success
+                                            ? "status"
+                                            : "failed"
+                                    }"
+                                >
+
+                                    ${statusText}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Time -->
+
+                            <td>
+
+                                ${escapeHTML(timestamp)}
+
+                            </td>
+
+
+                        </tr>
+
+                    `;
+
+                }
+            );
 
 
         html += `
@@ -1994,16 +2321,27 @@ async function loadAddressTransactions(address) {
     } catch (error) {
 
         console.error(
-            "Address transactions error:",
+            "Transaction loading error:",
             error
         );
 
+
         container.innerHTML = `
-            <div class="error">
-                Unable to load transaction history.
+
+            <div class="empty">
+
+                Unable to load transactions.
+
+                <br><br>
+
+                Please try again later.
+
             </div>
+
         `;
+
     }
+
 }
 
 
