@@ -7,14 +7,552 @@ function renderHome(app) {
     `;
 }
 
-function renderBlock(app, blockNumber) {
+async function renderBlock(app, blockNumber) {
+
     app.innerHTML = `
-        <section class="page-container">
-            <h1>Block</h1>
-            <p>Block Number: ${escapeHTML(blockNumber)}</p>
-        </section>
+        <main class="container">
+
+            <div class="breadcrumb">
+                <a href="/base/">Home</a>
+                /
+                Block
+            </div>
+
+            <div id="blockContainer">
+
+                <div class="loading">
+                    Loading block...
+                </div>
+
+            </div>
+
+        </main>
     `;
+
+    loadBlockPage(blockNumber);
 }
+
+
+
+
+const BLOCKSCOUT_API = "https://base.blockscout.com/api/v2";
+
+
+function isValidBlock(value) {
+
+    return /^\d+$/.test(value || "");
+
+}
+
+
+function formatNumber(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "-";
+    }
+
+    try {
+
+        return Number(value).toLocaleString();
+
+    } catch {
+
+        return String(value);
+
+    }
+
+}
+
+
+function formatGwei(value) {
+
+    try {
+
+        const wei = BigInt(value || "0");
+
+        const whole = wei / 1000000000n;
+
+        const fraction = wei % 1000000000n;
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(9, "0")
+                .substring(0, 6);
+
+        return whole.toString() +
+            "." +
+            fractionText +
+            " Gwei";
+
+    } catch {
+
+        return "-";
+
+    }
+
+}
+
+
+function formatETH(value) {
+
+    try {
+
+        const wei = BigInt(value || "0");
+
+        const whole =
+            wei / 1000000000000000000n;
+
+        const fraction =
+            wei % 1000000000000000000n;
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
+
+        return whole.toString() +
+            "." +
+            fractionText +
+            " ETH";
+
+    } catch {
+
+        return "0.000000 ETH";
+
+    }
+
+}
+
+
+
+
+function displayBlockPage(block, blockNumber) {
+
+    const container =
+        document.getElementById("blockContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const height =
+        block.height ??
+        block.number ??
+        blockNumber;
+
+    const timestamp =
+        block.timestamp
+            ? new Date(
+                block.timestamp
+            ).toLocaleString()
+            : "-";
+
+    const blockHash =
+        block.hash || "-";
+
+    const parentHash =
+        block.parent_hash || "-";
+
+    const miner =
+        block.miner?.hash || "";
+
+    const gasUsed =
+        block.gas_used ?? 0;
+
+    const gasLimit =
+        block.gas_limit ?? 0;
+
+    const transactionCount =
+        block.transaction_count ??
+        block.tx_count ??
+        0;
+
+    const baseFee =
+        block.base_fee_per_gas
+            ? formatGwei(
+                block.base_fee_per_gas
+            )
+            : "-";
+
+    container.innerHTML = `
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Block Details
+                </span>
+
+                <span class="network-badge">
+                    ● Base Mainnet
+                </span>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="block-label">
+                    Block
+                </div>
+
+                <div class="block-number">
+                    #${formatNumber(height)}
+                </div>
+
+            </div>
+
+            <div class="details">
+
+                <div class="detail-label">
+                    Block Hash
+                </div>
+
+                <div class="detail-value hash">
+                    ${escapeHTML(blockHash)}
+                </div>
+
+                <div class="detail-label">
+                    Parent Hash
+                </div>
+
+                <div class="detail-value hash">
+                    ${escapeHTML(parentHash)}
+                </div>
+
+                <div class="detail-label">
+                    Timestamp
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(timestamp)}
+                </div>
+
+                <div class="detail-label">
+                    Validator / Miner
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        miner
+                            ? `
+                                <a
+                                    href="/base/address/${encodeURIComponent(miner)}"
+                                >
+                                    ${shortHash(miner)}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+                <div class="detail-label">
+                    Transactions
+                </div>
+
+                <div class="detail-value">
+                    ${formatNumber(transactionCount)}
+                </div>
+
+                <div class="detail-label">
+                    Gas Used
+                </div>
+
+                <div class="detail-value">
+                    ${formatNumber(gasUsed)}
+                </div>
+
+                <div class="detail-label">
+                    Gas Limit
+                </div>
+
+                <div class="detail-value">
+                    ${formatNumber(gasLimit)}
+                </div>
+
+                <div class="detail-label">
+                    Base Fee
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(baseFee)}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Transactions
+                </span>
+
+                <span style="
+                    color:#9ca3af;
+                    font-size:11px;
+                    font-weight:500;
+                ">
+                    ${formatNumber(transactionCount)} total
+                </span>
+
+            </div>
+
+            <div id="transactions">
+
+                <div class="loading">
+                    Loading transactions...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+                Explorer Links
+            </div>
+
+            <div class="card-body">
+
+                <a
+                    class="external-link"
+                    href="https://basescan.org/block/${encodeURIComponent(blockNumber)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View on BaseScan →
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+    loadBlockTransactionsPage(blockNumber);
+}
+
+
+
+
+async function loadBlockTransactionsPage(blockNumber) {
+
+    const container =
+        document.getElementById("transactions");
+
+    if (!container) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/blocks/" +
+                encodeURIComponent(blockNumber) +
+                "/transactions"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "Transactions unavailable"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        const transactions =
+            data.items || [];
+
+        if (transactions.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    No transactions found.
+                </div>
+            `;
+
+            return;
+        }
+
+        let html = `
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Transaction</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Value</th>
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+        `;
+
+        transactions.forEach(tx => {
+
+            const hash =
+                tx.hash || "";
+
+            const from =
+                tx.from?.hash || "";
+
+            const to =
+                tx.to?.hash || "";
+
+            const value =
+                formatETH(tx.value);
+
+            const isSuccess =
+                tx.status === "ok";
+
+            const status =
+                isSuccess
+                    ? "Success"
+                    : "Failed";
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        ${
+                            hash
+                                ? `
+                                    <a
+                                        href="/base/tx/${encodeURIComponent(hash)}"
+                                        title="${escapeHTML(hash)}"
+                                    >
+                                        ${shortHash(hash)}
+                                    </a>
+                                `
+                                : "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            from
+                                ? `
+                                    <a
+                                        href="/base/address/${encodeURIComponent(from)}"
+                                        title="${escapeHTML(from)}"
+                                    >
+                                        ${shortHash(from)}
+                                    </a>
+                                `
+                                : "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            to
+                                ? `
+                                    <a
+                                        href="/base/address/${encodeURIComponent(to)}"
+                                        title="${escapeHTML(to)}"
+                                    >
+                                        ${shortHash(to)}
+                                    </a>
+                                `
+                                : "-"
+                        }
+
+                    </td>
+
+                    <td>
+                        ${escapeHTML(value)}
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="${
+                                isSuccess
+                                    ? "status"
+                                    : "status failed"
+                            }"
+                        >
+                            ${status}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+        container.innerHTML = html;
+
+    } catch (error) {
+
+        console.error(
+            "Block transactions error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="empty">
+
+                Unable to load block transactions.
+
+                <br><br>
+
+                Please try again later.
+
+            </div>
+        `;
+    }
+}
+
+
+
+
+
 
 function renderTransaction(app, hash) {
     app.innerHTML = `
