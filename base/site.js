@@ -277,6 +277,632 @@ function initializeHomePage() {
 
 
 
+/* =========================================================
+   HERO SEARCH
+   ========================================================= */
+
+function searchFromHero() {
+
+    const input =
+        document.getElementById(
+            "heroSearchInput"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    performBlockchainSearch(
+        input.value.trim()
+    );
+
+}
+
+
+document
+    .getElementById("heroSearchInput")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+
+                searchFromHero();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   LOAD LATEST BLOCK
+   ========================================================= */
+
+async function loadLatestBlock() {
+
+    try {
+
+        const result =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!result.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const blockNumber =
+            parseInt(
+                result.result,
+                16
+            );
+
+
+        document.getElementById(
+            "latestBlock"
+        ).textContent =
+            blockNumber.toLocaleString();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest block error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestBlock"
+        ).textContent =
+            "Unavailable";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD LATEST BLOCKS
+   Uses blocks 2-6 behind chain tip
+   ========================================================= */
+
+async function loadLatestBlocks() {
+
+    try {
+
+        const latestResult =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!latestResult.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const latestBlock =
+            parseInt(
+                latestResult.result,
+                16
+            );
+
+
+        const blocks = [];
+
+
+        for (
+            let i = 2;
+            i <= 6;
+            i++
+        ) {
+
+            const blockNumber =
+                latestBlock - i;
+
+
+            if (blockNumber < 0) {
+                continue;
+            }
+
+
+            const blockResult =
+                await baseRPC(
+                    "eth_getBlockByNumber",
+                    [
+                        "0x" +
+                        blockNumber.toString(16),
+                        false
+                    ]
+                );
+
+
+            if (blockResult.result) {
+
+                blocks.push(
+                    blockResult.result
+                );
+
+            }
+
+        }
+
+
+        renderLatestBlocks(
+            blocks
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest blocks error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestBlocksList"
+        ).innerHTML = `
+
+            <div class="loading-item">
+
+                Unable to load blocks.
+                Please refresh the page.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD LATEST TRANSACTIONS
+   Uses blocks 2-6 behind chain tip
+   ========================================================= */
+
+async function loadLatestTransactions() {
+
+    try {
+
+        const latestResult =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!latestResult.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const latestBlock =
+            parseInt(
+                latestResult.result,
+                16
+            );
+
+
+        const transactions = [];
+
+
+        for (
+            let i = 2;
+            i <= 6;
+            i++
+        ) {
+
+            if (
+                transactions.length >= 5
+            ) {
+
+                break;
+
+            }
+
+
+            const blockNumber =
+                latestBlock - i;
+
+
+            if (blockNumber < 0) {
+                continue;
+            }
+
+
+            const blockResult =
+                await baseRPC(
+                    "eth_getBlockByNumber",
+                    [
+                        "0x" +
+                        blockNumber.toString(16),
+                        true
+                    ]
+                );
+
+
+            const block =
+                blockResult.result;
+
+
+            if (
+                !block ||
+                !block.transactions
+            ) {
+
+                continue;
+
+            }
+
+
+            transactions.push(
+                ...block.transactions
+            );
+
+        }
+
+
+        renderLatestTransactions(
+            transactions.slice(0, 5)
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest transactions error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestTransactionsList"
+        ).innerHTML = `
+
+            <div class="loading-item">
+
+                Unable to load transactions.
+                Please refresh the page.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER LATEST BLOCKS
+   ========================================================= */
+
+function renderLatestBlocks(blocks) {
+
+    const container =
+        document.getElementById(
+            "latestBlocksList"
+        );
+
+
+    if (
+        !blocks ||
+        blocks.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="loading-item">
+
+                No blocks found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        blocks.map(
+            block => {
+
+                const blockNumber =
+                    parseInt(
+                        block.number,
+                        16
+                    );
+
+
+                const transactionCount =
+                    block.transactions
+                        ? block.transactions.length
+                        : 0;
+
+
+                const timestamp =
+                    parseInt(
+                        block.timestamp,
+                        16
+                    );
+
+
+                const date =
+                    new Date(
+                        timestamp * 1000
+                    );
+
+
+                return `
+
+                    <div
+                        class="list-item clickable"
+                        onclick="openBlock(${blockNumber})"
+                    >
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+
+                                Block
+                                #${blockNumber.toLocaleString()}
+
+                            </div>
+
+
+                            <div class="item-sub">
+
+                                ${transactionCount}
+                                transaction${transactionCount !== 1 ? "s" : ""}
+                                •
+                                ${date.toLocaleTimeString()}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="item-value">
+
+                            ${transactionCount}
+                            txns
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   RENDER LATEST TRANSACTIONS
+   ========================================================= */
+
+function renderLatestTransactions(
+    transactions
+) {
+
+    const container =
+        document.getElementById(
+            "latestTransactionsList"
+        );
+
+
+    if (
+        !transactions ||
+        transactions.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="loading-item">
+
+                No transactions found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        transactions.map(
+            tx => {
+
+                const hash =
+                    tx.hash || "";
+
+
+                const blockNumber =
+                    tx.blockNumber
+                        ? parseInt(
+                            tx.blockNumber,
+                            16
+                        )
+                        : 0;
+
+
+                const value =
+                    tx.value || "0";
+
+
+                return `
+
+                    <div
+                        class="list-item clickable"
+                        onclick="openTransaction('${hash}')"
+                    >
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+
+                                ${shortHash(hash)}
+
+                            </div>
+
+
+                            <div class="item-sub">
+
+                                Block
+                                ${blockNumber.toLocaleString()}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="item-value">
+
+                            ${formatEthValue(value)}
+                            ETH
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   SHORT TRANSACTION HASH
+   ========================================================= */
+
+function shortHash(hash) {
+
+    if (!hash) {
+        return "0x...";
+    }
+
+
+    return (
+        hash.substring(0, 10) +
+        "..." +
+        hash.substring(
+            hash.length - 8
+        )
+    );
+
+}
+
+
+/* =========================================================
+   FORMAT ETH VALUE
+   ========================================================= */
+
+function formatEthValue(value) {
+
+    try {
+
+        const wei =
+            BigInt(value);
+
+
+        const whole =
+            wei /
+            1000000000000000000n;
+
+
+        const fraction =
+            wei %
+            1000000000000000000n;
+
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
+
+
+        return (
+            whole.toString() +
+            "." +
+            fractionText
+        );
+
+    }
+
+    catch {
+
+        return "0.000000";
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN TRANSACTION
+   ========================================================= */
+
+function openTransaction(hash) {
+
+    if (!hash) {
+        return;
+    }
+
+    goToTransaction(hash);
+
+}
+
+
+/* =========================================================
+   OPEN BLOCK
+   ========================================================= */
+
+function openBlock(blockNumber) {
+
+    if (!blockNumber) {
+        return;
+    }
+
+    goToBlock(blockNumber);
+
+}
+
+
+
+
 async function renderBlock(app, blockNumber) {
 
     app.innerHTML = `
