@@ -1908,6 +1908,8 @@ tbody tr:hover {
 }
 
 .contracts-page .container {
+    width: min(1240px, 94%);
+    margin: 0 auto 60px;
     padding-top: 24px;
     padding-bottom: 50px;
 }
