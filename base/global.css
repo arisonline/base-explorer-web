@@ -1978,8 +1978,8 @@ tbody tr:hover {
     padding: 20px;
     background: #fff;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    border-radius: 10px;
+    margin-bottom: 18px;
 }
 
 .contracts-search-title {
@@ -2048,18 +2048,18 @@ tbody tr:hover {
 .contracts-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-bottom: 22px;
+    gap: 16px;
+    margin-bottom: 18px;
 }
 
 .contracts-stat {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 17px;
+    padding: 20px;
     background: #fff;
     border: 1px solid #e5e7eb;
-    border-radius: 11px;
+    border-radius: 10px;
 }
 
 .contracts-stat-icon {
@@ -2288,14 +2288,14 @@ tbody tr:hover {
 .contracts-info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    margin-top: 20px;
+    gap: 16px;
+    margin-top: 18px;
 }
 
 .contracts-info-card {
     display: flex;
     gap: 13px;
-    padding: 18px;
+    padding: 20px;
     border: 1px solid #e5e7eb;
     border-radius: 11px;
     background: #fff;
