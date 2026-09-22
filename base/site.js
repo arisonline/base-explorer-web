@@ -5676,8 +5676,8 @@ async function detectAddressOrToken(address) {
 
 
         /* =================================================
-           NORMAL WALLET
-           ================================================= */
+           NORMAL WALLET / EOA
+        ================================================= */
 
         if (
             !code ||
@@ -5693,19 +5693,20 @@ async function detectAddressOrToken(address) {
 
         /* =================================================
            SMART CONTRACT
-           ================================================= */
+        ================================================= */
 
         /*
-         * We keep contracts under:
-         *
-         * /base/address/ADDRESS
-         *
-         * Token detection remains separate.
+         * First check whether this contract
+         * behaves like an ERC-20 token.
          */
 
         const isToken =
             await checkERC20(address);
 
+
+        /* =================================================
+           ERC-20 TOKEN
+        ================================================= */
 
         if (isToken) {
 
@@ -5716,7 +5717,11 @@ async function detectAddressOrToken(address) {
         }
 
 
-        goToAddress(address);
+        /* =================================================
+           NORMAL SMART CONTRACT
+        ================================================= */
+
+        goToContract(address);
 
     }
 
@@ -5729,11 +5734,14 @@ async function detectAddressOrToken(address) {
 
 
         /*
-         * If RPC detection fails,
-         * use the address route.
+         * If RPC detection fails, do not incorrectly
+         * classify the address as a wallet.
+         *
+         * Open the dedicated contract route because
+         * the user entered a valid 20-byte address.
          */
 
-        goToAddress(address);
+        goToContract(address);
 
     }
 
