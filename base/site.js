@@ -5152,7 +5152,7 @@ function renderSiteHeader() {
                         Tokens
                     </a>
                 
-                    <a href="${EXPLORER_BASE_PATH}/">
+                    <a href="${EXPLORER_BASE_PATH}/contracts/">
                         Contracts
                     </a>
                 
@@ -5248,7 +5248,7 @@ function renderSiteHeader() {
                     Tokens
                 </a>
 
-                <a href="${EXPLORER_BASE_PATH}/address/">
+                <a href="${EXPLORER_BASE_PATH}/contracts/">
                     Contracts
                 </a>
 
