@@ -4374,7 +4374,7 @@ function displayContractPage(data, address) {
                     <div class="contract-info-item">
                         <span>ETH Balance</span>
                         <strong>
-                            ${formatETH(balance)} ETH
+                            ${formatETH(balance)}
                         </strong>
                     </div>
 
