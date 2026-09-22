@@ -3468,6 +3468,739 @@ function formatTokenSupply(value, decimals) {
 
 
 
+
+/* =========================================================
+   CONTRACTS DIRECTORY
+========================================================= */
+
+async function renderContracts(app) {
+
+    app.innerHTML = `
+
+        <div class="contracts-page">
+
+            <div class="container">
+
+                <div class="breadcrumb">
+
+                    <a href="/base/">
+                        Home
+                    </a>
+
+                    <span>›</span>
+
+                    <span>
+                        Contracts
+                    </span>
+
+                </div>
+
+
+                <!-- =====================================
+                     PAGE HEADER
+                ====================================== -->
+
+                <div class="contracts-hero">
+
+                    <div>
+
+                        <div class="contracts-eyebrow">
+                            BASE MAINNET
+                        </div>
+
+                        <h1>
+                            Smart Contracts
+                        </h1>
+
+                        <p>
+                            Explore smart contracts deployed
+                            on Base Mainnet.
+                        </p>
+
+                    </div>
+
+
+                    <div class="contracts-network">
+
+                        <span class="status-dot"></span>
+
+                        Base Mainnet
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     SEARCH
+                ====================================== -->
+
+                <div class="contracts-search-card">
+
+                    <div class="contracts-search-title">
+
+                        Search Contract
+
+                    </div>
+
+
+                    <div class="contracts-search">
+
+                        <input
+                            type="text"
+                            id="contractsSearchInput"
+                            placeholder="Enter contract address..."
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+
+                        <button
+                            type="button"
+                            onclick="searchContractsPage()"
+                        >
+                            Search
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="contractsSearchMessage"
+                        class="contracts-search-message"
+                    ></div>
+
+                </div>
+
+
+                <!-- =====================================
+                     QUICK STATS
+                ====================================== -->
+
+                <div class="contracts-stats">
+
+                    <div class="contracts-stat">
+
+                        <div class="contracts-stat-icon">
+                            ◇
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Network
+                            </span>
+
+                            <strong>
+                                Base Mainnet
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contracts-stat">
+
+                        <div class="contracts-stat-icon">
+                            #
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Chain ID
+                            </span>
+
+                            <strong>
+                                8453
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contracts-stat">
+
+                        <div class="contracts-stat-icon">
+                            ◉
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Data Source
+                            </span>
+
+                            <strong>
+                                Base Explorer
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     CONTRACTS
+                ====================================== -->
+
+                <div class="card contracts-list-card">
+
+                    <div class="card-header contracts-list-header">
+
+                        <div>
+
+                            <h2>
+                                Contract Directory
+                            </h2>
+
+                            <span>
+                                Recently indexed smart contracts
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="contracts-refresh"
+                            onclick="loadContractsPage()"
+                        >
+                            ↻ Refresh
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="contractsList"
+                        class="contracts-list"
+                    >
+
+                        <div class="contracts-loading">
+
+                            <div class="contracts-spinner"></div>
+
+                            <span>
+                                Loading contracts...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     INFO
+                ====================================== -->
+
+                <div class="contracts-info-grid">
+
+                    <div class="contracts-info-card">
+
+                        <div class="contracts-info-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Smart Contract
+                            </h3>
+
+                            <p>
+                                Contracts deployed on Base
+                                can be inspected directly
+                                through their address.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contracts-info-card">
+
+                        <div class="contracts-info-icon">
+                            ↗
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Verify On-Chain
+                            </h3>
+
+                            <p>
+                                Open any contract to view
+                                its on-chain information and
+                                external explorer links.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    initializeContractsPage();
+
+}
+
+
+
+
+
+
+
+/* =========================================================
+   INITIALIZE CONTRACTS PAGE
+========================================================= */
+
+function initializeContractsPage() {
+
+    const input =
+        document.getElementById(
+            "contractsSearchInput"
+        );
+
+
+    if (input) {
+
+        input.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    searchContractsPage();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    loadContractsPage();
+
+}
+
+
+/* =========================================================
+   LOAD CONTRACTS
+========================================================= */
+
+async function loadContractsPage() {
+
+    const container =
+        document.getElementById(
+            "contractsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="contracts-loading">
+
+            <div class="contracts-spinner"></div>
+
+            <span>
+                Loading contracts...
+            </span>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        /*
+         * Blockscout provides indexed address
+         * information. We request recently
+         * updated addresses and filter the
+         * returned results to smart contracts.
+         */
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/addresses?filter=contract"
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Contract API unavailable"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        let contracts =
+            data.items || [];
+
+
+        /*
+         * Keep the directory lightweight.
+         */
+
+        contracts =
+            contracts
+                .filter(
+                    contract =>
+                        contract &&
+                        contract.hash
+                )
+                .slice(0, 25);
+
+
+        renderContractsList(
+            contracts
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Contracts loading error:",
+            error
+        );
+
+
+        /*
+         * Some Blockscout deployments may not
+         * expose the contract filter endpoint.
+         *
+         * Show a useful fallback instead of
+         * leaving the page blank.
+         */
+
+        renderContractsFallback();
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER CONTRACT LIST
+========================================================= */
+
+function renderContractsList(contracts) {
+
+    const container =
+        document.getElementById(
+            "contractsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !contracts ||
+        contracts.length === 0
+    ) {
+
+        renderContractsFallback();
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="contracts-table-wrapper">
+
+            <table class="contracts-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Contract
+                        </th>
+
+                        <th>
+                            Name
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Balance
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    contracts.forEach(
+        function(contract) {
+
+            const address =
+                contract.hash || "";
+
+
+            const name =
+                contract.name ||
+                contract.smart_contract?.name ||
+                "Contract";
+
+
+            const type =
+                contract.smart_contract?.language ||
+                contract.type ||
+                "Smart Contract";
+
+
+            const balance =
+                contract.coin_balance ??
+                contract.balance ??
+                "0";
+
+
+            const verified =
+                contract.is_verified === true ||
+                contract.smart_contract?.is_verified === true;
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        <a
+                            href="/base/contract/${encodeURIComponent(address)}"
+                            class="contract-address-link"
+                            title="${escapeHTML(address)}"
+                        >
+                            ${shortHash(address)}
+                        </a>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="contract-list-name">
+
+                            ${escapeHTML(name)}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="contract-type">
+
+                            ${escapeHTML(type)}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHTML(
+                            formatETH(balance)
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="${
+                            verified
+                                ? "contract-list-status verified"
+                                : "contract-list-status"
+                        }">
+
+                            ${
+                                verified
+                                    ? "Verified"
+                                    : "Unverified"
+                            }
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+/* =========================================================
+   CONTRACT FALLBACK
+========================================================= */
+
+function renderContractsFallback() {
+
+    const container =
+        document.getElementById(
+            "contractsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="contracts-empty">
+
+            <div class="contracts-empty-icon">
+                ◇
+            </div>
+
+            <h3>
+                Explore a Contract
+            </h3>
+
+            <p>
+                Enter a Base smart contract address
+                above to open its contract details.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CONTRACT SEARCH
+========================================================= */
+
+function searchContractsPage() {
+
+    const input =
+        document.getElementById(
+            "contractsSearchInput"
+        );
+
+
+    const message =
+        document.getElementById(
+            "contractsSearchMessage"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const value =
+        input.value.trim();
+
+
+    if (
+        !/^0x[a-fA-F0-9]{40}$/.test(value)
+    ) {
+
+        if (message) {
+
+            message.textContent =
+                "Enter a valid 42-character contract address.";
+
+            message.className =
+                "contracts-search-message error";
+
+        }
+
+        return;
+
+    }
+
+
+    if (message) {
+
+        message.textContent =
+            "";
+
+        message.className =
+            "contracts-search-message";
+
+    }
+
+
+    goToContract(value);
+
+}
+
+
+
+
+
 function renderContract(app, address) {
     app.innerHTML = `
         <div class="breadcrumb">
@@ -3873,6 +4606,19 @@ function getRoute() {
     }
 
 
+
+
+    /* CONTRACTS */
+
+    if (
+        path === "/base/contracts"
+    ) {
+        return {
+            type: "contracts"
+        };
+    }
+
+
     /* CONTRACT */
 
     match = path.match(
@@ -4137,6 +4883,10 @@ async function renderRoute() {
 
         case "token":
             await renderToken(app, route.value);
+            break;
+
+        case "contracts":
+            await renderContracts(app);
             break;
 
         case "contract":
