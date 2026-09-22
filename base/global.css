@@ -1483,3 +1483,97 @@ tbody tr:hover {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   TRANSACTION PAGE
+========================================================= */
+
+.transaction-hash-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.transaction-hash {
+    flex: 1;
+    min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #111827;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+.transaction-hash-row .copy-btn {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    border: 1px solid #dbe1ea;
+    border-radius: 7px;
+    background: #fff;
+    color: #0052ff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.transaction-hash-row .copy-btn:hover {
+    background: #f5f8ff;
+}
+
+
+#transactionContainer .details {
+    margin-top: 0;
+}
+
+
+#transactionContainer .detail-value.hash {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+
+#transactionContainer .detail-value a {
+    color: #0052ff;
+    text-decoration: none;
+}
+
+#transactionContainer .detail-value a:hover {
+    text-decoration: underline;
+}
+
+
+#transactionContainer .explorer-links {
+    padding: 0;
+}
+
+
+@media (max-width: 768px) {
+
+    .transaction-hash-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .transaction-hash {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .transaction-hash-row .copy-btn {
+        width: auto;
+    }
+
+}
