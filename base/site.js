@@ -3464,14 +3464,295 @@ function formatTokenSupply(value, decimals) {
 }
 
 
+
+
+
+
 function renderContract(app, address) {
     app.innerHTML = `
+        <div class="breadcrumb">
+            <a href="/base/">Home</a>
+            <span>›</span>
+            <span>Contract</span>
+        </div>
+
         <section class="page-container">
-            <h1>Contract</h1>
-            <p>${escapeHTML(address)}</p>
+            <div id="contractContainer">
+                <div class="loading">Loading contract...</div>
+            </div>
         </section>
     `;
+
+    loadContractPage(address);
 }
+
+
+async function loadContractPage(address) {
+    const container = document.getElementById("contractContainer");
+
+    if (!container) return;
+
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        container.innerHTML = `
+            <div class="empty">
+                Invalid contract address.
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${BLOCKSCOUT_API}/addresses/${address}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Contract data unavailable");
+        }
+
+        const data = await response.json();
+
+        displayContractPage(data, address);
+
+    } catch (error) {
+        console.error("Contract page error:", error);
+
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-header">
+                    Contract
+                </div>
+
+                <div class="card-body">
+                    <div class="empty">
+                        Unable to load contract information.
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+
+function displayContractPage(data, address) {
+    const container = document.getElementById("contractContainer");
+
+    if (!container) return;
+
+    const contractName =
+        data.name ||
+        data.smart_contract?.name ||
+        "Contract";
+
+    const verified =
+        data.is_verified === true ||
+        data.smart_contract?.is_verified === true;
+
+    const contractType =
+        data.type ||
+        data.smart_contract?.language ||
+        "Smart Contract";
+
+    const creationTx =
+        data.creation_tx_hash ||
+        data.smart_contract?.creation_tx_hash ||
+        "";
+
+    const compiler =
+        data.smart_contract?.compiler_version ||
+        data.compiler_version ||
+        "—";
+
+    const balance =
+        data.coin_balance ??
+        data.balance ??
+        "0";
+
+    container.innerHTML = `
+        <div class="card contract-main-card">
+
+            <div class="card-header">
+                Contract Details
+            </div>
+
+            <div class="card-body">
+
+                <div class="contract-title-row">
+
+                    <div>
+                        <div class="contract-name">
+                            ${escapeHTML(contractName)}
+                        </div>
+
+                        <div class="contract-address-row">
+                            <span class="contract-address">
+                                ${escapeHTML(address)}
+                            </span>
+
+                            ${copyButton(address)}
+                        </div>
+                    </div>
+
+                    <div class="contract-status ${
+                        verified
+                            ? "contract-verified"
+                            : "contract-unverified"
+                    }">
+                        ${verified ? "✓ Verified" : "Unverified"}
+                    </div>
+
+                </div>
+
+                <div class="contract-info-grid">
+
+                    <div class="contract-info-item">
+                        <span>Contract Type</span>
+                        <strong>
+                            ${escapeHTML(contractType)}
+                        </strong>
+                    </div>
+
+                    <div class="contract-info-item">
+                        <span>Network</span>
+                        <strong>
+                            Base Mainnet
+                        </strong>
+                    </div>
+
+                    <div class="contract-info-item">
+                        <span>ETH Balance</span>
+                        <strong>
+                            ${formatETH(balance)} ETH
+                        </strong>
+                    </div>
+
+                    <div class="contract-info-item">
+                        <span>Compiler</span>
+                        <strong>
+                            ${escapeHTML(compiler)}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="card contract-code-card">
+
+            <div class="card-header">
+                Contract Information
+            </div>
+
+            <div class="card-body">
+
+                <div class="contract-detail-row">
+                    <span>Contract Address</span>
+
+                    <div class="contract-detail-value">
+                        <span>
+                            ${escapeHTML(address)}
+                        </span>
+
+                        ${copyButton(address)}
+                    </div>
+                </div>
+
+
+                <div class="contract-detail-row">
+                    <span>Verification Status</span>
+
+                    <strong class="${
+                        verified
+                            ? "verified-text"
+                            : "unverified-text"
+                    }">
+                        ${verified
+                            ? "Verified Source Code"
+                            : "Source Code Not Verified"}
+                    </strong>
+                </div>
+
+
+                <div class="contract-detail-row">
+                    <span>Contract Type</span>
+
+                    <strong>
+                        ${escapeHTML(contractType)}
+                    </strong>
+                </div>
+
+
+                <div class="contract-detail-row">
+                    <span>Compiler Version</span>
+
+                    <strong>
+                        ${escapeHTML(compiler)}
+                    </strong>
+                </div>
+
+
+                ${
+                    creationTx
+                        ? `
+                            <div class="contract-detail-row">
+                                <span>Creation Transaction</span>
+
+                                <a
+                                    href="/base/tx/${creationTx}"
+                                    class="contract-link"
+                                    data-internal-link
+                                >
+                                    ${shortHash(creationTx)}
+                                </a>
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+        </div>
+
+
+        <div class="card contract-links-card">
+
+            <div class="card-header">
+                Explorer Links
+            </div>
+
+            <div class="card-body contract-links">
+
+                <a
+                    href="https://basescan.org/address/${address}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View on BaseScan ↗
+                </a>
+
+                <a
+                    href="https://base.blockscout.com/address/${address}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View on Blockscout ↗
+                </a>
+
+            </div>
+        </div>
+    `;
+}
+
+
+function copyContractAddress(address, button) {
+    copyText(address, button);
+}
+
+
+
+
+
 
 function renderNotFound(app) {
     app.innerHTML = `
