@@ -2950,14 +2950,519 @@ async function loadAddressTransactions(address) {
 
 
 
-function renderToken(app, address) {
+/* =========================================================
+   TOKEN PAGE
+========================================================= */
+
+async function renderToken(app, address) {
+
     app.innerHTML = `
-        <section class="page-container">
-            <h1>Token</h1>
-            <p>${escapeHTML(address)}</p>
-        </section>
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/base/">
+                    Home
+                </a>
+
+                /
+
+                Token
+
+            </div>
+
+
+            <div id="tokenContainer">
+
+                <div class="loading">
+                    Loading token...
+                </div>
+
+            </div>
+
+        </div>
+
     `;
+
+    loadTokenPage(address);
+
 }
+
+
+/* =========================================================
+   LOAD TOKEN
+========================================================= */
+
+async function loadTokenPage(address) {
+
+    const container =
+        document.getElementById(
+            "tokenContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !/^0x[a-fA-F0-9]{40}$/.test(
+            address || ""
+        )
+    ) {
+
+        container.innerHTML = `
+
+            <div class="error">
+                Invalid token address.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+            Loading token information...
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/tokens/" +
+                encodeURIComponent(address)
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Token not found"
+            );
+
+        }
+
+
+        const token =
+            await response.json();
+
+
+        displayTokenPage(
+            token,
+            address
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Token loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Unable to load this token.
+
+                <br><br>
+
+                Please check the token address
+                and try again.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   DISPLAY TOKEN
+========================================================= */
+
+function displayTokenPage(token, address) {
+
+    const container =
+        document.getElementById(
+            "tokenContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const name =
+        token.name ||
+        "Unknown Token";
+
+
+    const symbol =
+        token.symbol ||
+        "-";
+
+
+    const decimals =
+        token.decimals ??
+        "-";
+
+
+    const totalSupply =
+        token.total_supply ||
+        token.total_supply_raw ||
+        "0";
+
+
+    const holders =
+        token.holders_count ??
+        token.holders ??
+        "-";
+
+
+    const tokenType =
+        token.type ||
+        "ERC-20";
+
+
+    container.innerHTML = `
+
+        <!-- TOKEN OVERVIEW -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Token Details
+                </span>
+
+                <span class="network-badge">
+                    ● Base Mainnet
+                </span>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="token-name">
+
+                    ${escapeHTML(name)}
+
+                </div>
+
+
+                <div class="token-symbol">
+
+                    ${escapeHTML(symbol)}
+
+                </div>
+
+            </div>
+
+
+            <div class="details">
+
+
+                <!-- CONTRACT -->
+
+                <div class="detail-label">
+                    Contract
+                </div>
+
+                <div class="detail-value hash">
+
+                    <a
+                        href="/base/address/${encodeURIComponent(address)}"
+                        title="${escapeHTML(address)}"
+                    >
+                        ${shortHash(address)}
+                    </a>
+
+                </div>
+
+
+                <!-- TOKEN TYPE -->
+
+                <div class="detail-label">
+                    Token Type
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(tokenType)}
+                </div>
+
+
+                <!-- SYMBOL -->
+
+                <div class="detail-label">
+                    Symbol
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(symbol)}
+                </div>
+
+
+                <!-- DECIMALS -->
+
+                <div class="detail-label">
+                    Decimals
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(decimals)}
+                </div>
+
+
+                <!-- TOTAL SUPPLY -->
+
+                <div class="detail-label">
+                    Total Supply
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatTokenSupply(
+                            totalSupply,
+                            decimals
+                        )
+                    )}
+
+                </div>
+
+
+                <!-- HOLDERS -->
+
+                <div class="detail-label">
+                    Holders
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        holders !== "-"
+                            ? formatNumber(holders)
+                            : "-"
+                    }
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- TOKEN INFORMATION -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Token Information
+
+            </div>
+
+
+            <div class="card-body token-info-grid">
+
+                <div class="token-info-item">
+
+                    <span>
+                        Name
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(name)}
+                    </strong>
+
+                </div>
+
+
+                <div class="token-info-item">
+
+                    <span>
+                        Symbol
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(symbol)}
+                    </strong>
+
+                </div>
+
+
+                <div class="token-info-item">
+
+                    <span>
+                        Decimals
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(decimals)}
+                    </strong>
+
+                </div>
+
+
+                <div class="token-info-item">
+
+                    <span>
+                        Network
+                    </span>
+
+                    <strong>
+                        Base Mainnet
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXPLORER LINKS -->
+
+        <div class="card">
+
+            <div class="card-header">
+                Explorer Links
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="explorer-links">
+
+                    <a
+                        class="explorer-link"
+                        href="https://basescan.org/token/${encodeURIComponent(address)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on BaseScan →
+                    </a>
+
+
+                    <a
+                        class="explorer-link secondary"
+                        href="https://base.blockscout.com/token/${encodeURIComponent(address)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on Blockscout →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   TOKEN SUPPLY FORMAT
+========================================================= */
+
+function formatTokenSupply(value, decimals) {
+
+    try {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "-";
+        }
+
+
+        const raw =
+            BigInt(value);
+
+
+        const decimalCount =
+            Number(decimals);
+
+
+        if (
+            !Number.isFinite(decimalCount) ||
+            decimalCount < 0
+        ) {
+            return raw.toString();
+        }
+
+
+        if (decimalCount === 0) {
+            return raw.toString();
+        }
+
+
+        const divisor =
+            10n ** BigInt(decimalCount);
+
+
+        const whole =
+            raw / divisor;
+
+
+        const fraction =
+            raw % divisor;
+
+
+        if (fraction === 0n) {
+            return whole.toString();
+        }
+
+
+        let fractionText =
+            fraction
+                .toString()
+                .padStart(
+                    decimalCount,
+                    "0"
+                );
+
+
+        fractionText =
+            fractionText
+                .replace(/0+$/, "");
+
+
+        return (
+            whole.toString() +
+            "." +
+            fractionText
+        );
+
+    } catch {
+
+        return "-";
+
+    }
+
+}
+
 
 function renderContract(app, address) {
     app.innerHTML = `
