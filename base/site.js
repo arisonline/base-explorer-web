@@ -1492,14 +1492,618 @@ async function loadBlockTransactionsPage(blockNumber) {
 
 
 
-function renderTransaction(app, hash) {
+/* =========================================================
+   TRANSACTION PAGE
+========================================================= */
+
+async function renderTransaction(app, hash) {
+
     app.innerHTML = `
-        <section class="page-container">
-            <h1>Transaction</h1>
-            <p>${escapeHTML(hash)}</p>
-        </section>
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/base/">
+                    Home
+                </a>
+
+                /
+
+                Transaction
+
+            </div>
+
+
+            <div id="transactionContainer">
+
+                <div class="loading">
+                    Loading transaction...
+                </div>
+
+            </div>
+
+        </div>
+
     `;
+
+    loadTransactionPage(hash);
+
 }
+
+
+/* =========================================================
+   LOAD TRANSACTION
+========================================================= */
+
+async function loadTransactionPage(hash) {
+
+    const container =
+        document.getElementById(
+            "transactionContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !/^0x[a-fA-F0-9]{64}$/.test(
+            hash || ""
+        )
+    ) {
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Invalid transaction hash.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+
+            Loading transaction...
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/transactions/" +
+                encodeURIComponent(hash)
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Transaction not found"
+            );
+
+        }
+
+
+        const transaction =
+            await response.json();
+
+
+        displayTransactionPage(
+            transaction
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Transaction loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Unable to load this transaction.
+
+                <br><br>
+
+                Please check the transaction hash
+                and try again.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   DISPLAY TRANSACTION
+========================================================= */
+
+function displayTransactionPage(transaction) {
+
+    const container =
+        document.getElementById(
+            "transactionContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const hash =
+        transaction.hash || "-";
+
+
+    const blockNumber =
+        transaction.block_number ??
+        transaction.block?.height ??
+        "-";
+
+
+    const from =
+        transaction.from?.hash ||
+        transaction.from ||
+        "-";
+
+
+    const to =
+        transaction.to?.hash ||
+        transaction.to ||
+        "-";
+
+
+    const value =
+        formatETH(
+            transaction.value || "0"
+        );
+
+
+    const timestamp =
+        transaction.timestamp
+            ? new Date(
+                transaction.timestamp
+            ).toLocaleString()
+            : "-";
+
+
+    const status =
+        transaction.status === "ok"
+            ? "Success"
+            : "Failed";
+
+
+    const statusClass =
+        transaction.status === "ok"
+            ? "status"
+            : "status failed";
+
+
+    const gasUsed =
+        transaction.gas_used ??
+        transaction.gasUsed ??
+        "-";
+
+
+    const gasLimit =
+        transaction.gas ??
+        transaction.gas_limit ??
+        "-";
+
+
+    const gasPrice =
+        transaction.gas_price ??
+        transaction.gasPrice ??
+        "0";
+
+
+    const nonce =
+        transaction.nonce ??
+        "-";
+
+
+    const transactionFee =
+        transaction.fee?.value ??
+        transaction.fee ??
+        "0";
+
+
+    const method =
+        transaction.method ||
+        transaction.decoded_input?.method_call ||
+        "Contract Interaction";
+
+
+    container.innerHTML = `
+
+        <!-- TRANSACTION OVERVIEW -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Transaction Details
+                </span>
+
+                <span class="network-badge">
+                    ● Base Mainnet
+                </span>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="block-label">
+                    Transaction Hash
+                </div>
+
+
+                <div class="transaction-hash-row">
+
+                    <div
+                        class="transaction-hash"
+                        title="${escapeHTML(hash)}"
+                    >
+                        ${escapeHTML(hash)}
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="copy-btn"
+                        onclick="copyTransactionHash()"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="details">
+
+                <!-- STATUS -->
+
+                <div class="detail-label">
+                    Status
+                </div>
+
+                <div class="detail-value">
+
+                    <span class="${statusClass}">
+                        ${status}
+                    </span>
+
+                </div>
+
+
+                <!-- BLOCK -->
+
+                <div class="detail-label">
+                    Block
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        blockNumber !== "-"
+                            ? `
+                                <a
+                                    href="/base/block/${encodeURIComponent(blockNumber)}"
+                                >
+                                    ${escapeHTML(
+                                        formatNumber(
+                                            blockNumber
+                                        )
+                                    )}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+
+                <!-- TIMESTAMP -->
+
+                <div class="detail-label">
+                    Timestamp
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(timestamp)}
+                </div>
+
+
+                <!-- FROM -->
+
+                <div class="detail-label">
+                    From
+                </div>
+
+                <div class="detail-value hash">
+
+                    ${
+                        from !== "-"
+                            ? `
+                                <a
+                                    href="/base/address/${encodeURIComponent(from)}"
+                                    title="${escapeHTML(from)}"
+                                >
+                                    ${escapeHTML(
+                                        shortHash(from)
+                                    )}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+
+                <!-- TO -->
+
+                <div class="detail-label">
+                    To
+                </div>
+
+                <div class="detail-value hash">
+
+                    ${
+                        to !== "-"
+                            ? `
+                                <a
+                                    href="/base/address/${encodeURIComponent(to)}"
+                                    title="${escapeHTML(to)}"
+                                >
+                                    ${escapeHTML(
+                                        shortHash(to)
+                                    )}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+
+                <!-- VALUE -->
+
+                <div class="detail-label">
+                    Value
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(value)}
+                </div>
+
+
+                <!-- TRANSACTION FEE -->
+
+                <div class="detail-label">
+                    Transaction Fee
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatETH(transactionFee)
+                    )}
+
+                </div>
+
+
+                <!-- GAS PRICE -->
+
+                <div class="detail-label">
+                    Gas Price
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatGwei(gasPrice)
+                    )}
+
+                </div>
+
+
+                <!-- GAS USED -->
+
+                <div class="detail-label">
+                    Gas Used
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatNumber(gasUsed)
+                    )}
+
+                </div>
+
+
+                <!-- GAS LIMIT -->
+
+                <div class="detail-label">
+                    Gas Limit
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatNumber(gasLimit)
+                    )}
+
+                </div>
+
+
+                <!-- NONCE -->
+
+                <div class="detail-label">
+                    Nonce
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatNumber(nonce)
+                    )}
+
+                </div>
+
+
+                <!-- METHOD -->
+
+                <div class="detail-label">
+                    Method
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(method)}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXPLORER LINKS -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Explorer Links
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="explorer-links">
+
+                    <a
+                        class="explorer-link"
+                        href="https://basescan.org/tx/${encodeURIComponent(hash)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on BaseScan →
+                    </a>
+
+
+                    <a
+                        class="explorer-link secondary"
+                        href="https://base.blockscout.com/tx/${encodeURIComponent(hash)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on Blockscout →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   COPY TRANSACTION HASH
+========================================================= */
+
+async function copyTransactionHash() {
+
+    const hashElement =
+        document.querySelector(
+            ".transaction-hash"
+        );
+
+    const button =
+        document.querySelector(
+            "#transactionContainer .copy-btn"
+        );
+
+
+    if (!hashElement) {
+        return;
+    }
+
+
+    const hash =
+        hashElement.textContent.trim();
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            hash
+        );
+
+
+        if (button) {
+
+            const originalText =
+                button.textContent;
+
+
+            button.textContent =
+                "Copied!";
+
+
+            setTimeout(
+                function() {
+
+                    button.textContent =
+                        originalText;
+
+                },
+                1500
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Transaction hash copy error:",
+            error
+        );
+
+    }
+
+}
+
 
 
 
