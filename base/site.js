@@ -4202,21 +4202,40 @@ function searchContractsPage() {
 
 
 function renderContract(app, address) {
+
     app.innerHTML = `
-        <div class="breadcrumb">
-            <a href="/base/">Home</a>
-            <span>›</span>
-            <span>Contract</span>
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/base/">
+                    Home
+                </a>
+
+                <span>›</span>
+
+                <span>
+                    Contract
+                </span>
+
+            </div>
+
+
+            <div id="contractContainer">
+
+                <div class="loading">
+                    Loading contract...
+                </div>
+
+            </div>
+
         </div>
 
-        <section class="page-container">
-            <div id="contractContainer">
-                <div class="loading">Loading contract...</div>
-            </div>
-        </section>
     `;
 
     loadContractPage(address);
+
 }
 
 
