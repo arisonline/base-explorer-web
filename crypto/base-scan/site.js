@@ -4553,7 +4553,7 @@ function getRoute() {
 
     if (
         path === "" ||
-        path === "/crypto/base-scan"
+        path === "/crypto/crypto/base-scan-scan"
     ) {
         return {
             type: "home"
@@ -4564,7 +4564,7 @@ function getRoute() {
     /* BLOCK */
 
     let match = path.match(
-        /^\/base\/block\/(\d+)$/
+        /^\/crypto/base-scan\/block\/(\d+)$/
     );
 
     if (match) {
@@ -4580,7 +4580,7 @@ function getRoute() {
     /* TRANSACTION */
 
     match = path.match(
-        /^\/base\/tx\/(0x[a-fA-F0-9]{64})$/
+        /^\/crypto/base-scan\/tx\/(0x[a-fA-F0-9]{64})$/
     );
 
     if (match) {
@@ -4596,7 +4596,7 @@ function getRoute() {
     /* ADDRESS */
 
     match = path.match(
-        /^\/base\/address\/(0x[a-fA-F0-9]{40})$/
+        /^\/crypto/base-scan\/address\/(0x[a-fA-F0-9]{40})$/
     );
 
     if (match) {
@@ -4612,7 +4612,7 @@ function getRoute() {
     /* TOKEN */
 
     match = path.match(
-        /^\/base\/token\/(0x[a-fA-F0-9]{40})$/
+        /^\/crypto/base-scan\/token\/(0x[a-fA-F0-9]{40})$/
     );
 
     if (match) {
@@ -4630,7 +4630,7 @@ function getRoute() {
     /* CONTRACTS */
 
     if (
-        path === "/crypto/base-scan/contracts"
+        path === "/crypto/crypto/base-scan-scan/contracts"
     ) {
         return {
             type: "contracts"
@@ -4641,7 +4641,7 @@ function getRoute() {
     /* CONTRACT */
 
     match = path.match(
-        /^\/base\/contract\/(0x[a-fA-F0-9]{40})$/
+        /^\/crypto/base-scan\/contract\/(0x[a-fA-F0-9]{40})$/
     );
 
     if (match) {
