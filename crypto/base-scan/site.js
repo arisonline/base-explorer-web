@@ -1,0 +1,6255 @@
+async function renderHome(app) {
+
+    app.innerHTML = `
+
+        <section class="hero">
+
+            <div class="hero-inner">
+
+                <div class="hero-badge">
+
+                    <span class="status-dot"></span>
+
+                    Base Mainnet
+
+                    <span>•</span>
+
+                    Chain ID 8453
+
+                </div>
+
+
+                <h1>
+                    Explore Base
+                </h1>
+
+
+                <p>
+                    Search Base Mainnet blocks, transactions,
+                    addresses, tokens and smart contracts.
+                </p>
+
+
+                <div class="hero-search">
+
+                    <input
+                        type="text"
+                        id="heroSearchInput"
+                        placeholder="Search by address, transaction hash or block number..."
+                        autocomplete="off"
+                    >
+
+                    <button
+                        type="button"
+                        onclick="searchFromHero()"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+
+                <div class="hero-network">
+
+                    <strong>
+                        ● Base Mainnet
+                    </strong>
+
+                    &nbsp;•&nbsp;
+
+                    Ethereum-compatible L2
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <div class="container">
+
+            <section class="stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-title">
+                            Latest Block
+                        </div>
+
+                        <div class="stat-icon">
+                            #
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="latestBlock"
+                    >
+                        Loading...
+                    </div>
+
+                    <div class="stat-sub">
+                        Base Mainnet
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-title">
+                            Network
+                        </div>
+
+                        <div class="stat-icon">
+                            B
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        Base Mainnet
+                    </div>
+
+                    <div class="stat-sub">
+                        Ethereum Layer 2
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div class="stat-title">
+                            Chain ID
+                        </div>
+
+                        <div class="stat-icon">
+                            8453
+                        </div>
+
+                    </div>
+
+                    <div class="stat-value">
+                        8453
+                    </div>
+
+                    <div class="stat-sub">
+                        Base Mainnet
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="content">
+
+                <div class="columns">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h2>
+                                Latest Blocks
+                            </h2>
+
+                            <a
+                                href="/crypto/base-scan/"
+                                class="view-all"
+                            >
+                                View all
+                            </a>
+
+                        </div>
+
+
+                        <div
+                            class="list"
+                            id="latestBlocksList"
+                        >
+
+                            <div class="loading-item">
+                                Loading latest blocks...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h2>
+                                Latest Transactions
+                            </h2>
+
+                            <a
+                                href="/crypto/base-scan/"
+                                class="view-all"
+                            >
+                                View all
+                            </a>
+
+                        </div>
+
+
+                        <div
+                            class="list"
+                            id="latestTransactionsList"
+                        >
+
+                            <div class="loading-item">
+                                Loading latest transactions...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    `;
+
+    initializeHomePage();
+
+}
+
+
+
+
+
+
+function initializeHomePage() {
+
+    const heroInput =
+        document.getElementById(
+            "heroSearchInput"
+        );
+
+    if (heroInput) {
+
+        heroInput.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    searchFromHero();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    loadLatestBlock();
+
+    loadLatestBlocks();
+
+    loadLatestTransactions();
+
+}
+
+
+
+
+/* =========================================================
+   HERO SEARCH
+   ========================================================= */
+
+function searchFromHero() {
+
+    const input =
+        document.getElementById(
+            "heroSearchInput"
+        );
+
+    if (!input) {
+        return;
+    }
+
+    performBlockchainSearch(
+        input.value.trim()
+    );
+
+}
+
+
+/* =========================================================
+   LOAD LATEST BLOCK
+   ========================================================= */
+
+async function loadLatestBlock() {
+
+    try {
+
+        const result =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!result.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const blockNumber =
+            parseInt(
+                result.result,
+                16
+            );
+
+
+        document.getElementById(
+            "latestBlock"
+        ).textContent =
+            blockNumber.toLocaleString();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest block error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestBlock"
+        ).textContent =
+            "Unavailable";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD LATEST BLOCKS
+   Uses blocks 2-6 behind chain tip
+   ========================================================= */
+
+async function loadLatestBlocks() {
+
+    try {
+
+        const latestResult =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!latestResult.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const latestBlock =
+            parseInt(
+                latestResult.result,
+                16
+            );
+
+
+        const blocks = [];
+
+
+        for (
+            let i = 2;
+            i <= 6;
+            i++
+        ) {
+
+            const blockNumber =
+                latestBlock - i;
+
+
+            if (blockNumber < 0) {
+                continue;
+            }
+
+
+            const blockResult =
+                await baseRPC(
+                    "eth_getBlockByNumber",
+                    [
+                        "0x" +
+                        blockNumber.toString(16),
+                        false
+                    ]
+                );
+
+
+            if (blockResult.result) {
+
+                blocks.push(
+                    blockResult.result
+                );
+
+            }
+
+        }
+
+
+        renderLatestBlocks(
+            blocks
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest blocks error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestBlocksList"
+        ).innerHTML = `
+
+            <div class="loading-item">
+
+                Unable to load blocks.
+                Please refresh the page.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD LATEST TRANSACTIONS
+   Uses blocks 2-6 behind chain tip
+   ========================================================= */
+
+async function loadLatestTransactions() {
+
+    try {
+
+        const latestResult =
+            await baseRPC(
+                "eth_blockNumber"
+            );
+
+
+        if (!latestResult.result) {
+
+            throw new Error(
+                "Unable to get latest block"
+            );
+
+        }
+
+
+        const latestBlock =
+            parseInt(
+                latestResult.result,
+                16
+            );
+
+
+        const transactions = [];
+
+
+        for (
+            let i = 2;
+            i <= 6;
+            i++
+        ) {
+
+            if (
+                transactions.length >= 5
+            ) {
+
+                break;
+
+            }
+
+
+            const blockNumber =
+                latestBlock - i;
+
+
+            if (blockNumber < 0) {
+                continue;
+            }
+
+
+            const blockResult =
+                await baseRPC(
+                    "eth_getBlockByNumber",
+                    [
+                        "0x" +
+                        blockNumber.toString(16),
+                        true
+                    ]
+                );
+
+
+            const block =
+                blockResult.result;
+
+
+            if (
+                !block ||
+                !block.transactions
+            ) {
+
+                continue;
+
+            }
+
+
+            transactions.push(
+                ...block.transactions
+            );
+
+        }
+
+
+        renderLatestTransactions(
+            transactions.slice(0, 5)
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest transactions error:",
+            error
+        );
+
+
+        document.getElementById(
+            "latestTransactionsList"
+        ).innerHTML = `
+
+            <div class="loading-item">
+
+                Unable to load transactions.
+                Please refresh the page.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER LATEST BLOCKS
+   ========================================================= */
+
+function renderLatestBlocks(blocks) {
+
+    const container =
+        document.getElementById(
+            "latestBlocksList"
+        );
+
+
+    if (
+        !blocks ||
+        blocks.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="loading-item">
+
+                No blocks found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        blocks.map(
+            block => {
+
+                const blockNumber =
+                    parseInt(
+                        block.number,
+                        16
+                    );
+
+
+                const transactionCount =
+                    block.transactions
+                        ? block.transactions.length
+                        : 0;
+
+
+                const timestamp =
+                    parseInt(
+                        block.timestamp,
+                        16
+                    );
+
+
+                const date =
+                    new Date(
+                        timestamp * 1000
+                    );
+
+
+                return `
+
+                    <div
+                        class="list-item clickable"
+                        onclick="openBlock(${blockNumber})"
+                    >
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+
+                                Block
+                                #${blockNumber.toLocaleString()}
+
+                            </div>
+
+
+                            <div class="item-sub">
+
+                                ${transactionCount}
+                                transaction${transactionCount !== 1 ? "s" : ""}
+                                •
+                                ${date.toLocaleTimeString()}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="item-value">
+
+                            ${transactionCount}
+                            txns
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   RENDER LATEST TRANSACTIONS
+   ========================================================= */
+
+function renderLatestTransactions(
+    transactions
+) {
+
+    const container =
+        document.getElementById(
+            "latestTransactionsList"
+        );
+
+
+    if (
+        !transactions ||
+        transactions.length === 0
+    ) {
+
+        container.innerHTML = `
+
+            <div class="loading-item">
+
+                No transactions found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        transactions.map(
+            tx => {
+
+                const hash =
+                    tx.hash || "";
+
+
+                const blockNumber =
+                    tx.blockNumber
+                        ? parseInt(
+                            tx.blockNumber,
+                            16
+                        )
+                        : 0;
+
+
+                const value =
+                    tx.value || "0";
+
+
+                return `
+
+                    <div
+                        class="list-item clickable"
+                        onclick="openTransaction('${hash}')"
+                    >
+
+                        <div class="item-main">
+
+                            <div class="item-title">
+
+                                ${shortHash(hash)}
+
+                            </div>
+
+
+                            <div class="item-sub">
+
+                                Block
+                                ${blockNumber.toLocaleString()}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="item-value">
+
+                            ${formatEthValue(value)}
+                            ETH
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   FORMAT ETH VALUE
+   ========================================================= */
+
+function formatEthValue(value) {
+
+    try {
+
+        const wei =
+            BigInt(value);
+
+
+        const whole =
+            wei /
+            1000000000000000000n;
+
+
+        const fraction =
+            wei %
+            1000000000000000000n;
+
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
+
+
+        return (
+            whole.toString() +
+            "." +
+            fractionText
+        );
+
+    }
+
+    catch {
+
+        return "0.000000";
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN TRANSACTION
+   ========================================================= */
+
+function openTransaction(hash) {
+
+    if (!hash) {
+        return;
+    }
+
+    goToTransaction(hash);
+
+}
+
+
+/* =========================================================
+   OPEN BLOCK
+   ========================================================= */
+
+function openBlock(blockNumber) {
+
+    if (!blockNumber) {
+        return;
+    }
+
+    goToBlock(blockNumber);
+
+}
+
+
+
+
+async function renderBlock(app, blockNumber) {
+
+    app.innerHTML = `
+        <div class="container">
+
+            <div class="breadcrumb">
+                <a href="/crypto/base-scan/">Home</a>
+                /
+                Block
+            </div>
+
+            <div id="blockContainer">
+
+                <div class="loading">
+                    Loading block...
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    loadBlockPage(blockNumber);
+}
+
+
+
+
+const BLOCKSCOUT_API = "https://base.blockscout.com/api/v2";
+
+
+function isValidBlock(value) {
+
+    return /^\d+$/.test(value || "");
+
+}
+
+
+function formatNumber(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return "-";
+    }
+
+    try {
+
+        return Number(value).toLocaleString();
+
+    } catch {
+
+        return String(value);
+
+    }
+
+}
+
+
+function formatGwei(value) {
+
+    try {
+
+        const wei = BigInt(value || "0");
+
+        const whole = wei / 1000000000n;
+
+        const fraction = wei % 1000000000n;
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(9, "0")
+                .substring(0, 6);
+
+        return whole.toString() +
+            "." +
+            fractionText +
+            " Gwei";
+
+    } catch {
+
+        return "-";
+
+    }
+
+}
+
+
+function formatETH(value) {
+
+    try {
+
+        const wei = BigInt(value || "0");
+
+        const whole =
+            wei / 1000000000000000000n;
+
+        const fraction =
+            wei % 1000000000000000000n;
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
+
+        return whole.toString() +
+            "." +
+            fractionText +
+            " ETH";
+
+    } catch {
+
+        return "0.000000 ETH";
+
+    }
+
+}
+
+
+
+
+
+async function loadBlockPage(blockNumber) {
+
+    const container =
+        document.getElementById("blockContainer");
+
+    if (!container) {
+        return;
+    }
+
+    /* Validate block number */
+
+    if (!isValidBlock(blockNumber)) {
+
+        container.innerHTML = `
+            <div class="error">
+                Invalid block number.
+            </div>
+        `;
+
+        return;
+    }
+
+    /* Loading state */
+
+    container.innerHTML = `
+        <div class="loading">
+            Loading block #${escapeHTML(blockNumber)}...
+        </div>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/blocks/" +
+                encodeURIComponent(blockNumber)
+            );
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Block not found"
+            );
+
+        }
+
+        const block =
+            await response.json();
+
+        displayBlockPage(
+            block,
+            blockNumber
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Block loading error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="error">
+
+                Unable to load this block.
+
+                <br><br>
+
+                Please check the block number
+                and try again.
+
+            </div>
+        `;
+
+    }
+
+}
+
+
+
+
+function displayBlockPage(block, blockNumber) {
+
+    const container =
+        document.getElementById("blockContainer");
+
+    if (!container) {
+        return;
+    }
+
+    const height =
+        block.height ??
+        block.number ??
+        blockNumber;
+
+    const timestamp =
+        block.timestamp
+            ? new Date(
+                block.timestamp
+            ).toLocaleString()
+            : "-";
+
+    const blockHash =
+        block.hash || "-";
+
+    const parentHash =
+        block.parent_hash || "-";
+
+    const miner =
+        block.miner?.hash || "";
+
+    const gasUsed =
+        block.gas_used ?? 0;
+
+    const gasLimit =
+        block.gas_limit ?? 0;
+
+    const transactionCount =
+        block.transaction_count ??
+        block.tx_count ??
+        0;
+
+    const baseFee =
+        block.base_fee_per_gas
+            ? formatGwei(
+                block.base_fee_per_gas
+            )
+            : "-";
+
+    container.innerHTML = `
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Block Details
+                </span>
+
+                <span class="network-badge">
+                    ● Base Mainnet
+                </span>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="block-label">
+                    Block
+                </div>
+
+                <div class="block-number">
+                    #${formatNumber(height)}
+                </div>
+
+            </div>
+
+            <div class="details">
+
+                <div class="detail-label">
+                    Block Hash
+                </div>
+
+                <div class="detail-value hash">
+                    ${escapeHTML(blockHash)}
+                </div>
+
+                <div class="detail-label">
+                    Parent Hash
+                </div>
+
+                <div class="detail-value hash">
+                    ${escapeHTML(parentHash)}
+                </div>
+
+                <div class="detail-label">
+                    Timestamp
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(timestamp)}
+                </div>
+
+                <div class="detail-label">
+                    Validator / Miner
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        miner
+                            ? `
+                                <a
+                                    href="/crypto/base-scan/address/${encodeURIComponent(miner)}"
+                                >
+                                    ${shortHash(miner)}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+                <div class="detail-label">
+                    Transactions
+                </div>
+
+                <div class="detail-value">
+                    ${formatNumber(transactionCount)}
+                </div>
+
+                <div class="detail-label">
+                    Gas Used
+                </div>
+
+                <div class="detail-value">
+                    ${formatNumber(gasUsed)}
+                </div>
+
+                <div class="detail-label">
+                    Gas Limit
+                </div>
+
+                <div class="detail-value">
+                    ${formatNumber(gasLimit)}
+                </div>
+
+                <div class="detail-label">
+                    Base Fee
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(baseFee)}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Transactions
+                </span>
+
+                <span style="
+                    color:#9ca3af;
+                    font-size:11px;
+                    font-weight:500;
+                ">
+                    ${formatNumber(transactionCount)} total
+                </span>
+
+            </div>
+
+            <div id="transactions">
+
+                <div class="loading">
+                    Loading transactions...
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+                Explorer Links
+            </div>
+
+            <div class="card-body">
+
+                <a
+                    class="external-link"
+                    href="https://basescan.org/block/${encodeURIComponent(blockNumber)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View on BaseScan →
+                </a>
+
+            </div>
+
+        </div>
+
+    `;
+
+    loadBlockTransactionsPage(blockNumber);
+}
+
+
+
+
+
+
+
+
+async function loadBlockTransactionsPage(blockNumber) {
+
+    const container =
+        document.getElementById("transactions");
+
+    if (!container) {
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/blocks/" +
+                encodeURIComponent(blockNumber) +
+                "/transactions"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "Transactions unavailable"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        const transactions =
+            data.items || [];
+
+        if (transactions.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    No transactions found.
+                </div>
+            `;
+
+            return;
+        }
+
+        let html = `
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Transaction</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Value</th>
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+        `;
+
+        transactions.forEach(tx => {
+
+            const hash =
+                tx.hash || "";
+
+            const from =
+                tx.from?.hash || "";
+
+            const to =
+                tx.to?.hash || "";
+
+            const value =
+                formatETH(tx.value);
+
+            const isSuccess =
+                tx.status === "ok";
+
+            const status =
+                isSuccess
+                    ? "Success"
+                    : "Failed";
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        ${
+                            hash
+                                ? `
+                                    <a
+                                        href="/crypto/base-scan/tx/${encodeURIComponent(hash)}"
+                                        title="${escapeHTML(hash)}"
+                                    >
+                                        ${shortHash(hash)}
+                                    </a>
+                                `
+                                : "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            from
+                                ? `
+                                    <a
+                                        href="/crypto/base-scan/address/${encodeURIComponent(from)}"
+                                        title="${escapeHTML(from)}"
+                                    >
+                                        ${shortHash(from)}
+                                    </a>
+                                `
+                                : "-"
+                        }
+
+                    </td>
+
+                    <td>
+
+                        ${
+                            to
+                                ? `
+                                    <a
+                                        href="/crypto/base-scan/address/${encodeURIComponent(to)}"
+                                        title="${escapeHTML(to)}"
+                                    >
+                                        ${shortHash(to)}
+                                    </a>
+                                `
+                                : "-"
+                        }
+
+                    </td>
+
+                    <td>
+                        ${escapeHTML(value)}
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="${
+                                isSuccess
+                                    ? "status"
+                                    : "status failed"
+                            }"
+                        >
+                            ${status}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+        container.innerHTML = html;
+
+    } catch (error) {
+
+        console.error(
+            "Block transactions error:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="empty">
+
+                Unable to load block transactions.
+
+                <br><br>
+
+                Please try again later.
+
+            </div>
+        `;
+    }
+}
+
+
+
+
+
+
+/* =========================================================
+   TRANSACTION PAGE
+========================================================= */
+
+async function renderTransaction(app, hash) {
+
+    app.innerHTML = `
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/crypto/base-scan/">
+                    Home
+                </a>
+
+                /
+
+                Transaction
+
+            </div>
+
+
+            <div id="transactionContainer">
+
+                <div class="loading">
+                    Loading transaction...
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    loadTransactionPage(hash);
+
+}
+
+
+/* =========================================================
+   LOAD TRANSACTION
+========================================================= */
+
+async function loadTransactionPage(hash) {
+
+    const container =
+        document.getElementById(
+            "transactionContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !/^0x[a-fA-F0-9]{64}$/.test(
+            hash || ""
+        )
+    ) {
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Invalid transaction hash.
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+
+            Loading transaction...
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/transactions/" +
+                encodeURIComponent(hash)
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Transaction not found"
+            );
+
+        }
+
+
+        const transaction =
+            await response.json();
+
+
+        displayTransactionPage(
+            transaction
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Transaction loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Unable to load this transaction.
+
+                <br><br>
+
+                Please check the transaction hash
+                and try again.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   DISPLAY TRANSACTION
+========================================================= */
+
+function displayTransactionPage(transaction) {
+
+    const container =
+        document.getElementById(
+            "transactionContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const hash =
+        transaction.hash || "-";
+
+
+    const blockNumber =
+        transaction.block_number ??
+        transaction.block?.height ??
+        "-";
+
+
+    const from =
+        transaction.from?.hash ||
+        transaction.from ||
+        "-";
+
+
+    const to =
+        transaction.to?.hash ||
+        transaction.to ||
+        "-";
+
+
+    const value =
+        formatETH(
+            transaction.value || "0"
+        );
+
+
+    const timestamp =
+        transaction.timestamp
+            ? new Date(
+                transaction.timestamp
+            ).toLocaleString()
+            : "-";
+
+
+    const status =
+        transaction.status === "ok"
+            ? "Success"
+            : "Failed";
+
+
+    const statusClass =
+        transaction.status === "ok"
+            ? "status"
+            : "status failed";
+
+
+    const gasUsed =
+        transaction.gas_used ??
+        transaction.gasUsed ??
+        "-";
+
+
+    const gasLimit =
+        transaction.gas ??
+        transaction.gas_limit ??
+        "-";
+
+
+    const gasPrice =
+        transaction.gas_price ??
+        transaction.gasPrice ??
+        "0";
+
+
+    const nonce =
+        transaction.nonce ??
+        "-";
+
+
+    const transactionFee =
+        transaction.fee?.value ??
+        transaction.fee ??
+        "0";
+
+
+    const method =
+        transaction.method ||
+        transaction.decoded_input?.method_call ||
+        "Contract Interaction";
+
+
+    container.innerHTML = `
+
+        <!-- TRANSACTION OVERVIEW -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Transaction Details
+                </span>
+
+                <span class="network-badge">
+                    ● Base Mainnet
+                </span>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="block-label">
+                    Transaction Hash
+                </div>
+
+
+                <div class="transaction-hash-row">
+
+                    <div
+                        class="transaction-hash"
+                        title="${escapeHTML(hash)}"
+                    >
+                        ${escapeHTML(hash)}
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="copy-btn"
+                        onclick="copyTransactionHash()"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="details">
+
+                <!-- STATUS -->
+
+                <div class="detail-label">
+                    Status
+                </div>
+
+                <div class="detail-value">
+
+                    <span class="${statusClass}">
+                        ${status}
+                    </span>
+
+                </div>
+
+
+                <!-- BLOCK -->
+
+                <div class="detail-label">
+                    Block
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        blockNumber !== "-"
+                            ? `
+                                <a
+                                    href="/crypto/base-scan/block/${encodeURIComponent(blockNumber)}"
+                                >
+                                    ${escapeHTML(
+                                        formatNumber(
+                                            blockNumber
+                                        )
+                                    )}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+
+                <!-- TIMESTAMP -->
+
+                <div class="detail-label">
+                    Timestamp
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(timestamp)}
+                </div>
+
+
+                <!-- FROM -->
+
+                <div class="detail-label">
+                    From
+                </div>
+
+                <div class="detail-value hash">
+
+                    ${
+                        from !== "-"
+                            ? `
+                                <a
+                                    href="/crypto/base-scan/address/${encodeURIComponent(from)}"
+                                    title="${escapeHTML(from)}"
+                                >
+                                    ${escapeHTML(
+                                        shortHash(from)
+                                    )}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+
+                <!-- TO -->
+
+                <div class="detail-label">
+                    To
+                </div>
+
+                <div class="detail-value hash">
+
+                    ${
+                        to !== "-"
+                            ? `
+                                <a
+                                    href="/crypto/base-scan/address/${encodeURIComponent(to)}"
+                                    title="${escapeHTML(to)}"
+                                >
+                                    ${escapeHTML(
+                                        shortHash(to)
+                                    )}
+                                </a>
+                            `
+                            : "-"
+                    }
+
+                </div>
+
+
+                <!-- VALUE -->
+
+                <div class="detail-label">
+                    Value
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(value)}
+                </div>
+
+
+                <!-- TRANSACTION FEE -->
+
+                <div class="detail-label">
+                    Transaction Fee
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatETH(transactionFee)
+                    )}
+
+                </div>
+
+
+                <!-- GAS PRICE -->
+
+                <div class="detail-label">
+                    Gas Price
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatGwei(gasPrice)
+                    )}
+
+                </div>
+
+
+                <!-- GAS USED -->
+
+                <div class="detail-label">
+                    Gas Used
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatNumber(gasUsed)
+                    )}
+
+                </div>
+
+
+                <!-- GAS LIMIT -->
+
+                <div class="detail-label">
+                    Gas Limit
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatNumber(gasLimit)
+                    )}
+
+                </div>
+
+
+                <!-- NONCE -->
+
+                <div class="detail-label">
+                    Nonce
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatNumber(nonce)
+                    )}
+
+                </div>
+
+
+                <!-- METHOD -->
+
+                <div class="detail-label">
+                    Method
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(method)}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXPLORER LINKS -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Explorer Links
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="explorer-links">
+
+                    <a
+                        class="explorer-link"
+                        href="https://basescan.org/tx/${encodeURIComponent(hash)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on BaseScan →
+                    </a>
+
+
+                    <a
+                        class="explorer-link secondary"
+                        href="https://base.blockscout.com/tx/${encodeURIComponent(hash)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on Blockscout →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   COPY TRANSACTION HASH
+========================================================= */
+
+async function copyTransactionHash() {
+
+    const hashElement =
+        document.querySelector(
+            ".transaction-hash"
+        );
+
+    const button =
+        document.querySelector(
+            "#transactionContainer .copy-btn"
+        );
+
+
+    if (!hashElement) {
+        return;
+    }
+
+
+    const hash =
+        hashElement.textContent.trim();
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            hash
+        );
+
+
+        if (button) {
+
+            const originalText =
+                button.textContent;
+
+
+            button.textContent =
+                "Copied!";
+
+
+            setTimeout(
+                function() {
+
+                    button.textContent =
+                        originalText;
+
+                },
+                1500
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Transaction hash copy error:",
+            error
+        );
+
+    }
+
+}
+
+
+
+
+/* =========================================================
+   ADDRESS PAGE
+========================================================= */
+
+async function renderAddress(app, address) {
+
+    app.innerHTML = `
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/crypto/base-scan/">
+                    Home
+                </a>
+
+                /
+
+                Address
+
+            </div>
+
+
+            <!-- =========================================
+                 ADDRESS CARD
+            ========================================== -->
+
+            <div class="address-card">
+
+                <div class="address-title">
+                    Address
+                </div>
+
+
+                <div class="address-row">
+
+                    <div
+                        class="address"
+                        id="address"
+                    >
+                        ${escapeHTML(address)}
+                    </div>
+
+
+                    <button
+                        class="copy-btn"
+                        type="button"
+                        onclick="copyAddressPageAddress()"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+
+                <div class="network-badge">
+
+                    ● Base Mainnet
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================================
+                 STATS
+            ========================================== -->
+
+            <div class="stats">
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        ETH Balance
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="balance"
+                    >
+                        Loading...
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Address Type
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        id="addressType"
+                    >
+                        Detecting...
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Network
+                    </div>
+
+                    <div class="stat-value">
+                        Base Mainnet
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =========================================
+                 RECENT TRANSACTIONS
+            ========================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <h2>
+                        Recent Transactions
+                    </h2>
+
+
+                    <span class="section-subtitle">
+                        Base Mainnet
+                    </span>
+
+                </div>
+
+
+                <div id="addressTransactions">
+
+                    <div class="empty loading">
+
+                        Loading blockchain data...
+
+                    </div>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =========================================
+                 EXPLORER LINKS
+            ========================================== -->
+
+            <section class="section">
+
+
+                <div class="section-header">
+
+                    <h2>
+                        Explorer Links
+                    </h2>
+
+                </div>
+
+
+                <div class="explorer-links">
+
+                    <a
+                        id="basescanLink"
+                        class="explorer-link"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on BaseScan →
+                    </a>
+
+
+                    <a
+                        id="blockscoutLink"
+                        class="explorer-link secondary"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on Blockscout →
+                    </a>
+
+                </div>
+
+
+            </section>
+
+        </div>
+
+    `;
+
+
+    loadAddressPage(address);
+
+}
+
+
+/* =========================================================
+   LOAD ADDRESS
+========================================================= */
+
+async function loadAddressPage(address) {
+
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address || "")) {
+
+        const addressElement =
+            document.getElementById("address");
+
+        if (addressElement) {
+
+            addressElement.textContent =
+                "Invalid address";
+
+        }
+
+        return;
+    }
+
+
+    try {
+
+        await loadAddressBalance(address);
+
+        await detectAddressTypePage(address);
+
+        setAddressExplorerLinks(address);
+
+        loadAddressTransactions(address);
+
+    } catch (error) {
+
+        console.error(
+            "Address loading error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   BALANCE
+========================================================= */
+
+async function loadAddressBalance(address) {
+
+    const balanceElement =
+        document.getElementById("balance");
+
+    if (!balanceElement) {
+        return;
+    }
+
+
+    try {
+
+        const result =
+            await baseRPC(
+                "eth_getBalance",
+                [
+                    address,
+                    "latest"
+                ]
+            );
+
+
+        if (!result.result) {
+
+            balanceElement.textContent =
+                "Unavailable";
+
+            return;
+
+        }
+
+
+        const wei =
+            BigInt(result.result);
+
+
+        const whole =
+            wei /
+            1000000000000000000n;
+
+
+        const fraction =
+            wei %
+            1000000000000000000n;
+
+
+        const fractionText =
+            fraction
+                .toString()
+                .padStart(18, "0")
+                .substring(0, 6);
+
+
+        balanceElement.textContent =
+            whole.toString() +
+            "." +
+            fractionText +
+            " ETH";
+
+    } catch (error) {
+
+        console.error(
+            "Balance loading error:",
+            error
+        );
+
+        balanceElement.textContent =
+            "Unavailable";
+
+    }
+
+}
+
+
+/* =========================================================
+   DETECT ADDRESS TYPE
+========================================================= */
+
+async function detectAddressTypePage(address) {
+
+    const typeElement =
+        document.getElementById(
+            "addressType"
+        );
+
+    if (!typeElement) {
+        return;
+    }
+
+
+    try {
+
+        const result =
+            await baseRPC(
+                "eth_getCode",
+                [
+                    address,
+                    "latest"
+                ]
+            );
+
+
+        if (
+            result.result &&
+            result.result !== "0x"
+        ) {
+
+            typeElement.textContent =
+                "Contract";
+
+        } else {
+
+            typeElement.textContent =
+                "EOA";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Address type error:",
+            error
+        );
+
+        typeElement.textContent =
+            "Unknown";
+
+    }
+
+}
+
+
+/* =========================================================
+   EXPLORER LINKS
+========================================================= */
+
+function setAddressExplorerLinks(address) {
+
+    const baseScanLink =
+        document.getElementById(
+            "basescanLink"
+        );
+
+    const blockscoutLink =
+        document.getElementById(
+            "blockscoutLink"
+        );
+
+
+    if (baseScanLink) {
+
+        baseScanLink.href =
+            "https://basescan.org/address/" +
+            encodeURIComponent(address);
+
+    }
+
+
+    if (blockscoutLink) {
+
+        blockscoutLink.href =
+            "https://base.blockscout.com/address/" +
+            encodeURIComponent(address);
+
+    }
+
+}
+
+
+/* =========================================================
+   COPY ADDRESS
+========================================================= */
+
+async function copyAddressPageAddress() {
+
+    const addressElement =
+        document.getElementById("address");
+
+    if (!addressElement) {
+        return;
+    }
+
+
+    const address =
+        addressElement.textContent.trim();
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            address
+        );
+
+
+        const button =
+            document.querySelector(
+                ".copy-btn"
+            );
+
+
+        if (button) {
+
+            const originalText =
+                button.textContent;
+
+            button.textContent =
+                "Copied!";
+
+
+            setTimeout(
+                function() {
+
+                    button.textContent =
+                        originalText;
+
+                },
+                1500
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Copy error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ADDRESS TRANSACTIONS
+========================================================= */
+
+async function loadAddressTransactions(address) {
+
+    const container =
+        document.getElementById(
+            "addressTransactions"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="empty loading">
+
+            Loading transactions...
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const apiURL =
+            BLOCKSCOUT_API +
+            "/addresses/" +
+            encodeURIComponent(address) +
+            "/transactions";
+
+
+        const response =
+            await fetch(apiURL);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Transaction API request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const transactions =
+            data.items || [];
+
+
+        if (
+            transactions.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="empty">
+
+                    No transactions found.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = `
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Transaction
+                            </th>
+
+                            <th>
+                                Block
+                            </th>
+
+                            <th>
+                                From
+                            </th>
+
+                            <th>
+                                To
+                            </th>
+
+                            <th>
+                                Value
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+        `;
+
+
+        transactions
+            .slice(0, 25)
+            .forEach(
+                function(tx) {
+
+                    const hash =
+                        tx.hash || "";
+
+
+                    const blockNumber =
+                        tx.block_number ??
+                        tx.block?.height ??
+                        "-";
+
+
+                    const from =
+                        tx.from?.hash ||
+                        "-";
+
+
+                    const to =
+                        tx.to?.hash ||
+                        "-";
+
+
+                    const valueWei =
+                        tx.value ||
+                        "0";
+
+
+                    const valueETH =
+                        formatETH(
+                            valueWei
+                        );
+
+
+                    const success =
+                        tx.status === "ok";
+
+
+                    const statusText =
+                        success
+                            ? "Success"
+                            : "Failed";
+
+
+                    const timestamp =
+                        tx.timestamp
+                            ? new Date(
+                                tx.timestamp
+                            ).toLocaleString()
+                            : "-";
+
+
+                    html += `
+
+                        <tr>
+
+
+                            <!-- Transaction -->
+
+                            <td>
+
+                                ${
+                                    hash
+                                        ? `
+                                            <a
+                                                href="/crypto/base-scan/tx/${encodeURIComponent(hash)}"
+                                                title="${escapeHTML(hash)}"
+                                            >
+                                                ${shortHash(hash)}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- Block -->
+
+                            <td>
+
+                                ${
+                                    blockNumber !== "-"
+                                        ? `
+                                            <a
+                                                href="/crypto/base-scan/block/${encodeURIComponent(blockNumber)}"
+                                            >
+                                                ${escapeHTML(
+                                                    formatNumber(
+                                                        blockNumber
+                                                    )
+                                                )}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- From -->
+
+                            <td>
+
+                                ${
+                                    from !== "-"
+                                        ? `
+                                            <a
+                                                href="/crypto/base-scan/address/${encodeURIComponent(from)}"
+                                                title="${escapeHTML(from)}"
+                                            >
+                                                ${shortHash(from)}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- To -->
+
+                            <td>
+
+                                ${
+                                    to !== "-"
+                                        ? `
+                                            <a
+                                                href="/crypto/base-scan/address/${encodeURIComponent(to)}"
+                                                title="${escapeHTML(to)}"
+                                            >
+                                                ${shortHash(to)}
+                                            </a>
+                                        `
+                                        : "-"
+                                }
+
+                            </td>
+
+
+                            <!-- Value -->
+
+                            <td>
+
+                                ${escapeHTML(valueETH)}
+
+                            </td>
+
+
+                            <!-- Status -->
+
+                            <td>
+
+                                <span
+                                    class="${
+                                        success
+                                            ? "status"
+                                            : "failed"
+                                    }"
+                                >
+
+                                    ${statusText}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- Time -->
+
+                            <td>
+
+                                ${escapeHTML(timestamp)}
+
+                            </td>
+
+
+                        </tr>
+
+                    `;
+
+                }
+            );
+
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+
+        container.innerHTML =
+            html;
+
+
+    } catch (error) {
+
+        console.error(
+            "Transaction loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                Unable to load transactions.
+
+                <br><br>
+
+                Please try again later.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   TOKEN PAGE
+========================================================= */
+
+async function renderToken(app, address) {
+
+    app.innerHTML = `
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/crypto/base-scan/">
+                    Home
+                </a>
+
+                /
+
+                Token
+
+            </div>
+
+
+            <div id="tokenContainer">
+
+                <div class="loading">
+                    Loading token...
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    loadTokenPage(address);
+
+}
+
+
+/* =========================================================
+   LOAD TOKEN
+========================================================= */
+
+async function loadTokenPage(address) {
+
+    const container =
+        document.getElementById(
+            "tokenContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !/^0x[a-fA-F0-9]{40}$/.test(
+            address || ""
+        )
+    ) {
+
+        container.innerHTML = `
+
+            <div class="error">
+                Invalid token address.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+            Loading token information...
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/tokens/" +
+                encodeURIComponent(address)
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Token not found"
+            );
+
+        }
+
+
+        const token =
+            await response.json();
+
+
+        displayTokenPage(
+            token,
+            address
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Token loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                Unable to load this token.
+
+                <br><br>
+
+                Please check the token address
+                and try again.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   DISPLAY TOKEN
+========================================================= */
+
+function displayTokenPage(token, address) {
+
+    const container =
+        document.getElementById(
+            "tokenContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    const name =
+        token.name ||
+        "Unknown Token";
+
+
+    const symbol =
+        token.symbol ||
+        "-";
+
+
+    const decimals =
+        token.decimals ??
+        "-";
+
+
+    const totalSupply =
+        token.total_supply ||
+        token.total_supply_raw ||
+        "0";
+
+
+    const holders =
+        token.holders_count ??
+        token.holders ??
+        "-";
+
+
+    const tokenType =
+        token.type ||
+        "ERC-20";
+
+
+    container.innerHTML = `
+
+        <!-- TOKEN OVERVIEW -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <span>
+                    Token Details
+                </span>
+
+                <span class="network-badge">
+                    ● Base Mainnet
+                </span>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="token-name">
+
+                    ${escapeHTML(name)}
+
+                </div>
+
+
+                <div class="token-symbol">
+
+                    ${escapeHTML(symbol)}
+
+                </div>
+
+            </div>
+
+
+            <div class="details">
+
+
+                <!-- CONTRACT -->
+
+                <div class="detail-label">
+                    Contract
+                </div>
+
+                <div class="detail-value hash">
+
+                    <a
+                        href="/crypto/base-scan/address/${encodeURIComponent(address)}"
+                        title="${escapeHTML(address)}"
+                    >
+                        ${shortHash(address)}
+                    </a>
+
+                </div>
+
+
+                <!-- TOKEN TYPE -->
+
+                <div class="detail-label">
+                    Token Type
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(tokenType)}
+                </div>
+
+
+                <!-- SYMBOL -->
+
+                <div class="detail-label">
+                    Symbol
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(symbol)}
+                </div>
+
+
+                <!-- DECIMALS -->
+
+                <div class="detail-label">
+                    Decimals
+                </div>
+
+                <div class="detail-value">
+                    ${escapeHTML(decimals)}
+                </div>
+
+
+                <!-- TOTAL SUPPLY -->
+
+                <div class="detail-label">
+                    Total Supply
+                </div>
+
+                <div class="detail-value">
+
+                    ${escapeHTML(
+                        formatTokenSupply(
+                            totalSupply,
+                            decimals
+                        )
+                    )}
+
+                </div>
+
+
+                <!-- HOLDERS -->
+
+                <div class="detail-label">
+                    Holders
+                </div>
+
+                <div class="detail-value">
+
+                    ${
+                        holders !== "-"
+                            ? formatNumber(holders)
+                            : "-"
+                    }
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- TOKEN INFORMATION -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                Token Information
+
+            </div>
+
+
+            <div class="card-body token-info-grid">
+
+                <div class="token-info-item">
+
+                    <span>
+                        Name
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(name)}
+                    </strong>
+
+                </div>
+
+
+                <div class="token-info-item">
+
+                    <span>
+                        Symbol
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(symbol)}
+                    </strong>
+
+                </div>
+
+
+                <div class="token-info-item">
+
+                    <span>
+                        Decimals
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(decimals)}
+                    </strong>
+
+                </div>
+
+
+                <div class="token-info-item">
+
+                    <span>
+                        Network
+                    </span>
+
+                    <strong>
+                        Base Mainnet
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXPLORER LINKS -->
+
+        <div class="card">
+
+            <div class="card-header">
+                Explorer Links
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="explorer-links">
+
+                    <a
+                        class="explorer-link"
+                        href="https://basescan.org/token/${encodeURIComponent(address)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on BaseScan →
+                    </a>
+
+
+                    <a
+                        class="explorer-link secondary"
+                        href="https://base.blockscout.com/token/${encodeURIComponent(address)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View on Blockscout →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   TOKEN SUPPLY FORMAT
+========================================================= */
+
+function formatTokenSupply(value, decimals) {
+
+    try {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "-";
+        }
+
+
+        const raw =
+            BigInt(value);
+
+
+        const decimalCount =
+            Number(decimals);
+
+
+        if (
+            !Number.isFinite(decimalCount) ||
+            decimalCount < 0
+        ) {
+            return raw.toString();
+        }
+
+
+        if (decimalCount === 0) {
+            return raw.toString();
+        }
+
+
+        const divisor =
+            10n ** BigInt(decimalCount);
+
+
+        const whole =
+            raw / divisor;
+
+
+        const fraction =
+            raw % divisor;
+
+
+        if (fraction === 0n) {
+            return whole.toString();
+        }
+
+
+        let fractionText =
+            fraction
+                .toString()
+                .padStart(
+                    decimalCount,
+                    "0"
+                );
+
+
+        fractionText =
+            fractionText
+                .replace(/0+$/, "");
+
+
+        return (
+            whole.toString() +
+            "." +
+            fractionText
+        );
+
+    } catch {
+
+        return "-";
+
+    }
+
+}
+
+
+
+
+
+
+
+/* =========================================================
+   CONTRACTS DIRECTORY
+========================================================= */
+
+async function renderContracts(app) {
+
+    app.innerHTML = `
+
+        <div class="contracts-page">
+
+            <div class="container">
+
+                <div class="breadcrumb">
+
+                    <a href="/crypto/base-scan/">
+                        Home
+                    </a>
+
+                    <span>›</span>
+
+                    <span>
+                        Contracts
+                    </span>
+
+                </div>
+
+
+                <!-- =====================================
+                     PAGE HEADER
+                ====================================== -->
+
+                <div class="contracts-hero">
+
+                    <div>
+
+                        <div class="contracts-eyebrow">
+                            BASE MAINNET
+                        </div>
+
+                        <h1>
+                            Smart Contracts
+                        </h1>
+
+                        <p>
+                            Explore smart contracts deployed
+                            on Base Mainnet.
+                        </p>
+
+                    </div>
+
+
+                    <div class="contracts-network">
+
+                        <span class="status-dot"></span>
+
+                        Base Mainnet
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     SEARCH
+                ====================================== -->
+
+                <div class="contracts-search-card">
+
+                    <div class="contracts-search-title">
+
+                        Search Contract
+
+                    </div>
+
+
+                    <div class="contracts-search">
+
+                        <input
+                            type="text"
+                            id="contractsSearchInput"
+                            placeholder="Enter contract address..."
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+
+                        <button
+                            type="button"
+                            onclick="searchContractsPage()"
+                        >
+                            Search
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="contractsSearchMessage"
+                        class="contracts-search-message"
+                    ></div>
+
+                </div>
+
+
+                <!-- =====================================
+                     QUICK STATS
+                ====================================== -->
+
+                <div class="contracts-stats">
+
+                    <div class="contracts-stat">
+
+                        <div class="contracts-stat-icon">
+                            ◇
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Network
+                            </span>
+
+                            <strong>
+                                Base Mainnet
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contracts-stat">
+
+                        <div class="contracts-stat-icon">
+                            #
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Chain ID
+                            </span>
+
+                            <strong>
+                                8453
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contracts-stat">
+
+                        <div class="contracts-stat-icon">
+                            ◉
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Data Source
+                            </span>
+
+                            <strong>
+                                Base Explorer
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     CONTRACTS
+                ====================================== -->
+
+                <div class="card contracts-list-card">
+
+                    <div class="card-header contracts-list-header">
+
+                        <div>
+
+                            <h2>
+                                Contract Directory
+                            </h2>
+
+                            <span>
+                                Recently indexed smart contracts
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="contracts-refresh"
+                            onclick="loadContractsPage()"
+                        >
+                            ↻ Refresh
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="contractsList"
+                        class="contracts-list"
+                    >
+
+                        <div class="contracts-loading">
+
+                            <div class="contracts-spinner"></div>
+
+                            <span>
+                                Loading contracts...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =====================================
+                     INFO
+                ====================================== -->
+
+                <div class="contracts-info-grid">
+
+                    <div class="contracts-info-card">
+
+                        <div class="contracts-info-icon">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Smart Contract
+                            </h3>
+
+                            <p>
+                                Contracts deployed on Base
+                                can be inspected directly
+                                through their address.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contracts-info-card">
+
+                        <div class="contracts-info-icon">
+                            ↗
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Verify On-Chain
+                            </h3>
+
+                            <p>
+                                Open any contract to view
+                                its on-chain information and
+                                external explorer links.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    initializeContractsPage();
+
+}
+
+
+
+
+
+
+
+/* =========================================================
+   INITIALIZE CONTRACTS PAGE
+========================================================= */
+
+function initializeContractsPage() {
+
+    const input =
+        document.getElementById(
+            "contractsSearchInput"
+        );
+
+
+    if (input) {
+
+        input.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    searchContractsPage();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    loadContractsPage();
+
+}
+
+
+/* =========================================================
+   LOAD CONTRACTS
+========================================================= */
+
+async function loadContractsPage() {
+
+    const container =
+        document.getElementById(
+            "contractsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="contracts-loading">
+
+            <div class="contracts-spinner"></div>
+
+            <span>
+                Loading contracts...
+            </span>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        /*
+         * Blockscout provides indexed address
+         * information. We request recently
+         * updated addresses and filter the
+         * returned results to smart contracts.
+         */
+
+        const response =
+            await fetch(
+                BLOCKSCOUT_API +
+                "/addresses?filter=contract"
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Contract API unavailable"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        let contracts =
+            data.items || [];
+
+
+        /*
+         * Keep the directory lightweight.
+         */
+
+        contracts =
+            contracts
+                .filter(
+                    contract =>
+                        contract &&
+                        contract.hash
+                )
+                .slice(0, 25);
+
+
+        renderContractsList(
+            contracts
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Contracts loading error:",
+            error
+        );
+
+
+        /*
+         * Some Blockscout deployments may not
+         * expose the contract filter endpoint.
+         *
+         * Show a useful fallback instead of
+         * leaving the page blank.
+         */
+
+        renderContractsFallback();
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER CONTRACT LIST
+========================================================= */
+
+function renderContractsList(contracts) {
+
+    const container =
+        document.getElementById(
+            "contractsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    if (
+        !contracts ||
+        contracts.length === 0
+    ) {
+
+        renderContractsFallback();
+
+        return;
+
+    }
+
+
+    let html = `
+
+        <div class="contracts-table-wrapper">
+
+            <table class="contracts-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Contract
+                        </th>
+
+                        <th>
+                            Name
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Balance
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    contracts.forEach(
+        function(contract) {
+
+            const address =
+                contract.hash || "";
+
+
+            const name =
+                contract.name ||
+                contract.smart_contract?.name ||
+                "Contract";
+
+
+            const type =
+                contract.smart_contract?.language ||
+                contract.type ||
+                "Smart Contract";
+
+
+            const balance =
+                contract.coin_balance ??
+                contract.balance ??
+                "0";
+
+
+            const verified =
+                contract.is_verified === true ||
+                contract.smart_contract?.is_verified === true;
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        <a
+                            href="/crypto/base-scan/contract/${encodeURIComponent(address)}"
+                            class="contract-address-link"
+                            title="${escapeHTML(address)}"
+                        >
+                            ${shortHash(address)}
+                        </a>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="contract-list-name">
+
+                            ${escapeHTML(name)}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="contract-type">
+
+                            ${escapeHTML(type)}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHTML(
+                            formatETH(balance)
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="${
+                            verified
+                                ? "contract-list-status verified"
+                                : "contract-list-status"
+                        }">
+
+                            ${
+                                verified
+                                    ? "Verified"
+                                    : "Unverified"
+                            }
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    container.innerHTML =
+        html;
+
+}
+
+
+/* =========================================================
+   CONTRACT FALLBACK
+========================================================= */
+
+function renderContractsFallback() {
+
+    const container =
+        document.getElementById(
+            "contractsList"
+        );
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="contracts-empty">
+
+            <div class="contracts-empty-icon">
+                ◇
+            </div>
+
+            <h3>
+                Explore a Contract
+            </h3>
+
+            <p>
+                Enter a Base smart contract address
+                above to open its contract details.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CONTRACT SEARCH
+========================================================= */
+
+function searchContractsPage() {
+
+    const input =
+        document.getElementById(
+            "contractsSearchInput"
+        );
+
+
+    const message =
+        document.getElementById(
+            "contractsSearchMessage"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const value =
+        input.value.trim();
+
+
+    if (
+        !/^0x[a-fA-F0-9]{40}$/.test(value)
+    ) {
+
+        if (message) {
+
+            message.textContent =
+                "Enter a valid 42-character contract address.";
+
+            message.className =
+                "contracts-search-message error";
+
+        }
+
+        return;
+
+    }
+
+
+    if (message) {
+
+        message.textContent =
+            "";
+
+        message.className =
+            "contracts-search-message";
+
+    }
+
+
+    goToContract(value);
+
+}
+
+
+
+
+
+function renderContract(app, address) {
+
+    app.innerHTML = `
+
+        <div class="container">
+
+            <div class="breadcrumb">
+
+                <a href="/crypto/base-scan/">
+                    Home
+                </a>
+
+                <span>›</span>
+
+                <span>
+                    Contract
+                </span>
+
+            </div>
+
+
+            <div id="contractContainer">
+
+                <div class="loading">
+                    Loading contract...
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    loadContractPage(address);
+
+}
+
+
+async function loadContractPage(address) {
+    const container = document.getElementById("contractContainer");
+
+    if (!container) return;
+
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        container.innerHTML = `
+            <div class="empty">
+                Invalid contract address.
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${BLOCKSCOUT_API}/addresses/${address}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Contract data unavailable");
+        }
+
+        const data = await response.json();
+
+        displayContractPage(data, address);
+
+    } catch (error) {
+        console.error("Contract page error:", error);
+
+        container.innerHTML = `
+            <div class="card">
+                <div class="card-header">
+                    Contract
+                </div>
+
+                <div class="card-body">
+                    <div class="empty">
+                        Unable to load contract information.
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+
+function displayContractPage(data, address) {
+    const container = document.getElementById("contractContainer");
+
+    if (!container) return;
+
+    const contractName =
+        data.name ||
+        data.smart_contract?.name ||
+        "Contract";
+
+    const verified =
+        data.is_verified === true ||
+        data.smart_contract?.is_verified === true;
+
+    const contractType =
+        data.type ||
+        data.smart_contract?.language ||
+        "Smart Contract";
+
+    const creationTx =
+        data.creation_tx_hash ||
+        data.smart_contract?.creation_tx_hash ||
+        "";
+
+    const compiler =
+        data.smart_contract?.compiler_version ||
+        data.compiler_version ||
+        "—";
+
+    const balance =
+        data.coin_balance ??
+        data.balance ??
+        "0";
+
+    container.innerHTML = `
+        <div class="card contract-main-card">
+
+            <div class="card-header">
+                Contract Details
+            </div>
+
+            <div class="card-body">
+
+                <div class="contract-title-row">
+
+                    <div>
+                        <div class="contract-name">
+                            ${escapeHTML(contractName)}
+                        </div>
+
+                        <div class="contract-address-row">
+                            <span class="contract-address">
+                                ${escapeHTML(address)}
+                            </span>
+
+                            ${copyButton(address)}
+                        </div>
+                    </div>
+
+                    <div class="contract-status ${
+                        verified
+                            ? "contract-verified"
+                            : "contract-unverified"
+                    }">
+                        ${verified ? "✓ Verified" : "Unverified"}
+                    </div>
+
+                </div>
+
+                <div class="contract-info-grid">
+
+                    <div class="contract-info-item">
+                        <span>Contract Type</span>
+                        <strong>
+                            ${escapeHTML(contractType)}
+                        </strong>
+                    </div>
+
+                    <div class="contract-info-item">
+                        <span>Network</span>
+                        <strong>
+                            Base Mainnet
+                        </strong>
+                    </div>
+
+                    <div class="contract-info-item">
+                        <span>ETH Balance</span>
+                        <strong>
+                            ${formatETH(balance)}
+                        </strong>
+                    </div>
+
+                    <div class="contract-info-item">
+                        <span>Compiler</span>
+                        <strong>
+                            ${escapeHTML(compiler)}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="card contract-code-card">
+
+            <div class="card-header">
+                Contract Information
+            </div>
+
+            <div class="card-body">
+
+                <div class="contract-detail-row">
+                    <span>Contract Address</span>
+
+                    <div class="contract-detail-value">
+                        <span>
+                            ${escapeHTML(address)}
+                        </span>
+
+                        ${copyButton(address)}
+                    </div>
+                </div>
+
+
+                <div class="contract-detail-row">
+                    <span>Verification Status</span>
+
+                    <strong class="${
+                        verified
+                            ? "verified-text"
+                            : "unverified-text"
+                    }">
+                        ${verified
+                            ? "Verified Source Code"
+                            : "Source Code Not Verified"}
+                    </strong>
+                </div>
+
+
+                <div class="contract-detail-row">
+                    <span>Contract Type</span>
+
+                    <strong>
+                        ${escapeHTML(contractType)}
+                    </strong>
+                </div>
+
+
+                <div class="contract-detail-row">
+                    <span>Compiler Version</span>
+
+                    <strong>
+                        ${escapeHTML(compiler)}
+                    </strong>
+                </div>
+
+
+                ${
+                    creationTx
+                        ? `
+                            <div class="contract-detail-row">
+                                <span>Creation Transaction</span>
+
+                                <a
+                                    href="/crypto/base-scan/tx/${creationTx}"
+                                    class="contract-link"
+                                    data-internal-link
+                                >
+                                    ${shortHash(creationTx)}
+                                </a>
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+        </div>
+
+
+        <div class="card contract-links-card">
+
+            <div class="card-header">
+                Explorer Links
+            </div>
+
+            <div class="card-body contract-links">
+
+                <a
+                    href="https://basescan.org/address/${address}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View on BaseScan ↗
+                </a>
+
+                <a
+                    href="https://base.blockscout.com/address/${address}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    View on Blockscout ↗
+                </a>
+
+            </div>
+        </div>
+    `;
+}
+
+
+function copyContractAddress(address, button) {
+    copyText(address, button);
+}
+
+
+
+
+
+
+function renderNotFound(app) {
+    app.innerHTML = `
+        <section class="page-container">
+            <h1>404</h1>
+            <p>Page not found.</p>
+        </section>
+    `;
+}
+
+
+/* =========================================================
+   BASE EXPLORER
+   UNIVERSAL SITE.JS
+
+   Universal Header
+   Universal Search
+   Gas Tracker
+   Clean URL Routing
+   ========================================================= */
+
+
+/* =========================================================
+   BASE RPC
+   ========================================================= */
+
+const BASE_RPC = "https://mainnet.base.org";
+
+const EXPLORER_BASE_PATH = "/crypto/base-scan";
+
+
+
+
+/* =========================================================
+   BASE EXPLORER ROUTER
+   ========================================================= */
+
+function getRoute() {
+
+    let path = window.location.pathname;
+
+    path = path.replace(/\/+$/, "");
+
+
+    /* HOME */
+
+    if (
+        path === "" ||
+        path === "/crypto/base-scan"
+    ) {
+        return {
+            type: "home"
+        };
+    }
+
+
+    /* BLOCK */
+
+    let match = path.match(
+        /^\/base\/block\/(\d+)$/
+    );
+
+    if (match) {
+
+        return {
+            type: "block",
+            value: match[1]
+        };
+
+    }
+
+
+    /* TRANSACTION */
+
+    match = path.match(
+        /^\/base\/tx\/(0x[a-fA-F0-9]{64})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "tx",
+            value: match[1]
+        };
+
+    }
+
+
+    /* ADDRESS */
+
+    match = path.match(
+        /^\/base\/address\/(0x[a-fA-F0-9]{40})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "address",
+            value: match[1]
+        };
+
+    }
+
+
+    /* TOKEN */
+
+    match = path.match(
+        /^\/base\/token\/(0x[a-fA-F0-9]{40})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "token",
+            value: match[1]
+        };
+
+    }
+
+
+
+
+    /* CONTRACTS */
+
+    if (
+        path === "/crypto/base-scan/contracts"
+    ) {
+        return {
+            type: "contracts"
+        };
+    }
+
+
+    /* CONTRACT */
+
+    match = path.match(
+        /^\/base\/contract\/(0x[a-fA-F0-9]{40})$/
+    );
+
+    if (match) {
+
+        return {
+            type: "contract",
+            value: match[1]
+        };
+
+    }
+
+
+    /* UNKNOWN */
+
+    return {
+        type: "404"
+    };
+
+}
+
+
+/* =========================================================
+   SPA NAVIGATION
+   ========================================================= */
+
+
+function navigateTo(url) {
+
+    if (!url) {
+        return;
+    }
+
+    const currentURL =
+        window.location.pathname +
+        window.location.search;
+
+    if (currentURL === url) {
+        return;
+    }
+
+    history.pushState(
+        {},
+        "",
+        url
+    );
+
+    renderRoute();
+
+}
+
+
+/* =========================================================
+   ROUTE HELPERS
+   ========================================================= */
+
+function goToHome() {
+
+    navigateTo(
+        EXPLORER_BASE_PATH + "/"
+    );
+
+}
+
+
+function goToAddress(address) {
+
+    if (!address) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/address/" +
+        encodeURIComponent(address)
+    );
+
+}
+
+
+function goToBlock(blockNumber) {
+
+    if (
+        blockNumber === undefined ||
+        blockNumber === null ||
+        blockNumber === ""
+    ) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/block/" +
+        encodeURIComponent(blockNumber)
+    );
+
+}
+
+
+function goToTransaction(hash) {
+
+    if (!hash) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/tx/" +
+        encodeURIComponent(hash)
+    );
+
+}
+
+
+function goToToken(address) {
+
+    if (!address) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/token/" +
+        encodeURIComponent(address)
+    );
+
+}
+
+
+function goToContract(address) {
+
+    if (!address) {
+        return;
+    }
+
+
+    navigateTo(
+        EXPLORER_BASE_PATH +
+        "/contract/" +
+        encodeURIComponent(address)
+    );
+
+}
+
+
+/* =========================================================
+   BROWSER BACK / FORWARD
+   ========================================================= */
+
+window.addEventListener(
+    "popstate",
+    function() {
+
+        renderRoute();
+
+    }
+);
+
+
+
+
+/* =========================================================
+   INTERNAL LINK ROUTING
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const link =
+            event.target.closest("a");
+
+        if (!link) {
+            return;
+        }
+
+
+        /* Allow Ctrl/Cmd/Shift/Alt clicks */
+
+        if (
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+        ) {
+            return;
+        }
+
+
+        /* Allow new-tab links */
+
+        if (
+            link.target === "_blank"
+        ) {
+            return;
+        }
+
+
+        const href =
+            link.getAttribute("href");
+
+        if (!href) {
+            return;
+        }
+
+
+        /* Only Base Explorer links */
+
+        if (
+            !href.startsWith(
+                EXPLORER_BASE_PATH
+            )
+        ) {
+            return;
+        }
+
+
+        event.preventDefault();
+
+        navigateTo(href);
+
+    }
+);
+
+
+
+
+/* =========================================================
+   ROUTE RENDERER
+   TEST VERSION
+   ========================================================= */
+
+async function renderRoute() {
+    const route = getRoute();
+    const app = document.getElementById("app");
+
+    if (!app) return;
+
+    switch (route.type) {
+        case "home":
+            await renderHome(app);
+            break;
+
+        case "block":
+            await renderBlock(app, route.value);
+            break;
+
+        case "tx":
+            await renderTransaction(app, route.value);
+            break;
+
+        case "address":
+            await renderAddress(app, route.value);
+            break;
+
+        case "token":
+            await renderToken(app, route.value);
+            break;
+
+        case "contracts":
+            await renderContracts(app);
+            break;
+
+        case "contract":
+            await renderContract(app, route.value);
+            break;
+
+        default:
+            renderNotFound(app);
+    }
+}
+
+
+
+
+async function baseRPC(method, params = []) {
+
+    const response = await fetch(BASE_RPC, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+            jsonrpc: "2.0",
+            id: 1,
+            method: method,
+            params: params
+
+        })
+
+    });
+
+
+    if (!response.ok) {
+        throw new Error("Base RPC request failed");
+    }
+
+
+    const data = await response.json();
+
+
+    if (data.error) {
+
+        throw new Error(
+            data.error.message || "RPC error"
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   SHORT HASH / ADDRESS
+   ========================================================= */
+
+function shortHash(value, start = 8, end = 6) {
+
+    if (!value) {
+        return "-";
+    }
+
+
+    const text = String(value);
+
+
+    if (text.length <= start + end + 3) {
+        return text;
+    }
+
+
+    return (
+        text.slice(0, start) +
+        "..." +
+        text.slice(-end)
+    );
+
+}
+
+
+/* =========================================================
+   ONE-TAP COPY
+   ========================================================= */
+
+async function copyText(value, button = null) {
+
+    if (!value) {
+        return;
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(value);
+
+
+        if (button) {
+
+            const original =
+                button.innerHTML;
+
+            button.innerHTML = "✓";
+
+
+            setTimeout(function() {
+
+                button.innerHTML = original;
+
+            }, 1200);
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Copy failed:",
+            error
+        );
+
+
+        const textarea =
+            document.createElement("textarea");
+
+        textarea.value = value;
+
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+
+        textarea.select();
+
+        document.execCommand("copy");
+
+        textarea.remove();
+
+
+        if (button) {
+
+            const original =
+                button.innerHTML;
+
+            button.innerHTML = "✓";
+
+
+            setTimeout(function() {
+
+                button.innerHTML = original;
+
+            }, 1200);
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   COPY BUTTON
+   ========================================================= */
+
+function copyButton(value) {
+
+    const safeValue =
+        escapeHTML(value);
+
+
+    return `
+        <button
+            type="button"
+            class="copy-button"
+            title="Copy"
+            onclick="copyText('${safeValue}', this)"
+        >
+            ⧉
+        </button>
+    `;
+
+}
+
+
+
+
+
+/* =========================================================
+   UNIVERSAL HEADER
+   ========================================================= */
+
+function renderSiteHeader() {
+
+    const header =
+        document.getElementById("siteHeader");
+
+
+    if (!header) {
+        return;
+    }
+
+
+    header.innerHTML = `
+
+        <header class="site-header">
+
+            <div class="site-header-inner">
+
+
+                <!-- LOGO -->
+
+                <a
+                    href="${EXPLORER_BASE_PATH}/"
+                    class="site-logo"
+                >
+
+                    <span class="site-logo-icon">
+                        B
+                    </span>
+
+                    <span>
+                        Base Explorer
+                    </span>
+
+                </a>
+
+
+                <!-- DESKTOP NAV -->
+
+                <nav class="site-nav">
+
+                    <a href="${EXPLORER_BASE_PATH}/">
+                        Home
+                    </a>
+                
+                    <a href="${EXPLORER_BASE_PATH}/">
+                        Blockchain
+                    </a>
+                
+                    <a href="${EXPLORER_BASE_PATH}/">
+                        Tokens
+                    </a>
+                
+                    <a href="${EXPLORER_BASE_PATH}/contracts/">
+                        Contracts
+                    </a>
+                
+                </nav>
+
+
+                <!-- HEADER ACTIONS -->
+
+                <div class="header-actions">
+
+
+                    <!-- SEARCH -->
+
+                    <div class="header-search">
+
+                        <span class="search-icon">
+                            ⌕
+                        </span>
+
+
+                        <input
+                            type="text"
+                            id="headerSearchInput"
+                            placeholder="Search address, tx, block..."
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+
+
+                        <button
+                            type="button"
+                            onclick="searchFromHeader()"
+                        >
+                            Search
+                        </button>
+
+                    </div>
+
+
+                    <!-- GAS -->
+
+                    <button
+                        type="button"
+                        class="gas-header-button"
+                        onclick="openGasTracker()"
+                        title="Base Gas Tracker"
+                    >
+
+                        <span>
+                            ⛽
+                        </span>
+
+                        <span id="headerGasValue">
+                            Gas
+                        </span>
+
+                    </button>
+
+
+                    <!-- MOBILE MENU -->
+
+                    <button
+                        class="mobile-menu-button"
+                        type="button"
+                        onclick="toggleMobileMenu()"
+                        aria-label="Open menu"
+                    >
+                        ☰
+                    </button>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- MOBILE NAV -->
+
+            <div
+                id="mobileNavigation"
+                class="mobile-navigation"
+            >
+
+                <a href="${EXPLORER_BASE_PATH}/">
+                    Home
+                </a>
+
+                <a href="${EXPLORER_BASE_PATH}/block/">
+                    Blockchain
+                </a>
+
+                <a href="${EXPLORER_BASE_PATH}/token/">
+                    Tokens
+                </a>
+
+                <a href="${EXPLORER_BASE_PATH}/contracts/">
+                    Contracts
+                </a>
+
+                <button
+                    type="button"
+                    onclick="openGasTracker()"
+                >
+                    ⛽ Gas Tracker
+                </button>
+
+            </div>
+
+
+            <!-- GAS TRACKER -->
+
+            <div
+                id="gasTrackerPanel"
+                class="gas-tracker-panel"
+            >
+
+                <div class="gas-tracker-card">
+
+
+                    <div class="gas-tracker-header">
+
+                        <div>
+
+                            <strong>
+                                Base Gas Tracker
+                            </strong>
+
+                            <span>
+                                Live Base Mainnet RPC
+                            </span>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="gas-close"
+                            onclick="closeGasTracker()"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="gasTrackerContent"
+                        class="gas-tracker-content"
+                    >
+
+                        <div class="gas-loading">
+                            Loading gas...
+                        </div>
+
+                    </div>
+
+
+                    <div class="gas-tracker-footer">
+
+                        <span id="gasUpdated">
+                            Not updated
+                        </span>
+
+
+                        <button
+                            type="button"
+                            onclick="loadGasTracker()"
+                        >
+                            ↻ Refresh
+                        </button>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </header>
+
+    `;
+
+
+    /* =====================================================
+       SEARCH ENTER KEY
+       ===================================================== */
+
+    const input =
+        document.getElementById(
+            "headerSearchInput"
+        );
+
+
+    if (input) {
+
+        input.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    event.preventDefault();
+
+                    searchFromHeader();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    loadHeaderGas();
+
+}
+
+
+/* =========================================================
+   UNIVERSAL FOOTER
+   ========================================================= */
+
+function renderSiteFooter() {
+
+    const footer =
+        document.getElementById("siteFooter");
+
+
+    if (!footer) {
+        return;
+    }
+
+
+    footer.innerHTML = `
+
+        <footer class="site-footer">
+
+            <div class="footer-inner">
+
+
+                <div class="footer-brand">
+
+                    <div class="footer-logo">
+
+                        <span class="site-logo-icon">
+                            B
+                        </span>
+
+                        <strong>
+                            Base Explorer
+                        </strong>
+
+                    </div>
+
+
+                    <p>
+                        Explore the Base Mainnet blockchain.
+                    </p>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h3>
+                        Explorer
+                    </h3>
+
+                    <a href="${EXPLORER_BASE_PATH}/">
+                        Home
+                    </a>
+
+                    <a href="${EXPLORER_BASE_PATH}/block/">
+                        Blocks
+                    </a>
+
+                    <a href="${EXPLORER_BASE_PATH}/address/">
+                        Addresses
+                    </a>
+
+                    <a href="${EXPLORER_BASE_PATH}/token/">
+                        Tokens
+                    </a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <h3>
+                        Network
+                    </h3>
+
+                    <a
+                        href="https://base.org/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Base
+                    </a>
+
+
+                    <a
+                        href="https://basescan.org/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        BaseScan
+                    </a>
+
+
+                    <div class="footer-network">
+                        Base Mainnet
+                    </div>
+
+
+                    <div class="footer-network">
+                        Chain ID: 8453
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="footer-bottom">
+
+                <span>
+                    Base Explorer © 2026
+                </span>
+
+                <span>
+                    Built for Base Mainnet
+                </span>
+
+            </div>
+
+        </footer>
+
+    `;
+
+}
+
+
+/* =========================================================
+   MOBILE MENU
+   ========================================================= */
+
+function toggleMobileMenu() {
+
+    const menu =
+        document.getElementById(
+            "mobileNavigation"
+        );
+
+
+    if (!menu) {
+        return;
+    }
+
+
+    menu.classList.toggle("show");
+
+}
+
+
+function closeMobileMenu() {
+
+    const menu =
+        document.getElementById(
+            "mobileNavigation"
+        );
+
+
+    if (!menu) {
+        return;
+    }
+
+
+    menu.classList.remove("show");
+
+}
+
+
+/* =========================================================
+   HEADER SEARCH
+   ========================================================= */
+
+async function searchFromHeader() {
+
+    const input =
+        document.getElementById(
+            "headerSearchInput"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const value =
+        input.value.trim();
+
+
+    if (!value) {
+
+        input.focus();
+
+        return;
+
+    }
+
+
+    input.disabled = true;
+
+
+    try {
+
+        await performBlockchainSearch(value);
+
+    }
+
+    finally {
+
+        input.disabled = false;
+
+    }
+
+}
+
+
+/* =========================================================
+   UNIVERSAL SEARCH
+   ========================================================= */
+
+async function performBlockchainSearch(input) {
+
+    input =
+        String(input || "").trim();
+
+
+    if (!input) {
+        return;
+    }
+
+
+    /* =====================================================
+       TRANSACTION HASH
+       ===================================================== */
+
+    if (
+        /^0x[a-fA-F0-9]{64}$/.test(input)
+    ) {
+
+        goToTransaction(input);
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       BLOCK NUMBER
+       ===================================================== */
+
+    if (
+        /^\d+$/.test(input)
+    ) {
+
+        goToBlock(input);
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       ADDRESS / CONTRACT / TOKEN
+       ===================================================== */
+
+    if (
+        /^0x[a-fA-F0-9]{40}$/.test(input)
+    ) {
+
+        await detectAddressOrToken(input);
+
+        return;
+
+    }
+
+
+    alert(
+        "Invalid search. Enter a valid address, transaction hash or block number."
+    );
+
+}
+
+
+/* =========================================================
+   ADDRESS / CONTRACT / TOKEN DETECTION
+   ========================================================= */
+
+async function detectAddressOrToken(address) {
+
+    try {
+
+        const codeResult =
+            await baseRPC(
+                "eth_getCode",
+                [
+                    address,
+                    "latest"
+                ]
+            );
+
+
+        const code =
+            codeResult.result;
+
+
+        /* =================================================
+           NORMAL WALLET / EOA
+        ================================================= */
+
+        if (
+            !code ||
+            code === "0x"
+        ) {
+
+            goToAddress(address);
+
+            return;
+
+        }
+
+
+        /* =================================================
+           SMART CONTRACT
+        ================================================= */
+
+        /*
+         * First check whether this contract
+         * behaves like an ERC-20 token.
+         */
+
+        const isToken =
+            await checkERC20(address);
+
+
+        /* =================================================
+           ERC-20 TOKEN
+        ================================================= */
+
+        if (isToken) {
+
+            goToToken(address);
+
+            return;
+
+        }
+
+
+        /* =================================================
+           NORMAL SMART CONTRACT
+        ================================================= */
+
+        goToContract(address);
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Address detection error:",
+            error
+        );
+
+
+        /*
+         * If RPC detection fails, do not incorrectly
+         * classify the address as a wallet.
+         *
+         * Open the dedicated contract route because
+         * the user entered a valid 20-byte address.
+         */
+
+        goToContract(address);
+
+    }
+
+}
+
+
+/* =========================================================
+   ERC-20 DETECTION
+   ========================================================= */
+
+async function checkERC20(address) {
+
+    try {
+
+        const symbolResult =
+            await baseRPC(
+                "eth_call",
+                [
+                    {
+                        to: address,
+                        data: "0x95d89b41"
+                    },
+                    "latest"
+                ]
+            );
+
+
+        const decimalsResult =
+            await baseRPC(
+                "eth_call",
+                [
+                    {
+                        to: address,
+                        data: "0x313ce567"
+                    },
+                    "latest"
+                ]
+            );
+
+
+        if (
+            !symbolResult.result ||
+            symbolResult.result === "0x"
+        ) {
+
+            return false;
+
+        }
+
+
+        if (
+            !decimalsResult.result ||
+            decimalsResult.result === "0x"
+        ) {
+
+            return false;
+
+        }
+
+
+        return true;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "ERC-20 detection failed:",
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================================
+   GAS TRACKER
+   ========================================================= */
+
+async function getBaseGasPrice() {
+
+    /*
+     * First try latest block baseFeePerGas.
+     */
+
+    const blockResult =
+        await baseRPC(
+            "eth_getBlockByNumber",
+            [
+                "latest",
+                false
+            ]
+        );
+
+
+    if (
+        !blockResult.result
+    ) {
+
+        throw new Error(
+            "Latest block unavailable"
+        );
+
+    }
+
+
+    const baseFee =
+        blockResult.result.baseFeePerGas;
+
+
+    if (
+        baseFee &&
+        baseFee !== "0x0"
+    ) {
+
+        return BigInt(baseFee);
+
+    }
+
+
+    /*
+     * Fallback.
+     */
+
+    const gasResult =
+        await baseRPC(
+            "eth_gasPrice"
+        );
+
+
+    if (
+        !gasResult.result ||
+        gasResult.result === "0x0"
+    ) {
+
+        throw new Error(
+            "Gas price unavailable"
+        );
+
+    }
+
+
+    return BigInt(
+        gasResult.result
+    );
+
+}
+
+
+/* =========================================================
+   WEI → GWEI
+   ========================================================= */
+
+function weiToGwei(wei) {
+
+    const base =
+        1000000000n;
+
+
+    const whole =
+        wei / base;
+
+
+    const remainder =
+        wei % base;
+
+
+    const decimal =
+        remainder
+            .toString()
+            .padStart(9, "0")
+            .slice(0, 6);
+
+
+    return (
+        whole.toString() +
+        "." +
+        decimal
+    );
+
+}
+
+
+/* =========================================================
+   LOAD HEADER GAS
+   ========================================================= */
+
+async function loadHeaderGas() {
+
+    const element =
+        document.getElementById(
+            "headerGasValue"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    try {
+
+        const gas =
+            await getBaseGasPrice();
+
+
+        element.textContent =
+            weiToGwei(gas) + " Gwei";
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Header gas error:",
+            error
+        );
+
+
+        element.textContent =
+            "Gas";
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN GAS TRACKER
+   ========================================================= */
+
+async function openGasTracker() {
+
+    const panel =
+        document.getElementById(
+            "gasTrackerPanel"
+        );
+
+
+    if (!panel) {
+        return;
+    }
+
+
+    panel.classList.add("show");
+
+
+    await loadGasTracker();
+
+}
+
+
+/* =========================================================
+   CLOSE GAS TRACKER
+   ========================================================= */
+
+function closeGasTracker() {
+
+    const panel =
+        document.getElementById(
+            "gasTrackerPanel"
+        );
+
+
+    if (!panel) {
+        return;
+    }
+
+
+    panel.classList.remove("show");
+
+}
+
+
+/* =========================================================
+   LOAD GAS TRACKER
+   ========================================================= */
+
+async function loadGasTracker() {
+
+    const content =
+        document.getElementById(
+            "gasTrackerContent"
+        );
+
+
+    const updated =
+        document.getElementById(
+            "gasUpdated"
+        );
+
+
+    if (!content) {
+        return;
+    }
+
+
+    content.innerHTML = `
+
+        <div class="gas-loading">
+            Loading current Base gas...
+        </div>
+
+    `;
+
+
+    try {
+
+        const gas =
+            await getBaseGasPrice();
+
+
+        const gwei =
+            weiToGwei(gas);
+
+
+        content.innerHTML = `
+
+            <div class="gas-main">
+
+                <span class="gas-label">
+                    Current Gas Price
+                </span>
+
+                <strong>
+                    ${escapeHTML(gwei)}
+                    <small>Gwei</small>
+                </strong>
+
+            </div>
+
+
+            <div class="gas-info-grid">
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Network
+                    </span>
+
+                    <strong>
+                        Base Mainnet
+                    </strong>
+
+                </div>
+
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Chain ID
+                    </span>
+
+                    <strong>
+                        8453
+                    </strong>
+
+                </div>
+
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Gas Price
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(gwei)} Gwei
+                    </strong>
+
+                </div>
+
+
+                <div class="gas-info-item">
+
+                    <span>
+                        Source
+                    </span>
+
+                    <strong>
+                        Base RPC
+                    </strong>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        if (updated) {
+
+            updated.textContent =
+                "Updated just now";
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Gas tracker error:",
+            error
+        );
+
+
+        content.innerHTML = `
+
+            <div class="gas-error">
+
+                Unable to load current gas price.
+
+                <button
+                    type="button"
+                    onclick="loadGasTracker()"
+                >
+                    Try again
+                </button>
+
+            </div>
+
+        `;
+
+
+        if (updated) {
+
+            updated.textContent =
+                "Update failed";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE GAS ON OUTSIDE CLICK
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const panel =
+            document.getElementById(
+                "gasTrackerPanel"
+            );
+
+
+        const button =
+            event.target.closest(
+                ".gas-header-button"
+            );
+
+
+        if (
+            panel &&
+            panel.classList.contains("show") &&
+            !panel.contains(event.target) &&
+            !button
+        ) {
+
+            closeGasTracker();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        renderSiteHeader();
+
+        renderSiteFooter();
+
+        renderRoute();
+
+    }
+);
