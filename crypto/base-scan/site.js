@@ -5856,15 +5856,16 @@ document.addEventListener(
    INITIALIZE
    ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
 
-        renderSiteHeader();
+document.addEventListener("dozni:ready", function() {
+    renderSiteHeader();
+    renderSiteFooter();
+    renderRoute();
+});
 
-        renderSiteFooter();
-
-        renderRoute();
-
-    }
-);
+if (document.readyState !== "loading") {
+    renderRoute();
+}
