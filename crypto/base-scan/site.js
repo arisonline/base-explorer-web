@@ -4553,7 +4553,7 @@ function getRoute() {
 
     if (
         path === "" ||
-        path === "/crypto/crypto/base-scan-scan"
+        path === "/crypto/base-scan"
     ) {
         return {
             type: "home"
@@ -4630,7 +4630,7 @@ function getRoute() {
     /* CONTRACTS */
 
     if (
-        path === "/crypto/crypto/base-scan-scan/contracts"
+        path === "/crypto/base-scan/contracts"
     ) {
         return {
             type: "contracts"
