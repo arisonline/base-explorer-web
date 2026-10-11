@@ -4580,7 +4580,7 @@ function getRoute() {
     /* TRANSACTION */
 
     match = path.match(
-        /^\/crypto/base-scan\/tx\/(0x[a-fA-F0-9]{64})$/
+        /^\/crypto\/base-scan\/tx\/(0x[a-fA-F0-9]{64})$/
     );
 
     if (match) {
@@ -4596,7 +4596,7 @@ function getRoute() {
     /* ADDRESS */
 
     match = path.match(
-        /^\/crypto/base-scan\/address\/(0x[a-fA-F0-9]{40})$/
+        /^\/crypto\/base-scan\/address\/(0x[a-fA-F0-9]{40})$/
     );
 
     if (match) {
