@@ -5860,7 +5860,7 @@ document.addEventListener(
    INITIALIZE
    ========================================================= */
 
-document.addEventListener("dozni:ready", function() {
+document.addEventListener("DOMContentLoaded", function() {
     renderSiteHeader();
     renderSiteFooter();
     renderRoute();
