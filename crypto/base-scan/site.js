@@ -5860,12 +5860,24 @@ document.addEventListener(
    INITIALIZE
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function() {
+function initializeBaseExplorer() {
+
     renderSiteHeader();
     renderSiteFooter();
     renderRoute();
-});
 
-if (document.readyState !== "loading") {
-    renderRoute();
+}
+
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeBaseExplorer,
+        { once: true }
+    );
+
+} else {
+
+    initializeBaseExplorer();
+
 }
