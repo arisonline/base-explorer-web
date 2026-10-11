@@ -4564,7 +4564,7 @@ function getRoute() {
     /* BLOCK */
 
     let match = path.match(
-        /^\/crypto/base-scan\/block\/(\d+)$/
+        /^\/crypto\/base-scan\/block\/(\d+)$/
     );
 
     if (match) {
