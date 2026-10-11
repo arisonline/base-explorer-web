@@ -4612,7 +4612,7 @@ function getRoute() {
     /* TOKEN */
 
     match = path.match(
-        /^\/crypto/base-scan\/token\/(0x[a-fA-F0-9]{40})$/
+        /^\/crypto\/base-scan\/token\/(0x[a-fA-F0-9]{40})$/
     );
 
     if (match) {
@@ -4641,7 +4641,7 @@ function getRoute() {
     /* CONTRACT */
 
     match = path.match(
-        /^\/crypto/base-scan\/contract\/(0x[a-fA-F0-9]{40})$/
+        /^\/crypto\/base-scan\/contract\/(0x[a-fA-F0-9]{40})$/
     );
 
     if (match) {
