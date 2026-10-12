@@ -28,16 +28,29 @@
 <link rel="icon" href="/crypto/base-scan/favicon.svg" type="image/svg+xml">
 <link rel="shortcut icon" href="/crypto/base-scan/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/crypto/base-scan/favicon.svg">
-<link rel="stylesheet" href="/crypto/base-scan/global.css?v=20261012-4">
+<link rel="stylesheet" href="/crypto/base-scan/global.css?v=20261012-5">
 </head>
 <body>
 <header class="site-header"><div class="header-inner"><a class="dozni-logo" href="/crypto/base-scan/" aria-label="Base Scan by Dozni"><img class="dozni-logo-mark" src="/crypto/base-scan/dozni-mark.svg" alt="DOZNI"><span class="dozni-logo-text">DOZNI</span></a><nav class="explorer-header-nav" aria-label="Base Scan navigation"><a href="/crypto/base-scan/block/">Blocks</a><a href="/crypto/base-scan/tx/">Transactions</a><a href="/crypto/base-scan/address/">Addresses</a><a href="/crypto/base-scan/token/">Tokens</a><a href="/crypto/base-scan/contract/">Contracts</a></nav><div class="header-tools"><form class="header-search" onsubmit="event.preventDefault();searchFromHeader();"><input id="headerSearchInput" type="text" placeholder="Search address, tx or block" autocomplete="off"><button type="submit">Search</button></form><button class="header-gas" type="button" onclick="openGasTracker()">⛽ <strong id="headerGasValue">Loading...</strong></button></div><button class="mobile-menu-btn" type="button" onclick="document.getElementById('mobileExplorerMenu').classList.toggle('open')" aria-label="Open navigation">☰</button></div><nav id="mobileExplorerMenu" class="mobile-menu"><a href="/crypto/base-scan/">Overview</a><a href="/crypto/base-scan/block/">Blocks</a><a href="/crypto/base-scan/tx/">Transactions</a><a href="/crypto/base-scan/address/">Addresses</a><a href="/crypto/base-scan/token/">Tokens</a><a href="/crypto/base-scan/contract/">Contracts</a></nav></header>
 <main id="app"></main>
-<div id="gasTrackerPanel" class="gas-tracker-panel" aria-hidden="true"><div class="gas-tracker-card"><div class="gas-tracker-header"><div><strong>Base Gas Tracker</strong><span>Base Mainnet · Chain ID 8453</span></div><button class="gas-close" type="button" onclick="closeGasTracker()">×</button></div><div id="gasTrackerContent" class="gas-tracker-content"><div class="gas-loading">Loading current gas price...</div></div><div class="gas-tracker-footer"><span id="gasTrackerUpdated">Not loaded</span><button type="button" onclick="loadGasTracker()">Refresh</button></div></div></div>
+<div id="gasTrackerPanel" class="gas-tracker-panel" aria-hidden="true"><div class="gas-tracker-card"><div class="gas-tracker-header"><div><strong>Base Gas Tracker</strong><span>Base Mainnet · Chain ID 8453</span></div><button class="gas-close" type="button" onclick="closeGasTracker()">×</button></div><div id="gasTrackerContent" class="gas-tracker-content"><div class="gas-loading">Loading current Base gas price...</div></div><div class="gas-tracker-footer"><span id="gasTrackerUpdated">Not loaded</span><button type="button" onclick="loadGasTracker()">Refresh</button></div></div></div>
 <footer class="site-footer"><div class="footer-inner"><div class="footer-brand"><div class="footer-logo"><img class="dozni-logo-mark" src="/crypto/base-scan/dozni-mark.svg" alt="DOZNI"><strong>DOZNI Base Scan</strong></div><p>Explore Base Mainnet blocks, transactions, addresses, tokens and smart contracts.</p></div><div class="footer-column"><h3>Explorer</h3><a href="/crypto/base-scan/block/">Blocks</a><a href="/crypto/base-scan/tx/">Transactions</a><a href="/crypto/base-scan/address/">Addresses</a><a href="/crypto/base-scan/token/">Tokens</a><a href="/crypto/base-scan/contract/">Contracts</a></div><div class="footer-column"><h3>Network</h3><a href="https://base.org/" target="_blank" rel="noopener noreferrer">Base</a><a href="https://basescan.org/" target="_blank" rel="noopener noreferrer">BaseScan</a><div class="footer-network"><strong>Base Mainnet</strong><br>Chain ID: 8453</div></div><div class="footer-column"><h3>Base Network</h3><div class="footer-network">Ethereum-compatible Layer 2</div><a href="/crypto/base-scan/">Explore Base</a></div></div><div class="footer-bottom"><span>© 2026 Dozni · Base Scan</span><span>Base Mainnet · Chain ID 8453</span></div></footer>
-<script src="/crypto/base-scan/site.js?v=20261012-4"></script>
-<script src="/crypto/base-scan/route-fix.js?v=20261012-4"></script>
-<script src="/crypto/base-scan/breadcrumbs.js?v=20261012-4"></script>
-<script src="/crypto/base-scan/seo.js?v=20261012-4"></script>
+<script>
+// Detail pages must use normal document navigation so the Cloudflare Worker
+// can serve the correct dynamic shell, stylesheet and SEO metadata.
+document.addEventListener('click', function (event) {
+  const link = event.target.closest('a[href]');
+  if (!link || link.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const url = new URL(link.getAttribute('href'), location.href);
+  if (url.origin !== location.origin) return;
+  if (/^\/crypto\/base-scan\/(block|tx|address|token|contract)\//.test(url.pathname)) {
+    event.stopImmediatePropagation();
+  }
+}, true);
+</script>
+<script src="/crypto/base-scan/site.js?v=20261012-5"></script>
+<script src="/crypto/base-scan/route-fix.js?v=20261012-5"></script>
+<script src="/crypto/base-scan/breadcrumbs.js?v=20261012-5"></script>
+<script src="/crypto/base-scan/seo.js?v=20261012-5"></script>
 </body>
 </html>
