@@ -1,0 +1,1 @@
+Shared Base Scan styles live in this directory. CSS files are moved here by the asset-structure refactor.
