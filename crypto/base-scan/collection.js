@@ -25,11 +25,11 @@ function eth(value){
 }
 
 function header() {
-    return `<header class="explorer-header"><div class="explorer-header-inner"><a class="brand" href="${BASE}/" aria-label="Base Scan by Dozni"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><span class="brand-name"><strong>Base Scan</strong><small>BY DOZNI</small></span></a><nav class="explorer-nav"><a href="${BASE}/blocks/">Blocks</a><a href="${BASE}/transactions/">Transactions</a><a href="${BASE}/addresses/">Addresses</a><a href="${BASE}/tokens/">Tokens</a><a href="${BASE}/contracts/">Contracts</a></nav><div class="header-tools"><form class="search" onsubmit="event.preventDefault();headerSearch()"><input id="headerSearch" placeholder="Search address, tx or block" autocomplete="off"><button type="submit">Search</button></form><button class="gas-button" onclick="openGas()">⛽ <strong id="headerGas">Loading...</strong></button></div><button class="mobile-menu-btn" onclick="document.getElementById('mobileCollectionMenu').classList.toggle('open')">☰</button></div><nav id="mobileCollectionMenu" class="mobile-menu"><a href="${BASE}/">Overview</a><a href="${BASE}/blocks/">Blocks</a><a href="${BASE}/transactions/">Transactions</a><a href="${BASE}/addresses/">Addresses</a><a href="${BASE}/tokens/">Tokens</a><a href="${BASE}/contracts/">Contracts</a></nav></header>`;
+    return `<header class="explorer-header"><div class="explorer-header-inner"><a class="brand" href="${BASE}/" aria-label="Base Scan by Dozni"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><span class="brand-name"><strong>Base Scan</strong><small>BY DOZNI</small></span></a><nav class="explorer-nav"><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></nav><div class="header-tools"><form class="search" onsubmit="event.preventDefault();headerSearch()"><input id="headerSearch" placeholder="Search address, tx or block" autocomplete="off"><button type="submit">Search</button></form><button class="gas-button" onclick="openGas()">⛽ <strong id="headerGas">Loading...</strong></button></div><button class="mobile-menu-btn" onclick="document.getElementById('mobileCollectionMenu').classList.toggle('open')">☰</button></div><nav id="mobileCollectionMenu" class="mobile-menu"><a href="${BASE}/">Overview</a><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></nav></header>`;
 }
 
 function footer() {
-    return `<footer class="footer"><div class="footer-inner"><div class="footer-brand"><div class="footer-logo"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><strong>DOZNI Base Scan</strong></div><p>Explore Base Mainnet blocks, transactions, addresses, tokens and smart contracts.</p></div><div class="footer-column"><h3>Explorer</h3><a href="${BASE}/blocks/">Blocks</a><a href="${BASE}/transactions/">Transactions</a><a href="${BASE}/addresses/">Addresses</a><a href="${BASE}/tokens/">Tokens</a><a href="${BASE}/contracts/">Contracts</a></div><div class="footer-column"><h3>Network</h3><a href="https://base.org/" target="_blank" rel="noopener noreferrer">Base</a><a href="https://basescan.org/" target="_blank" rel="noopener noreferrer">BaseScan</a><div class="footer-network"><strong>Base Mainnet</strong><br>Chain ID: 8453</div></div><div class="footer-column"><h3>Base Network</h3><div class="footer-network">Ethereum-compatible Layer 2</div><a href="${BASE}/">Explore Base</a></div></div><div class="footer-bottom"><span>© 2026 Dozni · Base Scan</span><span>Base Mainnet · Chain ID 8453</span></div></footer>`;
+    return `<footer class="footer"><div class="footer-inner"><div class="footer-brand"><div class="footer-logo"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><strong>DOZNI Base Scan</strong></div><p>Explore Base Mainnet blocks, transactions, addresses, tokens and smart contracts.</p></div><div class="footer-column"><h3>Explorer</h3><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></div><div class="footer-column"><h3>Network</h3><a href="https://base.org/" target="_blank" rel="noopener noreferrer">Base</a><a href="https://basescan.org/" target="_blank" rel="noopener noreferrer">BaseScan</a><div class="footer-network"><strong>Base Mainnet</strong><br>Chain ID: 8453</div></div><div class="footer-column"><h3>Base Network</h3><div class="footer-network">Ethereum-compatible Layer 2</div><a href="${BASE}/">Explore Base</a></div></div><div class="footer-bottom"><span>© 2026 Dozni · Base Scan</span><span>Base Mainnet · Chain ID 8453</span></div></footer>`;
 }
 
 function gasPanel() {
@@ -95,7 +95,7 @@ async function transactions() {
 function linkHtml(path,text){return `<a href="${path}">${esc(text)}</a>`;}
 
 function searchCollection(kind) {
-    const config={addresses:['Base Addresses','Search and open a Base Mainnet address.','Address Explorer','Search Address','address'],tokens:['Base Tokens','Search and open a Base Mainnet token contract.','Token Explorer','Search Token Contract','token'],contracts:['Base Contracts','Search and open a Base Mainnet smart contract.','Contract Explorer','Search Contract','contract']}[kind];
+    const config={address:['Base Addresses','Search and open a Base Mainnet address.','Address Explorer','Search Address','address'],token:['Base Tokens','Search and open a Base Mainnet token contract.','Token Explorer','Search Token Contract','token'],contract:['Base Contracts','Search and open a Base Mainnet smart contract.','Contract Explorer','Search Contract','contract']}[kind];
     page(config[0],config[1],`<div class="route-grid"><div class="info-card"><strong>${config[2]}</strong><span>Open a valid 0x address directly in Base Scan.</span></div><div class="info-card"><strong>Base Mainnet</strong><span>Ethereum-compatible Layer 2 · Chain ID 8453.</span></div><div class="info-card"><strong>Fast Lookup</strong><span>Paste a wallet or contract address below.</span></div></div><div class="route-search-card"><div class="route-search-title">${config[3]}</div><form class="route-search" onsubmit="event.preventDefault();collectionSearch('${config[4]}')"><input id="collectionSearch" placeholder="0x..." autocomplete="off" spellcheck="false"><button type="submit">Search</button></form></div>`);
 }
 
@@ -118,11 +118,11 @@ function init(){
     loadGas();
     setActive();
     const path=location.pathname.replace(/\/+$/,'');
-    if(path===BASE+'/blocks') blocks();
-    else if(path===BASE+'/transactions') transactions();
-    else if(path===BASE+'/addresses') searchCollection('addresses');
-    else if(path===BASE+'/tokens') searchCollection('tokens');
-    else if(path===BASE+'/contracts') searchCollection('contracts');
+    if(path===BASE+'/block') blocks();
+    else if(path===BASE+'/tx') transactions();
+    else if(path===BASE+'/address') searchCollection('address');
+    else if(path===BASE+'/token') searchCollection('token');
+    else if(path===BASE+'/contract') searchCollection('contract');
     else location.href=BASE+'/';
 }
 
