@@ -1,42 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base Explorer</title>
-
-    <link
-        rel="stylesheet"
-        href="/base/global.css"
-    >
-
 </head>
-
-
 <body>
+    <div id="spa-loader" style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:#64748b;">
+        Loading Base Explorer...
+    </div>
 
-    <div id="siteHeader"></div>
+    <script>
+    (async function () {
+        const basePath = "/crypto/base-scan/";
 
-    <main id="app">
+        if (!location.pathname.startsWith(basePath)) {
+            return;
+        }
 
-        <div class="loading">
-            Loading Base Explorer...
-        </div>
+        try {
+            const response = await fetch(basePath + "index.html", {
+                cache: "no-store"
+            });
 
-    </main>
+            if (!response.ok) {
+                throw new Error("Unable to load Base Explorer shell");
+            }
 
-    <div id="siteFooter"></div>
+            const html = await response.text();
+            const parsed = new DOMParser().parseFromString(html, "text/html");
 
+            document.title = parsed.title;
+            document.head.innerHTML = parsed.head.innerHTML;
+            document.body.innerHTML = parsed.body.innerHTML;
 
-    <script src="/base/site.js"></script>
-
+            const script = document.createElement("script");
+            script.src = basePath + "site.js";
+            document.body.appendChild(script);
+        } catch (error) {
+            console.error("Base Explorer 404 fallback error:", error);
+            document.body.innerHTML = `
+                <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:#64748b;padding:24px;text-align:center;">
+                    Unable to load Base Explorer. Please refresh the page.
+                </div>
+            `;
+        }
+    })();
+    </script>
 </body>
-
 </html>
