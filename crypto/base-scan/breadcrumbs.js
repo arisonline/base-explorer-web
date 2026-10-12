@@ -40,32 +40,43 @@
         const style=document.createElement('style');
         style.id='baseScanBreadcrumbStyles';
         style.textContent=`
-            .base-scan-breadcrumbs{width:100%;margin:0 0 14px;padding:18px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:7px;color:#666b78;font-size:13px;line-height:1.55}.base-scan-breadcrumbs a{color:#4f5665;text-decoration:none;font-weight:600}.base-scan-breadcrumbs a:hover{color:#635bff}.base-scan-breadcrumbs .separator{color:#aeb4c0}.base-scan-breadcrumbs .current{color:#17171c;font-weight:700}
+            .base-scan-breadcrumbs{width:100%;margin:0 0 14px;padding:18px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:7px;color:#666b78;font-size:14px;line-height:1.55}.base-scan-breadcrumbs a{color:#4f5665;text-decoration:none;font-weight:600}.base-scan-breadcrumbs .current{color:#17171c;font-weight:700}.base-scan-breadcrumbs .separator{color:#aeb4c0}
             .detail-container{padding-top:22px!important}
 
-            /* Shared header: keep every Base Scan URL visually identical. */
+            /* Shared header typography: identical and slightly larger on every Base Scan URL. */
             .site-header,.explorer-header{height:54px!important;min-height:54px!important}
             .header-inner,.explorer-header-inner{width:min(1380px,calc(100% - 28px))!important;height:54px!important;min-height:54px!important;margin:auto!important;gap:18px!important}
             .dozni-logo,.brand{display:inline-flex!important;align-items:center!important;gap:8px!important;text-decoration:none!important;color:#17171c!important;flex:0 0 auto!important}
             .dozni-logo-mark,.brand-mark{width:35px!important;height:31px!important;object-fit:contain!important;display:block!important}
             .dozni-logo-text{font-size:0!important;line-height:1!important}
-            .dozni-logo-text::before{font-size:17px!important;font-weight:800!important;letter-spacing:-.03em!important}
+            .dozni-logo-text::before{font-size:18px!important;font-weight:800!important;letter-spacing:-.03em!important}
             .brand-name{display:flex!important;flex-direction:column!important;line-height:1!important}
-            .brand-name strong{font-size:17px!important;font-weight:800!important;letter-spacing:-.03em!important;color:#17171c!important}
-            .brand-name small{margin-top:4px!important;font-size:8px!important;font-weight:700!important;letter-spacing:.12em!important;color:#8a8a98!important}
+            .brand-name strong{font-size:18px!important;font-weight:800!important;letter-spacing:-.03em!important;color:#17171c!important}
+            .brand-name small{margin-top:4px!important;font-size:9px!important;font-weight:700!important;letter-spacing:.12em!important;color:#8a8a98!important}
             .explorer-header-nav,.explorer-nav{flex:1!important;min-width:0!important;display:flex!important;justify-content:center!important;align-items:center!important;gap:3px!important}
-            .explorer-header-nav a,.explorer-nav a{height:34px!important;padding:0 14px!important;border-radius:8px!important;font-size:13px!important;font-weight:750!important;white-space:nowrap!important}
+            .explorer-header-nav a,.explorer-nav a{height:35px!important;padding:0 14px!important;border-radius:8px!important;font-size:14px!important;font-weight:750!important;white-space:nowrap!important}
             .header-tools{display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important}
-            .header-search,.search{width:230px!important;height:34px!important;display:flex!important;align-items:center!important;border-radius:8px!important}
-            .header-search input,.search input{font-size:12px!important;height:100%!important}
-            .header-search button,.search button{height:28px!important;padding:0 10px!important;font-size:11px!important;font-weight:700!important}
-            .header-gas,.gas-button{height:34px!important;padding:0 10px!important;gap:5px!important;font-size:10px!important;font-weight:700!important;border-radius:8px!important}
-            .header-gas strong,.gas-button strong{font-size:10px!important;font-weight:800!important}
+            .header-search,.search{width:230px!important;height:35px!important;display:flex!important;align-items:center!important;border-radius:8px!important}
+            .header-search input,.search input{font-size:13px!important;height:100%!important}
+            .header-search button,.search button{height:29px!important;padding:0 10px!important;font-size:12px!important;font-weight:700!important}
+            .header-gas,.gas-button{height:35px!important;padding:0 10px!important;gap:5px!important;font-size:11px!important;font-weight:700!important;border-radius:8px!important}
+            .header-gas strong,.gas-button strong{font-size:11px!important;font-weight:800!important}
             .mobile-menu-btn{width:36px!important;height:34px!important;border-radius:8px!important}
             .theme-toggle{width:36px;height:34px;flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #dfe3ea;border-radius:8px;background:#fff;color:#252832;cursor:pointer;font-size:18px;line-height:1}.theme-toggle:hover{border-color:#635bff;color:#635bff}
 
-            body{font-size:16px!important;background:#fff!important;color:#17171c!important}.search input,.header-search input{font-size:12px!important}.search button,.header-search button{font-size:11px!important}.page h1{font-size:32px!important}.page-intro{font-size:14px!important}.page-eyebrow{font-size:11px!important}.card-head h2,.card-header h2{font-size:16px!important}.card-head span,.card-header span{font-size:12px!important}.item-title{font-size:14px!important}.item-sub{font-size:12px!important}.item-value{font-size:13px!important}.info-card strong,.route-search-title{font-size:14px!important}.info-card span,.note{font-size:12px!important}.route-search input{font-size:14px!important}.route-search button{font-size:13px!important}.footer-column h3,.footer-column a,.footer-brand p{font-size:13px!important}.footer-network,.footer-bottom{font-size:12px!important}
-            .detail-container .card-header{font-size:17px!important}.detail-container .detail-label{font-size:13px!important}.detail-container .detail-value,.detail-container .transaction-hash,.detail-container .address,.detail-container .hash{font-size:15px!important}.detail-container .block-number{font-size:28px!important}.detail-container table{font-size:14px!important}.detail-container th{font-size:13px!important}.detail-container td{font-size:14px!important}.detail-container .explorer-link{font-size:14px!important}
+            /* Shared page typography. */
+            body{font-size:17px!important;background:#fff!important;color:#17171c!important}
+            .page h1{font-size:34px!important}.page h2{font-size:22px!important}.page h3{font-size:18px!important}.page-intro{font-size:15px!important}.page-eyebrow{font-size:12px!important}
+            .card-head h2,.card-header h2{font-size:17px!important}.card-head span,.card-header span{font-size:13px!important}
+            .item-title{font-size:15px!important}.item-sub{font-size:13px!important}.item-value{font-size:14px!important}
+            .info-card strong,.route-search-title{font-size:15px!important}.info-card span,.note{font-size:13px!important}.route-search input{font-size:15px!important}.route-search button{font-size:14px!important}
+            .footer-column h3,.footer-column a,.footer-brand p{font-size:13px!important}.footer-network,.footer-bottom{font-size:12px!important}
+            .detail-container .card-header{font-size:18px!important}.detail-container .detail-label{font-size:14px!important}.detail-container .detail-value,.detail-container .transaction-hash,.detail-container .address,.detail-container .hash{font-size:16px!important}.detail-container .block-number{font-size:30px!important}.detail-container table{font-size:15px!important}.detail-container th{font-size:14px!important}.detail-container td{font-size:15px!important}.detail-container .explorer-link{font-size:15px!important}
+
+            /* Additional global content text sizing for all page sections. */
+            .hero-badge{font-size:13px!important}.hero p{font-size:17px!important}.hero-network{font-size:13px!important}.hero-search input{font-size:15px!important}.hero-search button{font-size:14px!important}
+            .stat-title{font-size:13px!important}.stat-value{font-size:23px!important}.stat-sub{font-size:12px!important}.view-all{font-size:13px!important}.loading-item{font-size:14px!important}
+            .card-body{font-size:15px!important}.detail-label{font-size:14px!important}.detail-value{font-size:16px!important}
 
             html[data-theme="dark"]{color-scheme:dark}
             html[data-theme="dark"] body,html[data-theme="dark"] main,html[data-theme="dark"] .container,html[data-theme="dark"] .page,html[data-theme="dark"] .detail-container,html[data-theme="dark"] .content{background:#090b0f!important;color:#f1f3f5!important}
@@ -88,9 +99,9 @@
 
             @media(max-width:700px){
                 .header-inner,.explorer-header-inner{width:calc(100% - 20px)!important;gap:10px!important}
-                .base-scan-breadcrumbs{font-size:12px}
-                .page h1{font-size:29px!important}
-                .detail-container .detail-value,.detail-container .transaction-hash,.detail-container .address,.detail-container .hash{font-size:14px!important}
+                .base-scan-breadcrumbs{font-size:13px}
+                .page h1{font-size:31px!important}
+                .detail-container .detail-value,.detail-container .transaction-hash,.detail-container .address,.detail-container .hash{font-size:15px!important}
             }
         `;
         document.head.appendChild(style);
