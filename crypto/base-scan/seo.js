@@ -4,14 +4,14 @@
   const SITE_URL = `${SITE}${BASE}/`;
   const SITE_NAME = 'Dozni Base Scan';
   const DEFAULT_IMAGE = `${SITE_URL}og-image.svg`;
-  const DEFAULT_DESCRIPTION = 'Base Mainnet explorer by Dozni. Explore blocks, transactions, addresses, tokens and smart contracts on Base.';
   const KEYWORDS = 'Base Scan, Base Mainnet explorer, Base explorer, Base blockchain explorer, Base blocks, Base transactions, Base addresses, Base tokens, Base smart contracts, Base L2, Ethereum Layer 2, Dozni';
 
   const $meta = (name, content, attr = 'name') => {
     let el = document.head.querySelector(`meta[${attr}="${name}"]`);
     if (!el) {
       el = document.createElement('meta');
-      el.setAttribute(attr, name);
+      el.setAttribute('name', name);
+      if (attr === 'property') el.setAttribute('property', name);
       document.head.appendChild(el);
     }
     el.setAttribute('content', content);
@@ -27,13 +27,6 @@
     el.setAttribute('href', href);
     Object.entries(extra).forEach(([key, value]) => el.setAttribute(key, value));
   };
-
-  const escapeText = value => String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 
   function short(value, start = 12, end = 8) {
     const s = String(value || '');
@@ -54,7 +47,7 @@
     if (path === `${BASE}/addresses`) return { type: 'addresses', canonical: `${SITE_URL}addresses/` };
     if (path === `${BASE}/tokens`) return { type: 'tokens', canonical: `${SITE_URL}tokens/` };
     if (path === `${BASE}/contracts`) return { type: 'contracts', canonical: `${SITE_URL}contracts/` };
-    return { type: '404', canonical: `${SITE_URL}` };
+    return { type: '404', canonical: `${SITE_URL}404/` };
   }
 
   function pageData(page) {
@@ -165,6 +158,22 @@
 
     const graph = [
       {
+        '@type': 'Organization',
+        '@id': `${SITE}/#organization`,
+        name: 'Dozni',
+        url: SITE,
+        logo: `${SITE_URL}favicon.svg`
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE_URL}#website`,
+        url: SITE_URL,
+        name: SITE_NAME,
+        alternateName: 'Base Scan',
+        description: 'Base Mainnet explorer by Dozni.',
+        publisher: { '@id': `${SITE}/#organization` }
+      },
+      {
         '@type': data.type,
         '@id': `${page.canonical}#webpage`,
         url: page.canonical,
@@ -181,54 +190,30 @@
       }
     ];
 
-    if (page.type === 'home') {
-      graph.unshift({
-        '@type': 'Organization',
-        '@id': `${SITE}/#organization`,
-        name: 'Dozni',
-        url: SITE,
-        logo: `${SITE_URL}favicon.svg`
-      });
-      graph.unshift({
-        '@type': 'WebSite',
-        '@id': `${SITE_URL}#website`,
-        url: SITE_URL,
-        name: SITE_NAME,
-        alternateName: 'Base Scan',
-        description: data.description,
-        publisher: { '@id': `${SITE}/#organization` },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: `${SITE_URL}?q={search_term_string}`,
-          'query-input': 'required name=search_term_string'
-        }
-      });
-    }
-
     script.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
   }
 
   function update() {
     const page = getPage();
     const data = pageData(page);
+    const is404 = page.type === '404';
     document.title = data.title;
 
     $meta('description', data.description);
-    $meta('robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
+    $meta('robots', is404 ? 'noindex,follow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1');
     $meta('keywords', data.keywords);
     $meta('author', 'Dozni');
     $meta('application-name', SITE_NAME);
     $meta('theme-color', '#635bff');
     $meta('referrer', 'strict-origin-when-cross-origin');
 
-    $meta('og:type', page.type === 'WebSite' ? 'website' : 'website', 'property');
+    $meta('og:type', 'website', 'property');
     $meta('og:site_name', SITE_NAME, 'property');
     $meta('og:title', data.title, 'property');
     $meta('og:description', data.description, 'property');
     $meta('og:url', page.canonical, 'property');
     $meta('og:image', DEFAULT_IMAGE, 'property');
     $meta('og:image:alt', 'Dozni Base Scan — Base Mainnet Explorer', 'property');
-    $meta('og:image:type', 'image/svg+xml', 'property');
     $meta('og:locale', 'en_US', 'property');
 
     $meta('twitter:card', 'summary_large_image');
