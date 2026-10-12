@@ -16,7 +16,7 @@ function header() {
 }
 
 function footer() {
-    return `<footer class="footer"><div class="footer-inner"><div><strong>DOZNI Base Scan</strong><br>Base Mainnet · Chain ID 8453</div><div class="footer-links"><a href="${BASE}/">Overview</a><a href="${BASE}/blocks/">Blocks</a><a href="${BASE}/transactions/">Transactions</a><a href="${BASE}/addresses/">Addresses</a><a href="${BASE}/tokens/">Tokens</a><a href="${BASE}/contracts/">Contracts</a></div></div></footer>`;
+    return `<footer class="footer"><div class="footer-inner"><div class="footer-brand"><div class="footer-logo"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><strong>DOZNI Base Scan</strong></div><p>Explore Base Mainnet blocks, transactions, addresses, tokens and smart contracts.</p></div><div class="footer-column"><h3>Explorer</h3><a href="${BASE}/blocks/">Blocks</a><a href="${BASE}/transactions/">Transactions</a><a href="${BASE}/addresses/">Addresses</a><a href="${BASE}/tokens/">Tokens</a><a href="${BASE}/contracts/">Contracts</a></div><div class="footer-column"><h3>Network</h3><a href="https://base.org/" target="_blank" rel="noopener noreferrer">Base</a><a href="https://basescan.org/" target="_blank" rel="noopener noreferrer">BaseScan</a><div class="footer-network"><strong>Base Mainnet</strong><br>Chain ID: 8453</div></div><div class="footer-column"><h3>Base Network</h3><div class="footer-network">Ethereum-compatible Layer 2</div><a href="${BASE}/">Explore Base</a></div></div><div class="footer-bottom"><span>© 2026 Dozni · Base Scan</span><span>Base Mainnet · Chain ID 8453</span></div></footer>`;
 }
 
 function gasPanel() {
