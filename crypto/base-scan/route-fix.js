@@ -8,6 +8,17 @@
     ['/contracts/', '/contract/']
   ];
 
+  // The shell HTML uses a newer header/homepage structure than the legacy
+  // global stylesheet. Load the matching shell stylesheet on every explorer
+  // page, including Worker-served dynamic detail pages.
+  if (!document.querySelector('link[data-base-scan-shell-css]')) {
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = `${BASE}/shell.css?v=20261012-1`;
+    style.dataset.baseScanShellCss = 'true';
+    document.head.appendChild(style);
+  }
+
   function fixLinks() {
     document.querySelectorAll('a[href]').forEach(a => {
       let href = a.getAttribute('href');
