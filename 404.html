@@ -30,6 +30,13 @@
             const html = await response.text();
             const parsed = new DOMParser().parseFromString(html, "text/html");
 
+            // Detail URLs are served by GitHub Pages through 404.html.
+            // Force all relative Explorer assets/links to resolve from the
+            // Explorer root instead of the current /block/... or /tx/... path.
+            const baseElement = parsed.createElement("base");
+            baseElement.href = new URL(basePath, location.origin).href;
+            parsed.head.prepend(baseElement);
+
             document.title = parsed.title;
             document.head.innerHTML = parsed.head.innerHTML;
             document.body.innerHTML = parsed.body.innerHTML;
