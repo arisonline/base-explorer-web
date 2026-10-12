@@ -25,7 +25,7 @@ function eth(value){
 }
 
 function header() {
-    return `<header class="explorer-header"><div class="explorer-header-inner"><a class="brand" href="${BASE}/" aria-label="Base Scan by Dozni"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><span class="brand-name"><strong>Base Scan</strong><small>BY DOZNI</small></span></a><nav class="explorer-nav"><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></nav><div class="header-tools"><form class="search" onsubmit="event.preventDefault();headerSearch()"><input id="headerSearch" placeholder="Search address, tx or block" autocomplete="off"><button type="submit">Search</button></form><button class="gas-button" onclick="openGas()">⛽ <strong id="headerGas">Loading...</strong></button></div><button class="mobile-menu-btn" onclick="document.getElementById('mobileCollectionMenu').classList.toggle('open')">☰</button></div><nav id="mobileCollectionMenu" class="mobile-menu"><a href="${BASE}/">Overview</a><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></nav></header>`;
+    return `<header class="explorer-header"><div class="explorer-header-inner"><a class="brand" href="${BASE}/" aria-label="Base Scan by Dozni"><img class="brand-mark" src="${BASE}/dozni-mark.svg" alt="DOZNI"><span class="brand-name"><strong>Base Scan</strong><small>BY DOZNI</small></span></a><nav class="explorer-nav"><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></nav><div class="header-tools"><form class="search" onsubmit="event.preventDefault();headerSearch()"><input id="headerSearch" placeholder="Search address, tx or block" autocomplete="off"><button type="submit">Search</button></form><button class="gas-button" type="button" onclick="openGas()">⛽ <strong id="headerGas">Loading...</strong></button></div><button class="mobile-menu-btn" type="button" onclick="document.getElementById('mobileCollectionMenu').classList.toggle('open')">☰</button></div><nav id="mobileCollectionMenu" class="mobile-menu"><a href="${BASE}/">Overview</a><a href="${BASE}/block/">Blocks</a><a href="${BASE}/tx/">Transactions</a><a href="${BASE}/address/">Addresses</a><a href="${BASE}/token/">Tokens</a><a href="${BASE}/contract/">Contracts</a></nav></header>`;
 }
 
 function footer() {
@@ -33,7 +33,7 @@ function footer() {
 }
 
 function gasPanel() {
-    return `<div id="gasPanel" class="gas-panel"><div class="gas-card"><div class="gas-head"><div><strong>Base Gas Tracker</strong><span>Live Base Mainnet gas price</span></div><button class="gas-close" onclick="closeGas()">×</button></div><div class="gas-body"><div id="gasValue" class="gas-value">Loading...</div><span class="gas-label">Current gas price</span></div><div class="gas-foot"><span id="gasUpdated">Not loaded</span><button onclick="loadGas()">Refresh</button></div></div></div>`;
+    return `<div id="gasPanel" class="gas-panel"><div class="gas-card"><div class="gas-head"><div><strong>Base Gas Tracker</strong><span>Live Base Mainnet gas price</span></div><button class="gas-close" type="button" onclick="closeGas()">×</button></div><div class="gas-body"><div id="gasValue" class="gas-value">Loading...</div><span class="gas-label">Current gas price</span></div><div class="gas-foot"><span id="gasUpdated">Not loaded</span><button type="button" onclick="loadGas()">Refresh</button></div></div></div>`;
 }
 
 async function loadGas() {
@@ -46,17 +46,30 @@ async function loadGas() {
         if ($('gasValue')) $('gasValue').textContent = text;
         if ($('gasUpdated')) $('gasUpdated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
     } catch {
-        if ($('headerGas')) $('headerGas').textContent = 'Gas';
+        if ($('headerGas')) $('headerGas').textContent = 'Unavailable';
         if ($('gasValue')) $('gasValue').textContent = 'Unavailable';
+        if ($('gasUpdated')) $('gasUpdated').textContent = 'Unable to load';
     }
 }
 function openGas(){ $('gasPanel')?.classList.add('show'); loadGas(); }
 function closeGas(){ $('gasPanel')?.classList.remove('show'); }
-function headerSearch(){
+
+async function headerSearch(){
     const value = ($('headerSearch')?.value || '').trim();
-    if (/^\d+$/.test(value)) location.href = `${BASE}/block/${value}`;
-    else if (/^0x[a-fA-F0-9]{64}$/.test(value)) location.href = `${BASE}/tx/${value}`;
-    else if (/^0x[a-fA-F0-9]{40}$/.test(value)) location.href = `${BASE}/address/${value}`;
+    if (/^\d+$/.test(value)) return location.href = `${BASE}/block/${value}`;
+    if (/^0x[a-fA-F0-9]{64}$/.test(value)) return location.href = `${BASE}/tx/${value}`;
+    if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
+        try {
+            const code = await rpc('eth_getCode', [value, 'latest']);
+            if (!code || code === '0x') return location.href = `${BASE}/address/${value}`;
+            const symbol = await rpc('eth_call', [{to:value,data:'0x95d89b41'}, 'latest']).catch(() => '0x');
+            const decimals = await rpc('eth_call', [{to:value,data:'0x313ce567'}, 'latest']).catch(() => '0x');
+            return location.href = `${BASE}/${symbol !== '0x' && decimals !== '0x' ? 'token' : 'contract'}/${value}`;
+        } catch {
+            return location.href = `${BASE}/contract/${value}`;
+        }
+    }
+    alert('Enter a valid block number, transaction hash or 0x address.');
 }
 
 function page(title, description, body) {
@@ -101,7 +114,7 @@ function searchCollection(kind) {
 
 function collectionSearch(kind){
     const value=($('collectionSearch')?.value||'').trim();
-    if (!/^0x[a-fA-F0-9]{40}$/.test(value)) return;
+    if (!/^0x[a-fA-F0-9]{40}$/.test(value)) return alert('Enter a valid 0x address.');
     location.href=`${BASE}/${kind}/${value}`;
 }
 
