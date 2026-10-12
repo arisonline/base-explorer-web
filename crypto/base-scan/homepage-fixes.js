@@ -30,7 +30,11 @@
         }
     }
 
-    function openGasTracker() {
+    function openGasTracker(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
         const panel = document.getElementById('gasTrackerPanel');
         if (!panel) return;
         panel.classList.add('show');
@@ -38,7 +42,11 @@
         loadGasTracker();
     }
 
-    function closeGasTracker() {
+    function closeGasTracker(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
         const panel = document.getElementById('gasTrackerPanel');
         if (!panel) return;
         panel.classList.remove('show');
@@ -49,18 +57,43 @@
     window.openGasTracker = openGasTracker;
     window.closeGasTracker = closeGasTracker;
 
-    function fixHeaderSearch() {
+    function fixHeader() {
         const form = document.querySelector('.explorer-header .search');
         const input = document.getElementById('headerSearchInput');
-        if (!form || !input || form.dataset.homepageFix === 'true') return;
-        form.dataset.homepageFix = 'true';
-        form.addEventListener('submit', event => {
-            event.preventDefault();
-            const value = input.value.trim();
-            if (typeof window.performSearch === 'function') window.performSearch(value);
-        });
+        if (form && input && form.dataset.homepageFix !== 'true') {
+            form.dataset.homepageFix = 'true';
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                const value = input.value.trim();
+                if (typeof window.performSearch === 'function') window.performSearch(value);
+            }, true);
+        }
+
+        const gasButton = document.querySelector('.explorer-header .gas-button');
+        if (gasButton && gasButton.dataset.homepageGasFix !== 'true') {
+            gasButton.dataset.homepageGasFix = 'true';
+            gasButton.addEventListener('click', openGasTracker, true);
+        }
+
+        const panel = document.getElementById('gasTrackerPanel');
+        const close = panel?.querySelector('.gas-close');
+        if (close && close.dataset.homepageGasCloseFix !== 'true') {
+            close.dataset.homepageGasCloseFix = 'true';
+            close.addEventListener('click', closeGasTracker, true);
+        }
+
+        const refresh = panel?.querySelector('.gas-tracker-footer button');
+        if (refresh && refresh.dataset.homepageGasRefreshFix !== 'true') {
+            refresh.dataset.homepageGasRefreshFix = 'true';
+            refresh.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                loadGasTracker();
+            }, true);
+        }
     }
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fixHeaderSearch, { once: true });
-    else fixHeaderSearch();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fixHeader, { once: true });
+    else fixHeader();
 })();
