@@ -1,7 +1,7 @@
 const BASE = '/crypto/base-scan';
 const RPC = 'https://mainnet.base.org';
 const $ = id => document.getElementById(id);
-const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const esc = value => String(value ?? '').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]));
 
 async function rpc(method, params = []) {
     const response = await fetch(RPC, { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}) });
@@ -9,6 +9,19 @@ async function rpc(method, params = []) {
     const data = await response.json();
     if (data.error) throw Error(data.error.message || 'RPC error');
     return data.result;
+}
+
+function short(value,start=10,end=8){
+    const s=String(value||'');
+    return s.length>start+end+3?`${s.slice(0,start)}...${s.slice(-end)}`:s;
+}
+
+function eth(value){
+    try{
+        const wei=BigInt(value||0), whole=wei/1000000000000000000n;
+        const fraction=(wei%1000000000000000000n).toString().padStart(18,'0').slice(0,6);
+        return `${whole}.${fraction} ETH`;
+    }catch{return '0.000000 ETH';}
 }
 
 function header() {
@@ -60,14 +73,26 @@ async function blocks() {
 }
 
 async function transactions() {
-    page('Base Transactions','Recent transactions confirmed on Base Mainnet.','<div class="card"><div class="card-head"><h2>Latest Transactions</h2><span>From the latest 3 blocks</span></div><div id="list" class="loading">Loading latest transactions...</div></div>');
+    page('Base Transactions','Recent transactions confirmed on Base Mainnet.','<div class="card"><div class="card-head"><h2>Recent Transactions</h2><span>Base Mainnet</span></div><div id="list" class="loading">Loading recent transactions...</div></div>');
     try {
         const tip=parseInt(await rpc('eth_blockNumber'),16);
-        const blocks=await Promise.all([0,1,2].map(i=>rpc('eth_getBlockByNumber',['0x'+(tip-i).toString(16),true])));
-        const txs=blocks.flatMap(b=>b?.transactions||[]).slice(0,30);
-        $('list').innerHTML=txs.length?txs.map(tx=>`<a class="list-item" href="${BASE}/tx/${tx.hash}"><span class="item-left"><span class="item-icon">↗</span><span class="item-main"><span class="item-title">${esc(tx.hash.slice(0,14)+'…'+tx.hash.slice(-8))}</span><span class="item-sub">Block ${parseInt(tx.blockNumber,16).toLocaleString()}</span></span></span><span class="item-value">Transaction</span></a>`).join(''):'<div class="empty">No recent transactions found.</div>';
+        const blockResults=await Promise.all([0,1,2].map(i=>rpc('eth_getBlockByNumber',['0x'+(tip-i).toString(16),true])));
+        const txs=blockResults.flatMap(block => (block?.transactions||[]).map(tx => ({...tx, _timestamp:block.timestamp}))).slice(0,30);
+        const rows=await Promise.all(txs.map(async tx => {
+            let status='Unknown';
+            try {
+                const receipt=await rpc('eth_getTransactionReceipt',[tx.hash]);
+                status=receipt?.status==='0x1'?'Success':'Failed';
+            } catch {}
+            const blockNumber=tx.blockNumber ? parseInt(tx.blockNumber,16) : null;
+            const time=tx._timestamp ? new Date(parseInt(tx._timestamp,16)*1000).toLocaleString() : '-';
+            return `<tr><td>${linkHtml(`${BASE}/tx/${tx.hash}`,short(tx.hash))}</td><td>${blockNumber!=null?linkHtml(`${BASE}/block/${blockNumber}`,blockNumber.toLocaleString()):'-'}</td><td>${tx.from?linkHtml(`${BASE}/address/${tx.from}`,short(tx.from)):'-'}</td><td>${tx.to?linkHtml(`${BASE}/address/${tx.to}`,short(tx.to)):'-'}</td><td>${eth(tx.value)}</td><td class="tx-status ${status==='Success'?'success':status==='Failed'?'failed':''}">${status}</td><td>${esc(time)}</td></tr>`;
+        }));
+        $('list').innerHTML=rows.length?`<div class="table-wrapper"><table class="transactions-table"><thead><tr><th>Transaction</th><th>Block</th><th>From</th><th>To</th><th>Value</th><th>Status</th><th>Time</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`:'<div class="empty">No recent transactions found.</div>';
     } catch { $('list').innerHTML='<div class="empty">Unable to load transactions right now.</div>'; }
 }
+
+function linkHtml(path,text){return `<a href="${path}">${esc(text)}</a>`;}
 
 function searchCollection(kind) {
     const config={addresses:['Base Addresses','Search and open a Base Mainnet address.','Address Explorer','Search Address','address'],tokens:['Base Tokens','Search and open a Base Mainnet token contract.','Token Explorer','Search Token Contract','token'],contracts:['Base Contracts','Search and open a Base Mainnet smart contract.','Contract Explorer','Search Contract','contract']}[kind];
@@ -84,6 +109,8 @@ function setActive(){
     const current=location.pathname.replace(/\/+$/,'');
     document.querySelectorAll('.explorer-nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href').replace(/\/+$/,'')===current));
 }
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
 
 function init(){
     document.body.insertAdjacentHTML('afterbegin',header());
@@ -104,5 +131,3 @@ window.openGas=openGas;
 window.closeGas=closeGas;
 window.loadGas=loadGas;
 window.collectionSearch=collectionSearch;
-
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
