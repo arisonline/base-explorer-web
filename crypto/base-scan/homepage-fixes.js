@@ -1,11 +1,10 @@
 (() => {
-    const BASE = '/crypto/base-scan';
     const RPC = 'https://mainnet.base.org';
 
     async function loadGasTracker() {
         const content = document.getElementById('gasTrackerContent');
         const updated = document.getElementById('gasTrackerUpdated');
-        if (content) content.innerHTML = '<div class="gas-loading">Loading current Base gas price...</div>';
+        if (content) content.innerHTML = '<div class="gas-loading">Loading...</div>';
         try {
             const response = await fetch(RPC, {
                 method: 'POST',
@@ -19,11 +18,15 @@
             const whole = value / 1000000000n;
             const fraction = (value % 1000000000n).toString().padStart(9, '0').slice(0, 6);
             const text = `${whole}.${fraction} Gwei`;
-            if (content) content.innerHTML = `<div class="gas-current-value">${text}</div><div class="gas-current-label">Current Base Mainnet gas price</div>`;
+            if (content) content.innerHTML = `<div class="gas-current-value">${text}</div><div class="gas-current-label">Current gas price</div>`;
             if (updated) updated.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+            const headerGas = document.getElementById('headerGasValue');
+            if (headerGas) headerGas.textContent = text;
         } catch {
-            if (content) content.innerHTML = '<div class="gas-loading">Gas price unavailable. Try again.</div>';
+            if (content) content.innerHTML = '<div class="gas-current-value">Unavailable</div><div class="gas-current-label">Current gas price</div>';
             if (updated) updated.textContent = 'Unable to load';
+            const headerGas = document.getElementById('headerGasValue');
+            if (headerGas) headerGas.textContent = 'Unavailable';
         }
     }
 
@@ -54,9 +57,7 @@
         form.addEventListener('submit', event => {
             event.preventDefault();
             const value = input.value.trim();
-            if (typeof window.performSearch === 'function') {
-                window.performSearch(value);
-            }
+            if (typeof window.performSearch === 'function') window.performSearch(value);
         });
     }
 
