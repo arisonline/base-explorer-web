@@ -1,0 +1,204 @@
+/* =========================================================
+   BASE SCAN ACCESSIBLE TYPOGRAPHY + THEME OVERRIDES
+========================================================= */
+
+body {
+    font-size: 16px;
+}
+
+/* Slightly larger, consistent readable text */
+.explorer-nav a,
+.explorer-header-nav a { font-size: 13px !important; }
+.search input,
+.header-search input { font-size: 12px !important; }
+.search button,
+.header-search button { font-size: 11px !important; }
+.gas-button,
+.header-gas { font-size: 10px !important; }
+.gas-button strong,
+.header-gas strong { font-size: 10px !important; }
+
+.page h1 { font-size: 32px !important; }
+.page-intro { font-size: 14px !important; }
+.page-eyebrow { font-size: 11px !important; }
+.page-head .network-pill { font-size: 11px !important; }
+.card-head h2,
+.card-header h2 { font-size: 16px !important; }
+.card-head span,
+.card-header span { font-size: 12px !important; }
+.card .list-item,
+.list-item { font-size: 14px; }
+.item-title { font-size: 14px !important; }
+.item-sub { font-size: 12px !important; }
+.item-value { font-size: 13px !important; }
+.info-card strong,
+.route-search-title { font-size: 14px !important; }
+.info-card span,
+.note { font-size: 12px !important; }
+.route-search input { font-size: 14px !important; }
+.route-search button { font-size: 13px !important; }
+.breadcrumb,
+.breadcrumbs,
+.base-scan-breadcrumbs { font-size: 13px !important; }
+.footer-column h3 { font-size: 13px !important; }
+.footer-column a { font-size: 13px !important; }
+.footer-brand p { font-size: 13px !important; }
+.footer-network { font-size: 12px !important; }
+.footer-bottom { font-size: 12px !important; }
+
+/* Detail pages */
+.detail-container .card-header { font-size: 17px !important; }
+.detail-container .detail-label { font-size: 13px !important; }
+.detail-container .detail-value { font-size: 15px !important; }
+.detail-container .transaction-hash,
+.detail-container .address,
+.detail-container .hash { font-size: 15px !important; }
+.detail-container .block-number { font-size: 28px !important; }
+.detail-container table { font-size: 14px !important; }
+.detail-container th { font-size: 13px !important; }
+.detail-container td { font-size: 14px !important; }
+.detail-container .explorer-link { font-size: 14px !important; }
+
+/* Theme switcher */
+.theme-toggle {
+    width: 34px;
+    height: 31px;
+    flex: 0 0 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--theme-border, #e4e6ee);
+    border-radius: 7px;
+    background: var(--theme-surface, #fff);
+    color: var(--theme-text, #34343d);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+.theme-toggle:hover { border-color: #635bff; color: #635bff; }
+
+/* Black theme */
+html[data-theme="dark"] {
+    color-scheme: dark;
+    --theme-bg: #09090b;
+    --theme-surface: #111113;
+    --theme-surface-2: #17171a;
+    --theme-text: #f4f4f5;
+    --theme-muted: #a1a1aa;
+    --theme-border: #29292e;
+    --theme-soft: #1c1c22;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .site-header,
+html[data-theme="dark"] .explorer-header,
+html[data-theme="dark"] .mobile-menu,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .footer,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .info-card,
+html[data-theme="dark"] .route-search-card,
+html[data-theme="dark"] .gas-card,
+html[data-theme="dark"] .gas-tracker-card,
+html[data-theme="dark"] .network-pill,
+html[data-theme="dark"] .header-search,
+html[data-theme="dark"] .search,
+html[data-theme="dark"] .gas-button,
+html[data-theme="dark"] .header-gas,
+html[data-theme="dark"] .theme-toggle {
+    background: var(--theme-surface) !important;
+    color: var(--theme-text) !important;
+    border-color: var(--theme-border) !important;
+}
+
+html[data-theme="dark"] body { background: var(--theme-bg) !important; color: var(--theme-text) !important; }
+html[data-theme="dark"] .hero {
+    background: linear-gradient(180deg, #17152b 0%, #09090b 100%) !important;
+    border-color: var(--theme-border) !important;
+}
+html[data-theme="dark"] .hero-search,
+html[data-theme="dark"] .hero-badge { background: var(--theme-surface) !important; border-color: var(--theme-border) !important; }
+html[data-theme="dark"] .hero h1,
+html[data-theme="dark"] .hero-badge,
+html[data-theme="dark"] .hero-search input,
+html[data-theme="dark"] .hero-network,
+html[data-theme="dark"] .stat-value,
+html[data-theme="dark"] .card-head h2,
+html[data-theme="dark"] .card-header h2,
+html[data-theme="dark"] .page h1,
+html[data-theme="dark"] .card-head,
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .info-card strong,
+html[data-theme="dark"] .route-search-title,
+html[data-theme="dark"] .gas-head strong,
+html[data-theme="dark"] .gas-tracker-header strong,
+html[data-theme="dark"] .detail-container .card-header { color: var(--theme-text) !important; }
+html[data-theme="dark"] .hero p,
+html[data-theme="dark"] .page-intro,
+html[data-theme="dark"] .stat-title,
+html[data-theme="dark"] .stat-sub,
+html[data-theme="dark"] .item-sub,
+html[data-theme="dark"] .info-card span,
+html[data-theme="dark"] .footer-brand p,
+html[data-theme="dark"] .footer-network,
+html[data-theme="dark"] .footer-bottom,
+html[data-theme="dark"] .footer-column a,
+html[data-theme="dark"] .footer-column h3,
+html[data-theme="dark"] .breadcrumbs,
+html[data-theme="dark"] .base-scan-breadcrumbs,
+html[data-theme="dark"] .gas-label,
+html[data-theme="dark"] .gas-head span,
+html[data-theme="dark"] .gas-foot,
+html[data-theme="dark"] .gas-tracker-header span,
+html[data-theme="dark"] .gas-tracker-footer span,
+html[data-theme="dark"] .detail-label { color: var(--theme-muted) !important; }
+html[data-theme="dark"] .list-item,
+html[data-theme="dark"] .card .list-item { background: var(--theme-surface) !important; border-color: var(--theme-border) !important; }
+html[data-theme="dark"] .list-item:hover { background: var(--theme-soft) !important; }
+html[data-theme="dark"] .item-value,
+html[data-theme="dark"] .detail-value,
+html[data-theme="dark"] .transaction-hash,
+html[data-theme="dark"] .address { color: #e4e4e7 !important; }
+html[data-theme="dark"] .card-head,
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .footer-bottom,
+html[data-theme="dark"] .gas-head,
+html[data-theme="dark"] .gas-foot,
+html[data-theme="dark"] .gas-tracker-header,
+html[data-theme="dark"] .gas-tracker-footer { border-color: var(--theme-border) !important; }
+html[data-theme="dark"] .route-search input,
+html[data-theme="dark"] .header-search input,
+html[data-theme="dark"] .search input,
+html[data-theme="dark"] .hero-search input { color: var(--theme-text) !important; background: transparent !important; }
+html[data-theme="dark"] .route-search input { background: var(--theme-surface-2) !important; border-color: var(--theme-border) !important; }
+html[data-theme="dark"] .mobile-menu a,
+html[data-theme="dark"] .explorer-nav a,
+html[data-theme="dark"] .explorer-header-nav a { color: #d4d4d8 !important; }
+html[data-theme="dark"] .explorer-nav a:hover,
+html[data-theme="dark"] .explorer-nav a.active,
+html[data-theme="dark"] .explorer-header-nav a:hover,
+html[data-theme="dark"] .explorer-header-nav a.active { background: #242331 !important; color: #fff !important; }
+html[data-theme="dark"] .note { background: #15151a !important; border-color: #302d52 !important; color: var(--theme-muted) !important; }
+html[data-theme="dark"] .item-icon { background: #25223d !important; }
+html[data-theme="dark"] table,
+html[data-theme="dark"] th,
+html[data-theme="dark"] td { border-color: var(--theme-border) !important; }
+html[data-theme="dark"] th { background: var(--theme-surface-2) !important; color: #f4f4f5 !important; }
+html[data-theme="dark"] td { background: var(--theme-surface) !important; color: #d4d4d8 !important; }
+html[data-theme="dark"] .copy-btn,
+html[data-theme="dark"] .copy-button { background: #1b1b20 !important; color: #d4d4d8 !important; border-color: var(--theme-border) !important; }
+html[data-theme="dark"] .explorer-link { background: #17171a !important; border-color: var(--theme-border) !important; color: #a9a4ff !important; }
+html[data-theme="dark"] .loading,
+html[data-theme="dark"] .empty,
+html[data-theme="dark"] .loading-item { color: var(--theme-muted) !important; }
+html[data-theme="dark"] .gas-panel { color: var(--theme-text); }
+
+@media (max-width: 700px) {
+    .theme-toggle { width: 34px; height: 32px; }
+    .page h1 { font-size: 29px !important; }
+    .detail-container .detail-value,
+    .detail-container .transaction-hash,
+    .detail-container .address,
+    .detail-container .hash { font-size: 14px !important; }
+}
