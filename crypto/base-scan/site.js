@@ -80,8 +80,8 @@ function shell(content) {
     if (app) app.innerHTML = content;
 }
 
-function pageHead(title, description) {
-    return `<div class="container"><div class="page-head"><div><div class="page-eyebrow">BASE MAINNET</div><h1>${esc(title)}</h1><p class="page-intro">${esc(description)}</p></div><div class="network-pill"><span class="network-dot"></span>Chain ID 8453</div></div>`;
+function pageHead() {
+    return '<div class="container detail-container">';
 }
 
 async function renderHome() {
@@ -136,7 +136,7 @@ async function performSearch(value) {
 }
 
 async function renderBlock(number) {
-    shell(pageHead(`Block #${Number(number).toLocaleString()}`, 'Base Mainnet block details.') + '<div id="detail" class="detail-stack"><div class="loading">Loading block...</div></div></div>');
+    shell(pageHead() + '<div id="detail" class="detail-stack"><div class="loading">Loading block...</div></div></div>');
     try {
         const block = await fetch(`${BLOCKSCOUT}/blocks/${encodeURIComponent(number)}`).then(r => { if (!r.ok) throw Error(); return r.json(); });
         const txs = await fetch(`${BLOCKSCOUT}/blocks/${encodeURIComponent(number)}/transactions`).then(r => r.ok ? r.json() : { items: [] });
@@ -146,7 +146,7 @@ async function renderBlock(number) {
 }
 
 async function renderTx(hash) {
-    shell(pageHead('Transaction', 'Base Mainnet transaction details.') + '<div id="detail" class="detail-stack"><div class="loading">Loading transaction...</div></div></div>');
+    shell(pageHead() + '<div id="detail" class="detail-stack"><div class="loading">Loading transaction...</div></div></div>');
     try {
         const tx = await fetch(`${BLOCKSCOUT}/transactions/${encodeURIComponent(hash)}`).then(r => { if (!r.ok) throw Error(); return r.json(); });
         $('detail').innerHTML = `<div class="card"><div class="card-header">Transaction Details <span class="network-badge">● Base Mainnet</span></div><div class="card-body"><div class="detail-label">Transaction Hash</div><div class="transaction-hash-row"><div class="transaction-hash">${esc(hash)}</div><button class="copy-btn" onclick="copyText('${esc(hash)}',this)">Copy</button></div></div><div class="details"><div class="detail-label">Status</div><div class="detail-value">${tx.status === 'ok' ? 'Success' : 'Failed'}</div><div class="detail-label">Block</div><div class="detail-value">${tx.block_number != null ? link(`${BASE}/block/${tx.block_number}`, Number(tx.block_number).toLocaleString()) : '-'}</div><div class="detail-label">Timestamp</div><div class="detail-value">${esc(tx.timestamp ? new Date(tx.timestamp).toLocaleString() : '-')}</div><div class="detail-label">From</div><div class="detail-value hash">${tx.from?.hash ? link(`${BASE}/address/${tx.from.hash}`, short(tx.from.hash)) : '-'}</div><div class="detail-label">To</div><div class="detail-value hash">${tx.to?.hash ? link(`${BASE}/address/${tx.to.hash}`, short(tx.to.hash)) : '-'}</div><div class="detail-label">Value</div><div class="detail-value">${eth(tx.value)}</div><div class="detail-label">Transaction Fee</div><div class="detail-value">${eth(tx.fee?.value || tx.fee || 0)}</div><div class="detail-label">Gas Price</div><div class="detail-value">${gwei(tx.gas_price || 0)}</div><div class="detail-label">Gas Used</div><div class="detail-value">${Number(tx.gas_used || 0).toLocaleString()}</div></div></div><div class="card"><div class="card-header">Explorer Links</div><div class="card-body"><a class="explorer-link" href="https://basescan.org/tx/${hash}" target="_blank" rel="noopener noreferrer">View on BaseScan →</a><a class="explorer-link secondary" href="https://base.blockscout.com/tx/${hash}" target="_blank" rel="noopener noreferrer">View on Blockscout →</a></div></div>`;
@@ -154,7 +154,7 @@ async function renderTx(hash) {
 }
 
 async function renderAddress(address) {
-    shell(pageHead('Address', 'Base Mainnet address details.') + `<div id="detail" class="detail-stack"><div class="loading">Loading address...</div></div></div>`);
+    shell(pageHead() + `<div id="detail" class="detail-stack"><div class="loading">Loading address...</div></div></div>`);
     try {
         const balance = await rpc('eth_getBalance', [address, 'latest']);
         const code = await rpc('eth_getCode', [address, 'latest']);
