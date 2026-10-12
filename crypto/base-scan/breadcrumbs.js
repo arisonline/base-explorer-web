@@ -78,27 +78,28 @@
         style.id = 'baseScanBreadcrumbStyles';
         style.textContent = `
             .base-scan-breadcrumbs {
-                width: min(1240px, 94%);
-                margin: 0 auto 16px;
-                padding-top: 20px;
+                width: 100%;
+                margin: 0 0 14px;
+                padding: 18px 0 0;
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
                 gap: 7px;
-                color: #8a8a98;
+                color: #707080;
                 font-size: 12px;
                 line-height: 1.5;
             }
             .base-scan-breadcrumbs a {
-                color: #686878;
+                color: #60606f;
                 text-decoration: none;
                 font-weight: 600;
+                transition: color .16s ease;
             }
             .base-scan-breadcrumbs a:hover {
                 color: #635bff;
             }
             .base-scan-breadcrumbs .separator {
-                color: #b5b5c0;
+                color: #b9b9c5;
             }
             .base-scan-breadcrumbs .current {
                 color: #17171c;
@@ -106,9 +107,9 @@
             }
             @media (max-width: 700px) {
                 .base-scan-breadcrumbs {
-                    width: calc(100% - 28px);
+                    margin-bottom: 10px;
                     padding-top: 14px;
-                    margin-bottom: 12px;
+                    gap: 5px;
                     font-size: 11px;
                 }
             }
@@ -122,9 +123,6 @@
 
         const existing = document.getElementById('baseScanBreadcrumbs');
         if (existing) return;
-
-        const anchor = document.querySelector('.page-head');
-        if (!anchor || !anchor.parentElement) return;
 
         ensureStyles();
 
@@ -140,12 +138,15 @@
             return separator + content;
         }).join('');
 
-        anchor.parentElement.insertBefore(nav, anchor);
+        const detailContainer = document.querySelector('.detail-container');
+        if (detailContainer) {
+            detailContainer.insertBefore(nav, detailContainer.firstChild);
+            return;
+        }
 
-        const path = location.pathname;
-        if (/\/crypto\/base-scan\/contract\/0x/i.test(path)) {
-            const heading = anchor.querySelector('h1');
-            if (heading && heading.textContent.trim() === 'Smart Contract') heading.textContent = 'Contract';
+        const pageHead = document.querySelector('.page-head');
+        if (pageHead && pageHead.parentElement) {
+            pageHead.parentElement.insertBefore(nav, pageHead);
         }
     }
 
