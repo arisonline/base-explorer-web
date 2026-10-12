@@ -121,7 +121,7 @@
         if (!items) return;
 
         const existing = document.getElementById('baseScanBreadcrumbs');
-        if (existing) existing.remove();
+        if (existing) return;
 
         const anchor = document.querySelector('.page-head');
         if (!anchor || !anchor.parentElement) return;
