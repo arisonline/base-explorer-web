@@ -239,17 +239,6 @@ async function render() {
     shell('<section class="page-container"><h1>404</h1><p>Page not found.</p></section>');
 }
 
-document.addEventListener('click', event => {
-    const link = event.target.closest('a[href]');
-    if (!link || link.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    const href = link.getAttribute('href');
-    if (!href || !href.startsWith(BASE + '/')) return;
-    const url = new URL(href, location.origin);
-    if (!/^\/crypto\/base-scan\/(block|tx|address|token|contract)\//.test(url.pathname)) return;
-    event.preventDefault();
-    navigate(url.pathname);
-});
-
 window.addEventListener('popstate', render);
 window.searchFromHero = searchFromHero;
 window.searchFromHeader = searchFromHeader;
