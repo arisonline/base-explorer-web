@@ -12,14 +12,14 @@
   if (!document.querySelector('link[data-base-scan-shell-css]')) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = `${BASE}/shell.css?v=20261012-1`;
+    style.href = `${BASE}/commons/css/shell.css?v=20261013-2`;
     style.dataset.baseScanShellCss = 'true';
     document.head.appendChild(style);
   }
   if (!document.querySelector('link[data-base-theme-fix]')) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = `${BASE}/theme-fix.css?v=20261012-1`;
+    style.href = `${BASE}/commons/css/theme-fix.css?v=20261013-2`;
     style.dataset.baseThemeFix = 'true';
     document.head.appendChild(style);
   }
@@ -50,10 +50,6 @@
     return false;
   }
 
-  // Let detail links perform a normal document navigation.
-  // site.js uses SPA history.pushState for these links, which can leave
-  // the dynamic page without the stylesheet that the Worker serves.
-  // A capture-phase listener stops the SPA handler before it can intercept.
   document.addEventListener('click', event => {
     const link = event.target.closest('a[href]');
     if (!link || link.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
