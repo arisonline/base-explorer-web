@@ -12,43 +12,63 @@
 
     <script>
     (async function () {
-        const basePath = "/crypto/base-scan/";
+        const root = "/crypto/base-scan/";
+        const path = location.pathname.replace(/\/+$/, "");
 
-        if (!location.pathname.startsWith(basePath)) {
+        const collectionRoutes = {
+            [root.slice(0, -1) + "/blocks"]: root + "blocks/index.html",
+            [root.slice(0, -1) + "/transactions"]: root + "transactions/index.html",
+            [root.slice(0, -1) + "/addresses"]: root + "addresses/index.html",
+            [root.slice(0, -1) + "/tokens"]: root + "tokens/index.html",
+            [root.slice(0, -1) + "/contracts"]: root + "contracts/index.html"
+        };
+
+        if (!location.pathname.startsWith(root)) {
+            document.getElementById("spa-loader").textContent = "404 Page not found.";
             return;
         }
 
-        try {
-            const response = await fetch(basePath + "index.html", {
-                cache: "no-store"
-            });
+        // Keep the public URL canonical with a trailing slash.
+        if (location.pathname !== root && !location.pathname.endsWith("/")) {
+            location.replace(location.pathname + "/" + location.search + location.hash);
+            return;
+        }
 
-            if (!response.ok) {
-                throw new Error("Unable to load Base Explorer shell");
-            }
+        // Collection pages have their own HTML/CSS/JS shell. Detail routes
+        // use the main Explorer shell and site.js for SPA rendering.
+        const target = collectionRoutes[path] || root + "index.html";
+
+        try {
+            const response = await fetch(target, { cache: "no-store" });
+            if (!response.ok) throw new Error("Unable to load Base Scan shell");
 
             const html = await response.text();
             const parsed = new DOMParser().parseFromString(html, "text/html");
-
-            // Detail URLs are served by GitHub Pages through 404.html.
-            // Force all relative Explorer assets/links to resolve from the
-            // Explorer root instead of the current /block/... or /tx/... path.
             const baseElement = parsed.createElement("base");
-            baseElement.href = new URL(basePath, location.origin).href;
+            baseElement.href = new URL(root, location.origin).href;
             parsed.head.prepend(baseElement);
 
             document.title = parsed.title;
             document.head.innerHTML = parsed.head.innerHTML;
             document.body.innerHTML = parsed.body.innerHTML;
 
-            const script = document.createElement("script");
-            script.src = basePath + "site.js";
-            document.body.appendChild(script);
+            const scripts = Array.from(parsed.querySelectorAll("script"));
+            for (const oldScript of scripts) {
+                const script = document.createElement("script");
+                for (const attr of oldScript.attributes) script.setAttribute(attr.name, attr.value);
+                if (oldScript.src) {
+                    script.src = oldScript.src;
+                    script.async = false;
+                } else {
+                    script.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(script);
+            }
         } catch (error) {
-            console.error("Base Explorer 404 fallback error:", error);
+            console.error("Base Scan 404 fallback error:", error);
             document.body.innerHTML = `
                 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;color:#64748b;padding:24px;text-align:center;">
-                    Unable to load Base Explorer. Please refresh the page.
+                    Unable to load Base Scan. Please refresh the page.
                 </div>
             `;
         }
