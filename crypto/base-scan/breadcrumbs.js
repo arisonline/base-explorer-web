@@ -41,6 +41,7 @@
         style.id='baseScanBreadcrumbStyles';
         style.textContent=`
             .base-scan-breadcrumbs{width:100%;margin:0 0 14px;padding:18px 0 0;display:flex;align-items:center;flex-wrap:wrap;gap:7px;color:#666b78;font-size:13px;line-height:1.55}.base-scan-breadcrumbs a{color:#4f5665;text-decoration:none;font-weight:600}.base-scan-breadcrumbs a:hover{color:#635bff}.base-scan-breadcrumbs .separator{color:#aeb4c0}.base-scan-breadcrumbs .current{color:#17171c;font-weight:700}
+            .detail-container{padding-top:22px!important}
 
             /* Shared header: keep every Base Scan URL visually identical. */
             .site-header,.explorer-header{height:54px!important;min-height:54px!important}
