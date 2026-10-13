@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /crypto/base-scan/
+
+Sitemap: https://dozni.com/sitemap-base-scan.xml
