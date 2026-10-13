@@ -47,6 +47,17 @@
         }
     }
 
+    async function loadHomepageGas() {
+        const value = await gas();
+        const content = document.getElementById('gasTrackerContent');
+        const updated = document.getElementById('gasTrackerUpdated');
+        const header = document.getElementById('headerGasValue');
+
+        if (header) header.textContent = value;
+        if (content) content.innerHTML = `<div class="gas-current-value">${value}</div><div class="gas-current-label">Current gas price</div>`;
+        if (updated) updated.textContent = value === 'Unavailable' ? 'Unable to load' : `Updated ${new Date().toLocaleTimeString()}`;
+    }
+
     async function openGasPanel() {
         const collectionPanel = document.getElementById('gasPanel');
         const homePanel = document.getElementById('gasTrackerPanel');
@@ -66,13 +77,7 @@
         if (homePanel) {
             homePanel.classList.add('show');
             homePanel.setAttribute('aria-hidden', 'false');
-            const value = await gas();
-            const content = document.getElementById('gasTrackerContent');
-            const updated = document.getElementById('gasTrackerUpdated');
-            const header = document.getElementById('headerGasValue');
-            if (header) header.textContent = value;
-            if (content) content.innerHTML = `<div class="gas-current-value">${value}</div><div class="gas-current-label">Current gas price</div>`;
-            if (updated) updated.textContent = value === 'Unavailable' ? 'Unable to load' : `Updated ${new Date().toLocaleTimeString()}`;
+            await loadHomepageGas();
         }
     }
 
@@ -100,6 +105,14 @@
             event.preventDefault();
             event.stopImmediatePropagation();
             openGasPanel();
+            return;
+        }
+
+        const homepageRefresh = event.target.closest('#gasTrackerRefresh');
+        if (homepageRefresh) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            loadHomepageGas();
             return;
         }
 
