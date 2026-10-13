@@ -36,39 +36,25 @@ function gasPanel() {
     return `<div id="gasPanel" class="gas-panel"><div class="gas-card"><div class="gas-head"><div><strong>Base Gas Tracker</strong><span>Live Base Mainnet gas price</span></div><button class="gas-close" type="button" onclick="closeGas()">×</button></div><div class="gas-body"><div id="gasValue" class="gas-value">Loading...</div><span class="gas-label">Current gas price</span></div><div class="gas-foot"><span id="gasUpdated">Not loaded</span><button type="button" onclick="loadGas()">Refresh</button></div></div></div>`;
 }
 
-async function loadGas() {
-    if (window.BaseScanGas?.refresh) return window.BaseScanGas.refresh();
-    try {
-        const value = BigInt(await rpc('eth_gasPrice'));
-        const whole = value / 1000000000n;
-        const fraction = (value % 1000000000n).toString().padStart(9,'0').slice(0,6);
-        const text = `${whole}.${fraction} Gwei`;
-        if ($('headerGas')) $('headerGas').textContent = text;
-        if ($('gasValue')) $('gasValue').textContent = text;
-        if ($('gasUpdated')) $('gasUpdated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
-    } catch {
-        if ($('headerGas')) $('headerGas').textContent = 'Unavailable';
-        if ($('gasValue')) $('gasValue').textContent = 'Unavailable';
-        if ($('gasUpdated')) $('gasUpdated').textContent = 'Unable to load';
-    }
-}
-function openGas(){
-    if (window.BaseScanGas?.open) return window.BaseScanGas.open();
-    $('gasPanel')?.classList.add('show');
-    loadGas();
-}
-function closeGas(){
-    if (window.BaseScanGas?.close) return window.BaseScanGas.close();
-    $('gasPanel')?.classList.remove('show');
+function loadGas() {
+    if (!window.BaseScanGas?.refresh) return;
+    return window.BaseScanGas.refresh();
 }
 
-async function headerSearch(){
+function openGas(){
+    if (!window.BaseScanGas?.open) return;
+    return window.BaseScanGas.open();
+}
+
+function closeGas(){
+    if (!window.BaseScanGas?.close) return;
+    return window.BaseScanGas.close();
+}
+
+function headerSearch(){
     const value = ($('headerSearch')?.value || '').trim();
-    if (window.BaseScanSearch?.search) return window.BaseScanSearch.search(value);
-    if (/^\d+$/.test(value)) return location.href = `${BASE}/block/${value}/`;
-    if (/^0x[a-fA-F0-9]{64}$/.test(value)) return location.href = `${BASE}/tx/${value}/`;
-    if (/^0x[a-fA-F0-9]{40}$/.test(value)) return location.href = `${BASE}/contract/${value}/`;
-    alert('Enter a valid block number, transaction hash or 0x address.');
+    if (!window.BaseScanSearch?.search) return;
+    return window.BaseScanSearch.search(value);
 }
 
 function page(title, description, body) {
