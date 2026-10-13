@@ -66,7 +66,7 @@ async function headerSearch(){
             const decimals = await rpc('eth_call', [{to:value,data:'0x313ce567'}, 'latest']).catch(() => '0x');
             return location.href = `${BASE}/${symbol !== '0x' && decimals !== '0x' ? 'token' : 'contract'}/${value}`;
         } catch {
-            return location.href = `${BASE}/contract/${value}`;
+            return location.href = `${BASE}/contract/${value}/`;
         }
     }
     alert('Enter a valid block number, transaction hash or 0x address.');
@@ -81,7 +81,7 @@ async function blocks() {
     try {
         const tip = parseInt(await rpc('eth_blockNumber'),16);
         const items = await Promise.all(Array.from({length:20},(_,i)=>rpc('eth_getBlockByNumber',['0x'+(tip-i).toString(16),false])));
-        $('list').innerHTML = items.map(block => { const n=parseInt(block.number,16); return `<a class="list-item" href="${BASE}/block/${n}"><span class="item-left"><span class="item-icon">#</span><span class="item-main"><span class="item-title">Block #${n.toLocaleString()}</span><span class="item-sub">${new Date(parseInt(block.timestamp,16)*1000).toLocaleString()}</span></span></span><span class="item-value">${block.transactions?.length||0} txs</span></a>`; }).join('');
+        $('list').innerHTML = items.map(block => { const n=parseInt(block.number,16); return `<a class="list-item" href="${BASE}/block/${n}/"><span class="item-left"><span class="item-icon">#</span><span class="item-main"><span class="item-title">Block #${n.toLocaleString()}</span><span class="item-sub">${new Date(parseInt(block.timestamp,16)*1000).toLocaleString()}</span></span></span><span class="item-value">${block.transactions?.length||0} txs</span></a>`; }).join('');
     } catch { $('list').innerHTML = '<div class="empty">Unable to load blocks right now.</div>'; }
 }
 
@@ -99,7 +99,7 @@ async function transactions() {
             } catch {}
             const blockNumber=tx.blockNumber ? parseInt(tx.blockNumber,16) : null;
             const time=tx._timestamp ? new Date(parseInt(tx._timestamp,16)*1000).toLocaleString() : '-';
-            return `<tr><td>${linkHtml(`${BASE}/tx/${tx.hash}`,short(tx.hash))}</td><td>${blockNumber!=null?linkHtml(`${BASE}/block/${blockNumber}`,blockNumber.toLocaleString()):'-'}</td><td>${tx.from?linkHtml(`${BASE}/address/${tx.from}`,short(tx.from)):'-'}</td><td>${tx.to?linkHtml(`${BASE}/address/${tx.to}`,short(tx.to)):'-'}</td><td>${eth(tx.value)}</td><td class="tx-status ${status==='Success'?'success':status==='Failed'?'failed':''}">${status}</td><td>${esc(time)}</td></tr>`;
+            return `<tr><td>${linkHtml(`${BASE}/tx/${tx.hash}/`,short(tx.hash))}</td><td>${blockNumber!=null?linkHtml(`${BASE}/block/${blockNumber}/`,blockNumber.toLocaleString()):'-'}</td><td>${tx.from?linkHtml(`${BASE}/address/${tx.from}/`,short(tx.from)):'-'}</td><td>${tx.to?linkHtml(`${BASE}/address/${tx.to}`,short(tx.to)):'-'}</td><td>${eth(tx.value)}</td><td class="tx-status ${status==='Success'?'success':status==='Failed'?'failed':''}">${status}</td><td>${esc(time)}</td></tr>`;
         }));
         $('list').innerHTML=rows.length?`<div class="table-wrapper"><table class="transactions-table"><thead><tr><th>Transaction</th><th>Block</th><th>From</th><th>To</th><th>Value</th><th>Status</th><th>Time</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`:'<div class="empty">No recent transactions found.</div>';
     } catch { $('list').innerHTML='<div class="empty">Unable to load transactions right now.</div>'; }
