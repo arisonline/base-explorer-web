@@ -1,14 +1,14 @@
 {
-  "name": "Pincode Finder",
-  "short_name": "Pincode",
+  "name": "Dozni Base Scan",
+  "short_name": "Base Scan",
   "icons": [
     {
-      "src": "/favicons/web-app-manifest-192x192.png",
+      "src": "/crypto/base-scan/assets/fav-icons/favicons_web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/favicons/web-app-manifest-512x512.png",
+      "src": "/crypto/base-scan/assets/fav-icons/favicons_web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
