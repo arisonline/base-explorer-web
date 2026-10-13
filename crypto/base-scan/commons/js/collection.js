@@ -56,12 +56,12 @@ function closeGas(){ $('gasPanel')?.classList.remove('show'); }
 
 async function headerSearch(){
     const value = ($('headerSearch')?.value || '').trim();
-    if (/^\d+$/.test(value)) return location.href = `${BASE}/block/${value}`;
-    if (/^0x[a-fA-F0-9]{64}$/.test(value)) return location.href = `${BASE}/tx/${value}`;
+    if (/^\d+$/.test(value)) return location.href = `${BASE}/block/${value}/`;
+    if (/^0x[a-fA-F0-9]{64}$/.test(value)) return location.href = `${BASE}/tx/${value}/`;
     if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
         try {
             const code = await rpc('eth_getCode', [value, 'latest']);
-            if (!code || code === '0x') return location.href = `${BASE}/address/${value}`;
+            if (!code || code === '0x') return location.href = `${BASE}/address/${value}/`;
             const symbol = await rpc('eth_call', [{to:value,data:'0x95d89b41'}, 'latest']).catch(() => '0x');
             const decimals = await rpc('eth_call', [{to:value,data:'0x313ce567'}, 'latest']).catch(() => '0x');
             return location.href = `${BASE}/${symbol !== '0x' && decimals !== '0x' ? 'token' : 'contract'}/${value}`;
