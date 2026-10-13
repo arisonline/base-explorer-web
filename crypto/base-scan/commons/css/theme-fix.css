@@ -35,6 +35,22 @@
 
 .footer-column a:hover { color: #0052ff !important; }
 
+/*
+   Base Scan footer width fix.
+   shell.css is loaded after the page stylesheet and contains an older
+   1240px footer rule. Keep the shared footer at the same 1380px width
+   used by the Base Scan collection pages.
+*/
+.footer .footer-inner,
+.footer .footer-bottom,
+.site-footer .footer-inner,
+.site-footer .footer-bottom {
+  width: min(1380px, calc(100% - 28px)) !important;
+  max-width: min(1380px, calc(100% - 28px)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 .footer-bottom {
   border-top-color: #e5e7eb !important;
   color: #94a3b8 !important;
@@ -48,6 +64,16 @@ body {
 
 .hero h1 { color: #111827 !important; }
 .hero p { color: #64748b !important; }
+
+@media (max-width: 700px) {
+  .footer .footer-inner,
+  .footer .footer-bottom,
+  .site-footer .footer-inner,
+  .site-footer .footer-bottom {
+    width: calc(100% - 20px) !important;
+    max-width: calc(100% - 20px) !important;
+  }
+}
 
 @media (max-width: 560px) {
   .dozni-logo-text::before { font-size: 14px; }
