@@ -37,6 +37,7 @@ function gasPanel() {
 }
 
 async function loadGas() {
+    if (window.BaseScanGas?.refresh) return window.BaseScanGas.refresh();
     try {
         const value = BigInt(await rpc('eth_gasPrice'));
         const whole = value / 1000000000n;
@@ -51,24 +52,22 @@ async function loadGas() {
         if ($('gasUpdated')) $('gasUpdated').textContent = 'Unable to load';
     }
 }
-function openGas(){ $('gasPanel')?.classList.add('show'); loadGas(); }
-function closeGas(){ $('gasPanel')?.classList.remove('show'); }
+function openGas(){
+    if (window.BaseScanGas?.open) return window.BaseScanGas.open();
+    $('gasPanel')?.classList.add('show');
+    loadGas();
+}
+function closeGas(){
+    if (window.BaseScanGas?.close) return window.BaseScanGas.close();
+    $('gasPanel')?.classList.remove('show');
+}
 
 async function headerSearch(){
     const value = ($('headerSearch')?.value || '').trim();
+    if (window.BaseScanSearch?.search) return window.BaseScanSearch.search(value);
     if (/^\d+$/.test(value)) return location.href = `${BASE}/block/${value}/`;
     if (/^0x[a-fA-F0-9]{64}$/.test(value)) return location.href = `${BASE}/tx/${value}/`;
-    if (/^0x[a-fA-F0-9]{40}$/.test(value)) {
-        try {
-            const code = await rpc('eth_getCode', [value, 'latest']);
-            if (!code || code === '0x') return location.href = `${BASE}/address/${value}/`;
-            const symbol = await rpc('eth_call', [{to:value,data:'0x95d89b41'}, 'latest']).catch(() => '0x');
-            const decimals = await rpc('eth_call', [{to:value,data:'0x313ce567'}, 'latest']).catch(() => '0x');
-            return location.href = `${BASE}/${symbol !== '0x' && decimals !== '0x' ? 'token' : 'contract'}/${value}/`;
-        } catch {
-            return location.href = `${BASE}/contract/${value}/`;
-        }
-    }
+    if (/^0x[a-fA-F0-9]{40}$/.test(value)) return location.href = `${BASE}/contract/${value}/`;
     alert('Enter a valid block number, transaction hash or 0x address.');
 }
 
