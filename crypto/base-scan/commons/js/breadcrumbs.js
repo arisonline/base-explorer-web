@@ -3,7 +3,21 @@
     const CRYPTO = '/crypto/';
     const THEME_KEY = 'dozni-base-scan-theme';
 
-    const labels = { blocks:'Blocks', transactions:'Transactions', addresses:'Addresses', tokens:'Tokens', contracts:'Contracts' };
+    const labels = {
+        block: 'Block',
+        tx: 'Transaction',
+        address: 'Address',
+        token: 'Token',
+        contract: 'Contract'
+    };
+
+    const collectionLinks = {
+        block: `${BASE}/block/`,
+        tx: `${BASE}/tx/`,
+        address: `${BASE}/address/`,
+        token: `${BASE}/token/`,
+        contract: `${BASE}/contract/`
+    };
 
     function esc(value){
         return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#039;');
@@ -21,11 +35,19 @@
         if(baseIndex===-1)return null;
         const rest=parts.slice(baseIndex+1),items=[{text:'Home',href:'/'},{text:'Crypto',href:CRYPTO},{text:'Base Scan',href:`${BASE}/`}];
         if(!rest.length)return items;
+
         const type=rest[0];
-        if(labels[type]&&rest.length===1){items.push({text:labels[type]});return items}
-        const detailLabels={block:'Block',tx:'Transaction',address:'Address',token:'Token',contract:'Contract'};
-        if(!detailLabels[type])return items;
-        items.push({text:detailLabels[type]});
+        if(!labels[type])return items;
+
+        // Collection page: the current section is not linked.
+        if(rest.length===1){
+            items.push({text:labels[type]});
+            return items;
+        }
+
+        // Detail page: link the section name back to its collection page.
+        items.push({text:labels[type],href:collectionLinks[type]});
+
         if(rest[1]){
             let value=rest[1];
             if(type==='block'&&/^\d+$/.test(value))value=`#${Number(value).toLocaleString('en-IN')}`;
