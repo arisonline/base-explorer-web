@@ -19,7 +19,7 @@
   if (!document.querySelector('link[data-base-theme-fix]')) {
     const style = document.createElement('link');
     style.rel = 'stylesheet';
-    style.href = `${BASE}/commons/css/theme-fix.css?v=20261013-2`;
+    style.href = `${BASE}/commons/css/theme-fix.css?v=20261013-3`;
     style.dataset.baseThemeFix = 'true';
     document.head.appendChild(style);
   }
