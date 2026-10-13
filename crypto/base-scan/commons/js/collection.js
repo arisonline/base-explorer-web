@@ -64,7 +64,7 @@ async function headerSearch(){
             if (!code || code === '0x') return location.href = `${BASE}/address/${value}/`;
             const symbol = await rpc('eth_call', [{to:value,data:'0x95d89b41'}, 'latest']).catch(() => '0x');
             const decimals = await rpc('eth_call', [{to:value,data:'0x313ce567'}, 'latest']).catch(() => '0x');
-            return location.href = `${BASE}/${symbol !== '0x' && decimals !== '0x' ? 'token' : 'contract'}/${value}`;
+            return location.href = `${BASE}/${symbol !== '0x' && decimals !== '0x' ? 'token' : 'contract'}/${value}/`;
         } catch {
             return location.href = `${BASE}/contract/${value}/`;
         }
@@ -99,7 +99,7 @@ async function transactions() {
             } catch {}
             const blockNumber=tx.blockNumber ? parseInt(tx.blockNumber,16) : null;
             const time=tx._timestamp ? new Date(parseInt(tx._timestamp,16)*1000).toLocaleString() : '-';
-            return `<tr><td>${linkHtml(`${BASE}/tx/${tx.hash}/`,short(tx.hash))}</td><td>${blockNumber!=null?linkHtml(`${BASE}/block/${blockNumber}/`,blockNumber.toLocaleString()):'-'}</td><td>${tx.from?linkHtml(`${BASE}/address/${tx.from}/`,short(tx.from)):'-'}</td><td>${tx.to?linkHtml(`${BASE}/address/${tx.to}`,short(tx.to)):'-'}</td><td>${eth(tx.value)}</td><td class="tx-status ${status==='Success'?'success':status==='Failed'?'failed':''}">${status}</td><td>${esc(time)}</td></tr>`;
+            return `<tr><td>${linkHtml(`${BASE}/tx/${tx.hash}/`,short(tx.hash))}</td><td>${blockNumber!=null?linkHtml(`${BASE}/block/${blockNumber}/`,blockNumber.toLocaleString()):'-'}</td><td>${tx.from?linkHtml(`${BASE}/address/${tx.from}/`,short(tx.from)):'-'}</td><td>${tx.to?linkHtml(`${BASE}/address/${tx.to}/`,short(tx.to)):'-'}</td><td>${eth(tx.value)}</td><td class="tx-status ${status==='Success'?'success':status==='Failed'?'failed':''}">${status}</td><td>${esc(time)}</td></tr>`;
         }));
         $('list').innerHTML=rows.length?`<div class="table-wrapper"><table class="transactions-table"><thead><tr><th>Transaction</th><th>Block</th><th>From</th><th>To</th><th>Value</th><th>Status</th><th>Time</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`:'<div class="empty">No recent transactions found.</div>';
     } catch { $('list').innerHTML='<div class="empty">Unable to load transactions right now.</div>'; }
@@ -115,7 +115,7 @@ function searchCollection(kind) {
 function collectionSearch(kind){
     const value=($('collectionSearch')?.value||'').trim();
     if (!/^0x[a-fA-F0-9]{40}$/.test(value)) return alert('Enter a valid 0x address.');
-    location.href=`${BASE}/${kind}/${value}`;
+    location.href=`${BASE}/${kind}/${value}/`;
 }
 
 function setActive(){
